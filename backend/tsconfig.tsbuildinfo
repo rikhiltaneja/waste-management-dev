@@ -1,1 +1,1 @@
-{"root":["./src/index.ts","./src/middlewares/authorization/general-auth.ts","./src/routes/user.routes.ts"],"version":"5.8.3"}
+{"root":["./src/index.ts","./src/swagger.ts","./src/middlewares/authorization/general-auth.ts","./src/routes/user.routes.ts"],"version":"5.8.2"}
