@@ -10,6 +10,51 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url  	    = env("DATABASE_URL")
+}
+
+model Citizen {
+  id          Int      @id @default(autoincrement())
+  name        String
+  phoneNumber Int      @unique
+  email       String   @unique
+  locality    Locality @relation(fields: [localityId], references: [id])
+  localityId  Int
+}
+
+model District {
+  id             Int           @id @default(autoincrement())
+  localities     Locality[]
+  admin          DistrictAdmin @relation(fields: [districAdminId], references: [id])
+  districAdminId Int           @unique
+}
+
+model Locality {
+  id              Int           @id @default(autoincrement())
+  district        District      @relation(fields: [districtId], references: [id])
+  districtId      Int
+  citizens        Citizen[]
+  admin           LocalityAdmin @relation(fields: [localityAdminId], references: [id])
+  localityAdminId Int           @unique
+}
+
+model DistrictAdmin {
+  id          Int       @id @default(autoincrement())
+  govtId      String    @unique
+  name        String
+  phoneNumber Int       @unique
+  email       String    @unique
+  district    District?
+  verified    Boolean   @default(false)
+}
+
+model LocalityAdmin {
+  id          Int       @id @default(autoincrement())
+  govtId      String    @unique
+  name        String
+  phoneNumber Int       @unique
+  email       String    @unique
+  locality    Locality?
+  verified    Boolean   @default(false)
 }
