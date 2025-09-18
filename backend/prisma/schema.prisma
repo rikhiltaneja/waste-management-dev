@@ -28,6 +28,7 @@ model District {
   localities     Locality[]
   admin          DistrictAdmin @relation(fields: [districAdminId], references: [id])
   districAdminId Int           @unique
+  trainingEvents TrainingEvent[]
 }
 
 model Locality {
@@ -37,6 +38,7 @@ model Locality {
   citizens        Citizen[]
   admin           LocalityAdmin @relation(fields: [localityAdminId], references: [id])
   localityAdminId Int           @unique
+  trainingEvents  TrainingEvent[]
 }
 
 model DistrictAdmin {
@@ -57,4 +59,138 @@ model LocalityAdmin {
   email       String    @unique
   locality    Locality?
   verified    Boolean   @default(false)
+}
+
+model TrainingEvent {
+  id              Int                    @id @default(autoincrement())
+  title           String
+  description     String
+  eventType       TrainingEventType
+  onlineType      OnlineTrainingType?
+  startDateTime   DateTime
+  endDateTime     DateTime?
+  location        String?
+  meetingUrl      String?
+  maxCapacity     Int?
+  targetAudience  UserRole[]
+  status          EventStatus            @default(ACTIVE)
+  createdBy       String
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+  
+  registrations   TrainingRegistration[]
+  attendances     TrainingAttendance[]
+  modules         TrainingModule[]
+  
+  // Location-based filtering
+  districtId      Int?
+  localityId      Int?
+  district        District?              @relation(fields: [districtId], references: [id])
+  locality        Locality?              @relation(fields: [localityId], references: [id])
+}
+
+model TrainingModule {
+  id              Int                    @id @default(autoincrement())
+  title           String
+  description     String
+  content         String
+  videoUrl        String?
+  documentUrls    String[]
+  orderIndex      Int
+  estimatedDuration Int
+  
+  trainingEventId Int
+  trainingEvent   TrainingEvent          @relation(fields: [trainingEventId], references: [id])
+  progress        ModuleProgress[]
+}
+
+model TrainingRegistration {
+  id              Int                    @id @default(autoincrement())
+  userId          String
+  userEmail       String
+  userName        String
+  registrationDate DateTime              @default(now())
+  status          RegistrationStatus     @default(REGISTERED)
+  
+  trainingEventId Int
+  trainingEvent   TrainingEvent          @relation(fields: [trainingEventId], references: [id])
+  
+  @@unique([userId, trainingEventId])
+}
+
+model TrainingAttendance {
+  id              Int                    @id @default(autoincrement())
+  userId          String
+  attendanceDate  DateTime               @default(now())
+  status          AttendanceStatus
+  completionStatus CompletionStatus      @default(NOT_COMPLETED)
+  certificateUrl  String?
+  
+  trainingEventId Int
+  trainingEvent   TrainingEvent          @relation(fields: [trainingEventId], references: [id])
+  
+  @@unique([userId, trainingEventId])
+}
+
+model ModuleProgress {
+  id              Int                    @id @default(autoincrement())
+  userId          String
+  startedAt       DateTime               @default(now())
+  completedAt     DateTime?
+  progressPercent Int                    @default(0)
+  timeSpent       Int                    @default(0)
+  
+  moduleId        Int
+  module          TrainingModule         @relation(fields: [moduleId], references: [id])
+  
+  @@unique([userId, moduleId])
+}
+
+
+
+
+
+// Enums
+
+enum TrainingEventType {
+  PHYSICAL
+  ONLINE
+}
+
+enum OnlineTrainingType {
+  LIVE
+  RECORDED
+}
+
+enum EventStatus {
+  ACTIVE
+  CANCELLED
+  COMPLETED
+  DRAFT
+}
+
+enum UserRole {
+  CITIZEN
+  WORKER
+  DISTRICT_ADMIN
+  LOCALITY_ADMIN
+}
+
+enum RegistrationStatus {
+  REGISTERED
+  CANCELLED
+  WAITLISTED
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+}
+
+enum CompletionStatus {
+  NOT_COMPLETED
+  IN_PROGRESS
+  COMPLETED
+  CERTIFIED
 }
