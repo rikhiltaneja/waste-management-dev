@@ -1,4 +1,4 @@
-export function CitizenTraining() {
+export function CitizenSupport() {
   return (
     <>
     Citizen Training Page!
