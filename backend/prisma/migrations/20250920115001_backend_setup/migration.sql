@@ -1,7 +1,10 @@
 /*
   Warnings:
 
+  - The primary key for the `Citizen` table will be changed. If it partially fails, the table could be left without primary key constraint.
   - You are about to drop the column `districAdminId` on the `District` table. All the data in the column will be lost.
+  - The primary key for the `DistrictAdmin` table will be changed. If it partially fails, the table could be left without primary key constraint.
+  - The primary key for the `LocalityAdmin` table will be changed. If it partially fails, the table could be left without primary key constraint.
   - A unique constraint covering the columns `[districtAdminId]` on the table `District` will be added. If there are existing duplicate values, this will fail.
   - Added the required column `name` to the `District` table without a default value. This is not possible if the table is not empty.
   - Added the required column `state` to the `District` table without a default value. This is not possible if the table is not empty.
@@ -40,29 +43,45 @@ ALTER TABLE "public"."Locality" DROP CONSTRAINT "Locality_localityAdminId_fkey";
 DROP INDEX "public"."District_districAdminId_key";
 
 -- AlterTable
-ALTER TABLE "public"."Citizen" ADD COLUMN     "points" INTEGER NOT NULL DEFAULT 0,
-ALTER COLUMN "phoneNumber" SET DATA TYPE TEXT;
+ALTER TABLE "public"."Citizen" DROP CONSTRAINT "Citizen_pkey",
+ADD COLUMN     "points" INTEGER NOT NULL DEFAULT 0,
+ALTER COLUMN "id" DROP DEFAULT,
+ALTER COLUMN "id" SET DATA TYPE TEXT,
+ALTER COLUMN "phoneNumber" SET DATA TYPE TEXT,
+ADD CONSTRAINT "Citizen_pkey" PRIMARY KEY ("id");
+DROP SEQUENCE "Citizen_id_seq";
 
 -- AlterTable
 ALTER TABLE "public"."District" DROP COLUMN "districAdminId",
-ADD COLUMN     "districtAdminId" INTEGER,
+ADD COLUMN     "districtAdminId" TEXT,
 ADD COLUMN     "name" TEXT NOT NULL,
 ADD COLUMN     "state" TEXT NOT NULL;
 
 -- AlterTable
-ALTER TABLE "public"."DistrictAdmin" ALTER COLUMN "phoneNumber" SET DATA TYPE TEXT;
+ALTER TABLE "public"."DistrictAdmin" DROP CONSTRAINT "DistrictAdmin_pkey",
+ALTER COLUMN "id" DROP DEFAULT,
+ALTER COLUMN "id" SET DATA TYPE TEXT,
+ALTER COLUMN "phoneNumber" SET DATA TYPE TEXT,
+ADD CONSTRAINT "DistrictAdmin_pkey" PRIMARY KEY ("id");
+DROP SEQUENCE "DistrictAdmin_id_seq";
 
 -- AlterTable
 ALTER TABLE "public"."Locality" ADD COLUMN     "name" TEXT NOT NULL,
 ADD COLUMN     "pincode" TEXT NOT NULL,
-ALTER COLUMN "localityAdminId" DROP NOT NULL;
+ALTER COLUMN "localityAdminId" DROP NOT NULL,
+ALTER COLUMN "localityAdminId" SET DATA TYPE TEXT;
 
 -- AlterTable
-ALTER TABLE "public"."LocalityAdmin" ALTER COLUMN "phoneNumber" SET DATA TYPE TEXT;
+ALTER TABLE "public"."LocalityAdmin" DROP CONSTRAINT "LocalityAdmin_pkey",
+ALTER COLUMN "id" DROP DEFAULT,
+ALTER COLUMN "id" SET DATA TYPE TEXT,
+ALTER COLUMN "phoneNumber" SET DATA TYPE TEXT,
+ADD CONSTRAINT "LocalityAdmin_pkey" PRIMARY KEY ("id");
+DROP SEQUENCE "LocalityAdmin_id_seq";
 
 -- CreateTable
 CREATE TABLE "public"."Admin" (
-    "id" SERIAL NOT NULL,
+    "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "verified" BOOLEAN NOT NULL DEFAULT false,
@@ -73,11 +92,10 @@ CREATE TABLE "public"."Admin" (
 
 -- CreateTable
 CREATE TABLE "public"."Worker" (
-    "id" SERIAL NOT NULL,
+    "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "phoneNumber" TEXT NOT NULL,
     "email" TEXT NOT NULL,
-    "workerId" TEXT NOT NULL,
     "localityId" INTEGER NOT NULL,
     "workerType" "public"."WorkerType" NOT NULL,
 
@@ -90,13 +108,13 @@ CREATE TABLE "public"."Complaint" (
     "description" TEXT NOT NULL,
     "complaintImage" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "citizenId" INTEGER NOT NULL,
+    "citizenId" TEXT NOT NULL,
     "status" "public"."ComplaintStatus" NOT NULL DEFAULT 'PENDING',
-    "workerId" INTEGER,
+    "workerId" TEXT,
     "reviewText" TEXT,
     "rating" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "workDoneImage" TEXT,
-    "localityAdminId" INTEGER,
+    "localityAdminId" TEXT,
 
     CONSTRAINT "Complaint_pkey" PRIMARY KEY ("id")
 );
@@ -114,8 +132,8 @@ CREATE TABLE "public"."PhysicalTrainingEvent" (
     "status" "public"."EventStatus" NOT NULL DEFAULT 'ACTIVE',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-    "createdByDistrictAdminId" INTEGER,
-    "createdByLocalityAdminId" INTEGER,
+    "createdByDistrictAdminId" TEXT,
+    "createdByLocalityAdminId" TEXT,
     "localityId" INTEGER,
 
     CONSTRAINT "PhysicalTrainingEvent_pkey" PRIMARY KEY ("id")
@@ -126,8 +144,8 @@ CREATE TABLE "public"."PhysicalTrainingRegistration" (
     "id" SERIAL NOT NULL,
     "registrationDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "status" "public"."RegistrationStatus" NOT NULL DEFAULT 'REGISTERED',
-    "citizenId" INTEGER,
-    "workerId" INTEGER,
+    "citizenId" TEXT,
+    "workerId" TEXT,
     "physicalTrainingEventId" INTEGER NOT NULL,
 
     CONSTRAINT "PhysicalTrainingRegistration_pkey" PRIMARY KEY ("id")
@@ -140,8 +158,8 @@ CREATE TABLE "public"."PhysicalTrainingAttendance" (
     "status" "public"."AttendanceStatus" NOT NULL,
     "completionStatus" "public"."CompletionStatus" NOT NULL DEFAULT 'NOT_COMPLETED',
     "certificateUrl" TEXT,
-    "citizenId" INTEGER,
-    "workerId" INTEGER,
+    "citizenId" TEXT,
+    "workerId" TEXT,
     "physicalTrainingEventId" INTEGER NOT NULL,
 
     CONSTRAINT "PhysicalTrainingAttendance_pkey" PRIMARY KEY ("id")
@@ -161,7 +179,7 @@ CREATE TABLE "public"."LearningMaterial" (
     "estimatedDuration" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-    "createdByAdminId" INTEGER NOT NULL,
+    "createdByAdminId" TEXT NOT NULL,
 
     CONSTRAINT "LearningMaterial_pkey" PRIMARY KEY ("id")
 );
@@ -172,8 +190,8 @@ CREATE TABLE "public"."LearningProgress" (
     "startedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "completedAt" TIMESTAMP(3),
     "progressPercent" INTEGER NOT NULL DEFAULT 0,
-    "citizenId" INTEGER,
-    "workerId" INTEGER,
+    "citizenId" TEXT,
+    "workerId" TEXT,
     "learningMaterialId" INTEGER NOT NULL,
 
     CONSTRAINT "LearningProgress_pkey" PRIMARY KEY ("id")
@@ -187,9 +205,6 @@ CREATE UNIQUE INDEX "Worker_phoneNumber_key" ON "public"."Worker"("phoneNumber")
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Worker_email_key" ON "public"."Worker"("email");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Worker_workerId_key" ON "public"."Worker"("workerId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "PhysicalTrainingRegistration_citizenId_physicalTrainingEven_key" ON "public"."PhysicalTrainingRegistration"("citizenId", "physicalTrainingEventId");

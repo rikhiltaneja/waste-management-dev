@@ -1,5 +1,6 @@
 import express from 'express';
 import { createLocalityAdmin, getLocalityAdminProfile, assignWorkerToComplaint, getLocalityComplaints, getLocalityWorkers, deleteLocalityAdmin } from '../controllers/localityAdmin.controller';
+
 export const localityAdminRouter = express.Router();
 
 /**
@@ -21,11 +22,12 @@ export const localityAdminRouter = express.Router();
  *         application/json:
  *           schema:
  *             type: object
- *             required: [govtId, name, phoneNumber, email, localityId]
+ *             required: [id, govtId, name, phoneNumber, email, localityId]
  *             properties:
+ *               id: { type: string }
  *               govtId: { type: string }
  *               name: { type: string }
- *               phoneNumber: { type: string}
+ *               phoneNumber: { type: string }
  *               email: { type: string }
  *               localityId: { type: integer }
  *     responses:
@@ -44,8 +46,8 @@ localityAdminRouter.post('/create', createLocalityAdmin);
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: integer }
- *         description: "Locality Admin ID"
+ *         schema: { type: string }
+ *         description: "Locality Admin ID "
  *     responses:
  *       200:
  *         description: Locality admin profile
@@ -72,8 +74,8 @@ localityAdminRouter.get('/:id', getLocalityAdminProfile);
  *             type: object
  *             required: [workerId, localityAdminId]
  *             properties:
- *               workerId: { type: integer, description: "ID of the worker to assign" }
- *               localityAdminId: { type: integer, description: "ID of the locality admin making the assignment" }
+ *               workerId: { type: string, description: "Clerk user ID of the worker to assign" }
+ *               localityAdminId: { type: string, description: "Clerk user ID of the locality admin making the assignment" }
  *     responses:
  *       200:
  *         description: Worker assigned to complaint
@@ -90,8 +92,8 @@ localityAdminRouter.put('/complaints/:complaintId/assign', assignWorkerToComplai
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: integer }
- *         description: "Locality Admin ID"
+ *         schema: { type: string }
+ *         description: "Locality Admin ID "
  *     responses:
  *       200:
  *         description: List of complaints in locality
@@ -108,8 +110,8 @@ localityAdminRouter.get('/:id/complaints', getLocalityComplaints);
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: integer }
- *         description: "Locality Admin ID"
+ *         schema: { type: string }
+ *         description: "Locality Admin ID "
  *     responses:
  *       200:
  *         description: List of workers in locality
@@ -126,8 +128,8 @@ localityAdminRouter.get('/:id/workers', getLocalityWorkers);
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: integer }
- *         description: "Locality Admin ID"
+ *         schema: { type: string }
+ *         description: "Locality Admin ID "
  *     responses:
  *       200:
  *         description: Locality admin deleted successfully

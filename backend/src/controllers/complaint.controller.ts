@@ -19,7 +19,7 @@ export const createComplaint = async (req: Request, res: Response) => {
 
   try {
     const citizen = await prisma.citizen.findUnique({
-      where: { id: Number(citizenId) },
+      where: { id: citizenId }, // No need to convert to Number
       include: {
         locality: {
           include: {
@@ -44,8 +44,8 @@ export const createComplaint = async (req: Request, res: Response) => {
       data: {
         description,
         complaintImage,
-        citizenId: Number(citizenId),
-        localityAdminId: citizen.locality.admin.id,
+        citizenId, 
+        localityAdminId: citizen.locality.admin.id, 
       },
       include: {
         citizen: true,
@@ -63,7 +63,7 @@ export const createComplaint = async (req: Request, res: Response) => {
 
 export const deleteComplaint = async (req: Request, res: Response) => {
   const id = Number(req.params.id);
-  
+
   if (isNaN(id)) return res.status(400).json({ error: 'Invalid complaint ID' });
 
   try {

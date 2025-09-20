@@ -2,6 +2,7 @@ import express from 'express';
 import { createDistrictAdmin, getDistrictAdminProfile, getDistrictComplaints, getDistrictLocalityAdmins, deleteDistrictAdmin } from '../controllers/districtAdmin.controller';
 
 export const districtAdminRouter = express.Router();
+
 /**
  * @swagger
  * tags:
@@ -21,11 +22,12 @@ export const districtAdminRouter = express.Router();
  *         application/json:
  *           schema:
  *             type: object
- *             required: [govtId, name, phoneNumber, email, districtId]
+ *             required: [id, govtId, name, phoneNumber, email, districtId]
  *             properties:
+ *               id: { type: string }
  *               govtId: { type: string }
  *               name: { type: string }
- *               phoneNumber: { type: string}
+ *               phoneNumber: { type: string }
  *               email: { type: string }
  *               districtId: { type: integer }
  *     responses:
@@ -44,8 +46,8 @@ districtAdminRouter.post('/create', createDistrictAdmin);
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: integer }
- *         description: "District Admin ID"
+ *         schema: { type: string }
+ *         description: "District Admin ID "
  *     responses:
  *       200:
  *         description: District admin profile
@@ -62,8 +64,8 @@ districtAdminRouter.get('/:id', getDistrictAdminProfile);
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: integer }
- *         description: "District Admin ID"
+ *         schema: { type: string }
+ *         description: "District Admin ID "
  *     responses:
  *       200:
  *         description: List of complaints in district
@@ -80,8 +82,8 @@ districtAdminRouter.get('/:id/complaints', getDistrictComplaints);
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: integer }
- *         description: "District Admin ID"
+ *         schema: { type: string }
+ *         description: "District Admin ID "
  *     responses:
  *       200:
  *         description: List of locality admins in district
@@ -98,8 +100,8 @@ districtAdminRouter.get('/:id/locality-admins', getDistrictLocalityAdmins);
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: integer }
- *         description: "District Admin ID"
+ *         schema: { type: string }
+ *         description: "District Admin ID "
  *     responses:
  *       200:
  *         description: District admin deleted successfully

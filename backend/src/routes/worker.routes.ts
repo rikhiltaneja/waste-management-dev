@@ -8,9 +8,10 @@ import {
   resolveComplaintWithPhoto,
   deleteWorker
 } from '../controllers/worker.controller';
-export const workerRouter = express.Router();
 
+export const workerRouter = express.Router();
 const upload = multer({ dest: "uploads/" });
+
 /**
  * @swagger
  * tags:
@@ -30,8 +31,9 @@ const upload = multer({ dest: "uploads/" });
  *         application/json:
  *           schema:
  *             type: object
- *             required: [name, phoneNumber, email, localityId, workerType]
+ *             required: [id, name, phoneNumber, email, localityId, workerType]
  *             properties:
+ *               id: { type: string }
  *               name: { type: string }
  *               phoneNumber: { type: string }
  *               email: { type: string }
@@ -58,8 +60,8 @@ workerRouter.post('/create', createWorker);
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: integer }
- *         description: "Worker ID"
+ *         schema: { type: string }
+ *         description: "Worker ID "
  *     responses:
  *       200:
  *         description: Worker profile
@@ -76,13 +78,13 @@ workerRouter.get('/:id', getWorkerProfile);
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: integer }
- *         description: "Worker ID"
+ *         schema: { type: string }
+ *         description: "Worker ID "
  *     responses:
  *       200:
  *         description: List of complaints
  */
-  workerRouter.get('/:id/complaints', getAssignedComplaints);
+workerRouter.get('/:id/complaints', getAssignedComplaints);
 
 /**
  * @swagger
@@ -94,8 +96,8 @@ workerRouter.get('/:id', getWorkerProfile);
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: integer }
- *         description: "Worker ID"
+ *         schema: { type: string }
+ *         description: "Worker ID "
  *     requestBody:
  *       required: true
  *       content:
@@ -123,15 +125,15 @@ workerRouter.put('/:id/incentive', updateWorkerIncentive);
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: integer }
- *         description: "Worker ID"
+ *         schema: { type: string }
+ *         description: "Worker ID "
  *     requestBody:
  *       required: true
  *       content:
  *         multipart/form-data:
  *           schema:
  *             type: object
- *             required: [complaintId,WorkDoneImage]
+ *             required: [complaintId, WorkDoneImage]
  *             properties:
  *               complaintId: { type: integer }
  *               WorkDoneImage:
@@ -159,8 +161,8 @@ workerRouter.post("/:id/resolve", upload.single("WorkDoneImage"), resolveComplai
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: integer }
- *         description: "Worker ID"
+ *         schema: { type: string }
+ *         description: "Worker ID "
  *     responses:
  *       200:
  *         description: Worker deleted successfully

@@ -40,8 +40,8 @@ const upload = multer({ dest: "uploads/" });
  *                 format: binary
  *                 description: "Image depicting the complaint"
  *               citizenId:
- *                 type: integer
- *                 description: "ID of the citizen creating the complaint"
+ *                 type: string
+ *                 description: "Clerk user ID of the citizen creating the complaint"
  *     responses:
  *       201: 
  *         description: Complaint created and automatically assigned to locality admin
@@ -65,7 +65,7 @@ complaintRouter.post("/create", upload.single("complaintImage"), createComplaint
  *         name: id
  *         required: true
  *         schema: { type: integer }
- *         description: "Complaint ID"
+ *         description: "Complaint ID (remains as integer auto-increment)"
  *     responses:
  *       200:
  *         description: Complaint deleted successfully

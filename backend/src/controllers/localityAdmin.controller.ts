@@ -3,28 +3,44 @@ import { PrismaClient } from '../../prisma/generated/prisma';
 const prisma = new PrismaClient();
 
 export const createLocalityAdmin = async (req: Request, res: Response) => {
-  const { govtId, name, phoneNumber, email, localityId } = req.body;
-  if (!govtId || !name || !phoneNumber || !email || !localityId)
-    return res.status(400).json({ error: 'All fields required' });
+  const { id, govtId, name, phoneNumber, email, localityId } = req.body;
+  
+  if (!id || !govtId || !name || !phoneNumber || !email || !localityId) {
+    return res.status(400).json({ error: 'All fields required (id, govtId, name, phoneNumber, email, localityId)' });
+  }
 
+  try {
     const admin = await prisma.localityAdmin.create({
-      data: { govtId, name, phoneNumber: String(phoneNumber), email }
+      data: { 
+        id, 
+        govtId, 
+        name, 
+        phoneNumber: String(phoneNumber), 
+        email 
+      }
     });
 
-    // Update Locality to set localityAdminId
     await prisma.locality.update({
       where: { id: localityId },
       data: { localityAdminId: admin.id }
     });
 
     res.status(201).json(admin);
+  } catch (err) {
+    res.status(500).json({ error: 'Internal server error', details: err });
+  }
 };
 
 export const getLocalityAdminProfile = async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id);
-  const admin = await prisma.localityAdmin.findUnique({ where: { id } });
-  if (!admin) return res.status(404).json({ error: 'Locality admin not found' });
-  res.json(admin);
+  const id = req.params.id; 
+  
+  try {
+    const admin = await prisma.localityAdmin.findUnique({ where: { id } });
+    if (!admin) return res.status(404).json({ error: 'Locality admin not found' });
+    res.json(admin);
+  } catch (err) {
+    res.status(500).json({ error: 'Internal server error', details: err });
+  }
 };
 
 export const assignWorkerToComplaint = async (req: Request, res: Response) => {
@@ -52,7 +68,7 @@ export const assignWorkerToComplaint = async (req: Request, res: Response) => {
     const complaintLocalityId = complaint.citizen.localityId;
 
     const localityAdmin = await prisma.localityAdmin.findUnique({
-      where: { id: localityAdminId },
+      where: { id: localityAdminId }, 
       include: { locality: true },
     });
 
@@ -65,7 +81,7 @@ export const assignWorkerToComplaint = async (req: Request, res: Response) => {
     }
 
     const worker = await prisma.worker.findUnique({
-      where: { id: workerId },
+      where: { id: workerId }, 
     });
 
     if (!worker) {
@@ -79,8 +95,8 @@ export const assignWorkerToComplaint = async (req: Request, res: Response) => {
     const updated = await prisma.complaint.update({
       where: { id: complaintId },
       data: {
-        workerId,
-        localityAdminId,
+        workerId, 
+        localityAdminId, 
         status: "IN_PROGRESS",
       },
     });
@@ -93,45 +109,56 @@ export const assignWorkerToComplaint = async (req: Request, res: Response) => {
 };
 
 export const getLocalityComplaints = async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id);
-  const admin = await prisma.localityAdmin.findUnique({
-    where: { id },
-    include: { 
-      locality: { 
-        include: { 
-          citizens: { 
-            include: { 
-              complaints: {
-                include: { worker: true, localityAdmin: true }
-              }
+  const id = req.params.id; 
+  
+  try {
+    const admin = await prisma.localityAdmin.findUnique({
+      where: { id },
+      include: { 
+        locality: { 
+          include: { 
+            citizens: { 
+              include: { 
+                complaints: {
+                  include: { worker: true, localityAdmin: true }
+                }
+              } 
             } 
           } 
         } 
-      } 
-    },
-  });
+      },
+    });
 
-  if (!admin) return res.status(404).json({ error: 'Locality admin not found' });
+    if (!admin) return res.status(404).json({ error: 'Locality admin not found' });
 
-  const complaints = admin.locality?.citizens.flatMap(citizen => citizen.complaints) || [];
-  res.json(complaints);
+    const complaints = admin.locality?.citizens.flatMap(citizen => citizen.complaints) || [];
+    res.json(complaints);
+  } catch (err) {
+    res.status(500).json({ error: 'Internal server error', details: err });
+  }
 };
 
 export const getLocalityWorkers = async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id);
-  const admin = await prisma.localityAdmin.findUnique({
-    where: { id },
-    include: { locality: { include: { workers: true } } },
-  });
+  const id = req.params.id; 
+  
+  try {
+    const admin = await prisma.localityAdmin.findUnique({
+      where: { id },
+      include: { locality: { include: { workers: true } } },
+    });
 
-  if (!admin) return res.status(404).json({ error: 'Locality admin not found' });
+    if (!admin) return res.status(404).json({ error: 'Locality admin not found' });
 
-  const workers = admin.locality?.workers || [];
-  res.json(workers);
+    const workers = admin.locality?.workers || [];
+    res.json(workers);
+  } catch (err) {
+    res.status(500).json({ error: 'Internal server error', details: err });
+  }
 };
 
 export const deleteLocalityAdmin = async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id);
+  const id = req.params.id; 
+  
   try {
     await prisma.localityAdmin.delete({ where: { id } });
     res.json({ message: 'Locality admin deleted successfully' });
