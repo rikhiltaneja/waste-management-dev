@@ -1,4 +1,4 @@
-export default function FacilitesDashboard() {
+export default function FacilitiesDashboard() {
   return (
     <>
     Facilities Dashboard Page!

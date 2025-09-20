@@ -1,7 +1,7 @@
 export function CitizenSupport() {
   return (
     <>
-    Citizen Training Page!
+    Citizen Support Page!
     </>
   );
 }

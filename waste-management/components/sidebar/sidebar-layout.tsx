@@ -80,7 +80,7 @@ export function SideBarLayout({
       items: [
         { id: "workers", label: "Workers", icon: Wrench, href: "/dashboard/workers" },
         { id: "users", label: "Users", icon: Users, href: "/dashboard/users" },
-        { id: "facilities", label: "Facilites", icon: Settings, href: "/dashboard/facilities" },
+        { id: "facilities", label: "Facilities", icon: Settings, href: "/dashboard/facilities" },
         { id: "inventory", label: "Inventory", icon: Warehouse, href: "/shop/inventory" },
       ],
     },
