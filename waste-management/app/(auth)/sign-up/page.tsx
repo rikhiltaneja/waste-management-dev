@@ -1,6 +1,7 @@
 "use client";
 
-import { useSignUp } from "@clerk/nextjs";
+import { useAuth, useSignUp, useUser } from "@clerk/nextjs";
+import axios from "axios";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 
@@ -9,24 +10,45 @@ interface Details {
   otp: string;
   firstName: string;
   lastName: string;
+  phoneNumber: string;
 }
 
 export default function Page() {
-  const router = useRouter()
+  const router = useRouter();
   const { isLoaded, signUp, setActive } = useSignUp();
+  const { isSignedIn, userId } = useAuth();
   const [details, setDetails] = useState<Details>({
     email: "",
     otp: "",
     firstName: "",
     lastName: "",
+    phoneNumber: "",
   });
 
   useEffect(() => {
-    console.log(isLoaded);
-    if (isLoaded) {
-      console.log(signUp);
+    if (isSignedIn) {
+      signUpCustomRequest();
     }
-  }, [isLoaded]);
+  }, [isSignedIn]);
+
+  const signUpCustomRequest = () => {
+    const userInfo = {
+      id: userId,
+      name: details.firstName + details.lastName,
+      email: details.email,
+      phoneNumber: details.phoneNumber,
+      localityId: 1,
+    };
+    axios
+      .post("http://localhost:8080/citizens/create", userInfo)
+      .then((response) => {
+        console.log(response);
+        router.push("/dashboard");
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  };
 
   if (!isLoaded) {
     return null;
@@ -39,23 +61,19 @@ export default function Page() {
     });
     console.log(signUpAttempt);
 
-    if (signUpAttempt.status === 'complete') {
-        await setActive({
-          session: signUpAttempt.createdSessionId,
-          navigate: async ({ session }) => {
-            if (session?.currentTask) {
-              console.log(session?.currentTask)
-              return
-            }
-
-            // router.push('/dashboard')
-          },
-        })
-      } else {
-        // If the status is not complete, check why. User may need to
-        // complete further steps.
-        console.error(signUpAttempt)
-      }
+    if (signUpAttempt.status === "complete") {
+      await setActive({
+        session: signUpAttempt.createdSessionId,
+        navigate: async ({ session }) => {
+          if (session?.currentTask) {
+            console.log(session?.currentTask);
+            return;
+          }
+        },
+      });
+    } else {
+      console.error(signUpAttempt);
+    }
   };
   const sendOTP = async () => {
     await signUp.create({
@@ -91,7 +109,9 @@ export default function Page() {
           className="min-w-0 px-1 grow text-base border border-solid border-black rounded-sm placeholder:text-gray-500 focus:outline-none sm:text-sm/6"
           placeholder="Secure password"
         /> */}
-        <button type="button" onClick={sendOTP}>Send OTP</button>
+        <button type="button" onClick={sendOTP}>
+          Send OTP
+        </button>
         <input
           onChange={(e) => {
             setDetails({ ...details, otp: e.target.value });
@@ -110,6 +130,12 @@ export default function Page() {
           className="min-w-0 px-1 grow text-base border border-solid border-black rounded-sm placeholder:text-gray-500 focus:outline-none sm:text-sm/6"
           onChange={(e) => {
             setDetails({ ...details, lastName: e.target.value });
+          }}
+        />
+        <input
+          className="min-w-0 px-1 grow text-base border border-solid border-black rounded-sm placeholder:text-gray-500 focus:outline-none sm:text-sm/6"
+          onChange={(e) => {
+            setDetails({ ...details, phoneNumber: e.target.value });
           }}
         />
         <button type="submit">Submit</button>
