@@ -15,7 +15,7 @@ datasource db {
 }
 
 model Admin {
-  id        Int      @id @default(autoincrement())
+  id        String   @id  
   name      String
   email     String   @unique
   verified  Boolean  @default(false)
@@ -25,10 +25,10 @@ model Admin {
 }
 
 model DistrictAdmin {
-  id          Int       @id @default(autoincrement())
+  id          String   @id  
   govtId      String    @unique
   name        String
-  phoneNumber Int       @unique
+  phoneNumber String    @unique
   email       String    @unique
   district    District?
   verified    Boolean   @default(false)
@@ -37,51 +37,54 @@ model DistrictAdmin {
 }
 
 model LocalityAdmin {
-  id          Int       @id @default(autoincrement())
-  govtId      String    @unique
+  id          String      @id  
+  govtId      String      @unique
   name        String
-  phoneNumber Int       @unique
-  email       String    @unique
+  phoneNumber String      @unique
+  email       String      @unique
   locality    Locality?
-  verified    Boolean   @default(false)
+  verified    Boolean     @default(false)
+  complaints  Complaint[] @relation("AssignedComplaints")
 
   createdPhysicalTrainingEvents PhysicalTrainingEvent[] @relation("CreatedPhysicalByLocalityAdmin")
 }
 
 model Citizen {
-  id          Int      @id @default(autoincrement())
+  id          String      @id  
   name        String
-  phoneNumber Int      @unique
-  email       String   @unique
+  phoneNumber String      @unique
+  email       String      @unique
   localityId  Int
-  locality    Locality @relation(fields: [localityId], references: [id])
+  locality    Locality    @relation(fields: [localityId], references: [id])
+  points      Int         @default(0)
+  complaints  Complaint[] @relation("CitizenComplaints")
 
   physicalTrainingRegistrations PhysicalTrainingRegistration[]
   physicalTrainingAttendances   PhysicalTrainingAttendance[]
-
   learningProgress LearningProgress[]
 }
 
 model Worker {
-  id          Int      @id @default(autoincrement())
+  id          String   @id  
   name        String
-  phoneNumber Int      @unique
+  phoneNumber String   @unique
   email       String   @unique
-  workerId    String   @unique
   locality    Locality @relation(fields: [localityId], references: [id])
   localityId  Int
-
+  complaints  Complaint[] @relation("WorkerComplaints")
+  workerType  WorkerType
   physicalTrainingRegistrations PhysicalTrainingRegistration[]
   physicalTrainingAttendances   PhysicalTrainingAttendance[]
-
   learningProgress LearningProgress[]
 }
 
 model District {
   id             Int           @id @default(autoincrement())
   localities     Locality[]
-  admin          DistrictAdmin @relation(fields: [districAdminId], references: [id])
-  districAdminId Int           @unique
+  admin          DistrictAdmin? @relation(fields: [districtAdminId], references: [id])
+  districtAdminId String?        @unique
+  name            String
+  state           String
 }
 
 model Locality {
@@ -90,10 +93,29 @@ model Locality {
   districtId      Int
   citizens        Citizen[]
   workers         Worker[]
-  admin           LocalityAdmin @relation(fields: [localityAdminId], references: [id])
-  localityAdminId Int           @unique
+  admin           LocalityAdmin? @relation(fields: [localityAdminId], references: [id])
+  localityAdminId String?        @unique
+  name            String
+  pincode         String
 
   physicalTrainingEvents PhysicalTrainingEvent[]
+}
+
+model Complaint {
+  id              Int             @id @default(autoincrement())
+  description     String
+  complaintImage  String?
+  createdAt       DateTime        @default(now())
+  citizenId       String      
+  status          ComplaintStatus @default(PENDING)
+  workerId        String?        
+  reviewText      String?
+  rating          Float       @default(0)
+  workDoneImage   String?
+  localityAdminId String?        
+  citizen         Citizen         @relation("CitizenComplaints", fields: [citizenId], references: [id])
+  localityAdmin   LocalityAdmin?  @relation("AssignedComplaints", fields: [localityAdminId], references: [id])
+  worker          Worker?         @relation("WorkerComplaints", fields: [workerId], references: [id])
 }
 
 model PhysicalTrainingEvent {
@@ -112,8 +134,8 @@ model PhysicalTrainingEvent {
   registrations PhysicalTrainingRegistration[]
   attendances   PhysicalTrainingAttendance[]
 
-  createdByDistrictAdminId Int?
-  createdByLocalityAdminId Int?
+  createdByDistrictAdminId String?      
+  createdByLocalityAdminId String?       
   createdByDistrictAdmin   DistrictAdmin? @relation("CreatedPhysicalByDistrictAdmin", fields: [createdByDistrictAdminId], references: [id])
   createdByLocalityAdmin   LocalityAdmin? @relation("CreatedPhysicalByLocalityAdmin", fields: [createdByLocalityAdminId], references: [id])
 
@@ -127,8 +149,8 @@ model PhysicalTrainingRegistration {
   registrationDate DateTime           @default(now())
   status           RegistrationStatus @default(REGISTERED)
 
-  citizenId Int?
-  workerId  Int?
+  citizenId String? 
+  workerId  String?
   citizen   Citizen? @relation(fields: [citizenId], references: [id])
   worker    Worker?  @relation(fields: [workerId], references: [id])
 
@@ -146,8 +168,8 @@ model PhysicalTrainingAttendance {
   completionStatus CompletionStatus @default(NOT_COMPLETED)
   certificateUrl   String?
 
-  citizenId Int?
-  workerId  Int?
+  citizenId String? 
+  workerId  String?
   citizen   Citizen? @relation(fields: [citizenId], references: [id])
   worker    Worker?  @relation(fields: [workerId], references: [id])
 
@@ -172,8 +194,8 @@ model LearningMaterial {
   createdAt         DateTime   @default(now())
   updatedAt         DateTime   @updatedAt
 
-  createdByAdminId Int
-  createdByAdmin   Admin @relation(fields: [createdByAdminId], references: [id])
+  createdByAdminId String 
+  createdByAdmin   Admin  @relation(fields: [createdByAdminId], references: [id])
 
   progress LearningProgress[]
 }
@@ -184,8 +206,8 @@ model LearningProgress {
   completedAt     DateTime?
   progressPercent Int       @default(0)
 
-  citizenId Int?
-  workerId  Int?
+  citizenId String?
+  workerId  String?
   citizen   Citizen? @relation(fields: [citizenId], references: [id])
   worker    Worker?  @relation(fields: [workerId], references: [id])
 
@@ -195,8 +217,6 @@ model LearningProgress {
   @@unique([citizenId, learningMaterialId])
   @@unique([workerId, learningMaterialId])
 }
-
-// Enums
 
 enum EventStatus {
   ACTIVE
@@ -230,4 +250,15 @@ enum CompletionStatus {
   COMPLETED
   IN_PROGRESS
   NOT_COMPLETED
+}
+
+enum ComplaintStatus {
+  PENDING
+  IN_PROGRESS
+  RESOLVED
+}
+
+enum WorkerType {
+  WASTE_COLLECTOR
+  SWEEPER
 }
