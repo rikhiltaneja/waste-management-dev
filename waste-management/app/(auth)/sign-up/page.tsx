@@ -59,7 +59,6 @@ export default function Page() {
     const signUpAttempt = await signUp.attemptEmailAddressVerification({
       code: details.otp,
     });
-    console.log(signUpAttempt);
 
     if (signUpAttempt.status === "complete") {
       await setActive({
@@ -99,7 +98,7 @@ export default function Page() {
           }}
           type="email"
           className="min-w-0 px-1 grow text-base border border-solid border-black rounded-sm placeholder:text-gray-500 focus:outline-none sm:text-sm/6"
-          placeholder="rikhiltaneja@gmail.com"
+          placeholder="Email"
         />
         {/* <input
           onChange={(e) => {
@@ -118,7 +117,7 @@ export default function Page() {
           }}
           type="text"
           className="min-w-0 px-1 grow text-base border border-solid border-black rounded-sm placeholder:text-gray-500 focus:outline-none sm:text-sm/6"
-          placeholder="Secure password"
+          placeholder="OTP"
         />
         <input
           className="min-w-0 px-1 grow text-base border border-solid border-black rounded-sm placeholder:text-gray-500 focus:outline-none sm:text-sm/6"

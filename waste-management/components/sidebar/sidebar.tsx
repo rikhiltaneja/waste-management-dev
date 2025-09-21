@@ -5,6 +5,7 @@ import Link from "next/link";
 import { LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useClerk } from "@clerk/nextjs";
 
 export interface SidebarItem {
   id: string;
@@ -37,6 +38,7 @@ const Sidebar = ({
   className,
 }: SidebarProps) => {
   const [isDark, setIsDark] = React.useState(false);
+  const { signOut } = useClerk();
 
   React.useEffect(() => {
     const checkTheme = () => {
@@ -194,17 +196,20 @@ const Sidebar = ({
       {/* Footer */}
       <div className="p-4">
         <Button
+          onClick={() => {
+            signOut({ redirectUrl: "/" });
+          }}
           variant="ghost"
           size="sm"
           className={cn(
-            "w-full justify-start h-12 rounded-3xl text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-all duration-200",
+            "w-full justify-start h-12 rounded-3xl text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-all duration-200 hover:cursor-pointer",
             collapsed && "justify-center px-2"
           )}
         >
           <div
             className={cn(
               "flex items-center justify-center rounded-full transition-all duration-200",
-              "w-8 h-8 bg-red-600 hover:bg-red-700",
+              "w-8 h-8 bg-red-600 hover:bg-red-700 ",
               !collapsed && "mr-3"
             )}
           >
