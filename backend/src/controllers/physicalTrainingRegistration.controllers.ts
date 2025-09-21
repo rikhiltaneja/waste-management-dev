@@ -9,7 +9,6 @@ export const registerForEvent = async (req: Request, res: Response) => {
     const { eventId } = req.params;
     const { userType, userId } = req.body;
 
-    // Validate input
     if (!userType || !userId) {
       return res.status(400).json({
         error: {
@@ -28,7 +27,6 @@ export const registerForEvent = async (req: Request, res: Response) => {
       });
     }
 
-    // Check if event exists and is active
     const event = await prisma.physicalTrainingEvent.findUnique({
       where: { id: parseInt(eventId) },
       include: {
@@ -62,7 +60,6 @@ export const registerForEvent = async (req: Request, res: Response) => {
       });
     }
 
-    // Check capacity
     if (event.maxCapacity && event._count.registrations >= event.maxCapacity) {
       return res.status(409).json({
         error: {
@@ -72,7 +69,6 @@ export const registerForEvent = async (req: Request, res: Response) => {
       });
     }
 
-    // Verify user exists and get their locality
     let user;
     if (userType === 'CITIZEN') {
       user = await prisma.citizen.findUnique({
@@ -95,7 +91,6 @@ export const registerForEvent = async (req: Request, res: Response) => {
       });
     }
 
-    // Check if user is eligible for this event (target audience)
     const userRole = userType as 'CITIZEN' | 'WORKER';
     if (!event.targetAudience.includes(userRole)) {
       return res.status(400).json({
@@ -106,7 +101,6 @@ export const registerForEvent = async (req: Request, res: Response) => {
       });
     }
 
-    // Check if already registered
     const existingRegistration = await prisma.physicalTrainingRegistration.findFirst({
       where: {
         physicalTrainingEventId: parseInt(eventId),
@@ -123,7 +117,6 @@ export const registerForEvent = async (req: Request, res: Response) => {
       });
     }
 
-    // Check for time conflicts with other registered events
     const conflictingEvents = await prisma.physicalTrainingRegistration.findMany({
       where: {
         ...(userType === 'CITIZEN' ? { citizenId: userId } : { workerId: userId }),
@@ -132,21 +125,18 @@ export const registerForEvent = async (req: Request, res: Response) => {
           status: 'ACTIVE',
           OR: [
             {
-              // Event starts during this event
               startDateTime: {
                 gte: event.startDateTime,
                 lt: event.endDateTime || event.startDateTime
               }
             },
             {
-              // Event ends during this event
               endDateTime: {
                 gt: event.startDateTime,
                 lte: event.endDateTime || event.startDateTime
               }
             },
             {
-              // Event completely overlaps this event
               AND: [
                 { startDateTime: { lte: event.startDateTime } },
                 {
@@ -214,7 +204,6 @@ export const registerForEvent = async (req: Request, res: Response) => {
       }
     });
 
-    // TODO: Send confirmation notification to user
 
     res.status(201).json({
       message: 'Successfully registered for the training event',
@@ -237,7 +226,6 @@ export const cancelRegistration = async (req: Request, res: Response) => {
     const { eventId } = req.params;
     const { userType, userId } = req.body;
 
-    // Validate input
     if (!userType || !userId) {
       return res.status(400).json({
         error: {
@@ -247,7 +235,6 @@ export const cancelRegistration = async (req: Request, res: Response) => {
       });
     }
 
-    // Find existing registration
     const registration = await prisma.physicalTrainingRegistration.findFirst({
       where: {
         physicalTrainingEventId: parseInt(eventId),
@@ -275,7 +262,7 @@ export const cancelRegistration = async (req: Request, res: Response) => {
       });
     }
 
-    // Check if event has already started (optional business rule)
+
     const now = new Date();
     if (registration.physicalTrainingEvent.startDateTime <= now) {
       return res.status(400).json({
@@ -286,7 +273,6 @@ export const cancelRegistration = async (req: Request, res: Response) => {
       });
     }
 
-    // Update registration status to cancelled
     const cancelledRegistration = await prisma.physicalTrainingRegistration.update({
       where: { id: registration.id },
       data: { status: 'CANCELLED' },
@@ -301,7 +287,6 @@ export const cancelRegistration = async (req: Request, res: Response) => {
       }
     });
 
-    // TODO: Send cancellation confirmation notification
 
     res.json({
       message: 'Registration cancelled successfully',
@@ -324,7 +309,6 @@ export const getUserRegistrations = async (req: Request, res: Response) => {
     const { userType, userId } = req.params;
     const { status, upcoming } = req.query;
 
-    // Validate userType
     if (!['citizen', 'worker'].includes(userType)) {
       return res.status(400).json({
         error: {
@@ -334,7 +318,6 @@ export const getUserRegistrations = async (req: Request, res: Response) => {
       });
     }
 
-    // Build filter conditions
     const where: any = {
       ...(userType === 'citizen' ? { citizenId: userId } : { workerId: userId })
     };
@@ -343,7 +326,6 @@ export const getUserRegistrations = async (req: Request, res: Response) => {
       where.status = status;
     }
 
-    // Filter for upcoming events
     if (upcoming === 'true') {
       where.physicalTrainingEvent = {
         startDateTime: {
@@ -402,9 +384,7 @@ export const getEventRegistrations = async (req: Request, res: Response) => {
     const { eventId } = req.params;
     const { status } = req.query;
 
-    // TODO: Add authorization check - only event creators or admins should access this
 
-    // Build filter conditions
     const where: any = {
       physicalTrainingEventId: parseInt(eventId)
     };
@@ -458,7 +438,6 @@ export const getEventRegistrations = async (req: Request, res: Response) => {
       }
     });
 
-    // Get event details
     const event = await prisma.physicalTrainingEvent.findUnique({
       where: { id: parseInt(eventId) },
       select: {
