@@ -2,6 +2,9 @@ import dotenv from "dotenv";
 dotenv.config();
 import express from 'express';
 import { citizenRouter } from './routes/citizen.routes';
+import physicalTrainingRouter from './routes/physicalTraining.routes';
+import physicalTrainingRegistrationRouter from './routes/physicalTrainingRegistration.routes';
+import userRegistrationsRouter from './routes/userRegistrations.routes';
 import swaggerUI from 'swagger-ui-express';
 import swaggerSpec from './swagger';
 import { clerkMiddleware } from '@clerk/express';
@@ -19,6 +22,9 @@ app.get('/', (req, res) => {
 });
 
 app.use('/citizens', citizenRouter);
+app.use('/api/physical-training-events', physicalTrainingRouter);
+app.use('/api/physical-training-events', physicalTrainingRegistrationRouter);
+app.use('/api/users', userRegistrationsRouter);
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
