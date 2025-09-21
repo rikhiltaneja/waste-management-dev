@@ -1,13 +1,17 @@
 import { Request, Response } from "express";
 import { PrismaClient } from "../../prisma/generated/prisma";
-
+import { clerkClient, getAuth } from "@clerk/express";
 
 const prisma = new PrismaClient();
 
 export const createCitizen = async (req: Request, res: Response) => {
   const { id, name, phoneNumber, email, localityId } = req.body;
 
-
+  await clerkClient.users.updateUserMetadata(id, {
+    publicMetadata: {
+      role: "Citizen",
+    },
+  });
 
   if (!id || !name || !phoneNumber || !email || !localityId) {
     return res.status(400).json({ error: "All fields are required" });
