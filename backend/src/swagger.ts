@@ -3,21 +3,21 @@ import swaggerJSDoc, { Options } from 'swagger-jsdoc';
 const swaggerDefinition = {
   openapi: '3.0.0',
   info: {
-    title: 'Testing APIs',
+    title: 'Waste Management APIs',
     version: '1.0.0',
-    description: 'These are the APIs made for the project',
+    description: 'API documentation for Citizens, Workers, Admins, and Complaints',
   },
   servers: [
     {
-      url: '/users',
-      description: 'Users endpoint APIs',
+      url: 'http://localhost:8080',
+      description: 'Local development server',
     },
   ],
 };
 
 const options: Options = {
   swaggerDefinition,
-  apis: [__dirname + '/routes/*.{ts,js}'],
+  apis: [__dirname + '/routes/*.{ts,js}'], 
 };
 
 const swaggerSpec = swaggerJSDoc(options);
