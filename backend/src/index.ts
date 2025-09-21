@@ -12,6 +12,7 @@ import physicalTrainingRegistrationRouter from './routes/physicalTrainingRegistr
 import attendanceRouter from './routes/attendance.routes';
 import learningMaterialsRouter from './routes/learningMaterials.routes';
 import complianceRouter from './routes/compliance.routes';
+import userRegistrationsRouter from './routes/userRegistrations.routes';
 
 import swaggerUI from 'swagger-ui-express';
 import swaggerSpec from './swagger';
@@ -40,6 +41,7 @@ app.use('/physical-training-registration', physicalTrainingRegistrationRouter);
 app.use('/attendance', attendanceRouter);
 app.use('/learning-materials', learningMaterialsRouter);
 app.use('/compliance', complianceRouter);
+app.use('/user-registrations', userRegistrationsRouter);
 
 app.use(errorHandler);
 

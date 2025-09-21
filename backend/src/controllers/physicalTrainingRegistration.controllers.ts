@@ -3,73 +3,7 @@ import { PrismaClient } from "../../prisma/generated/prisma";
 
 const prisma = new PrismaClient();
 
-/**
- * @swagger
- * components:
- *   schemas:
- *     PhysicalTrainingRegistration:
- *       type: object
- *       properties:
- *         id:
- *           type: integer
- *         registrationDate:
- *           type: string
- *           format: date-time
- *         status:
- *           type: string
- *           enum: [REGISTERED, CANCELLED, WAITLISTED]
- *         citizenId:
- *           type: integer
- *         workerId:
- *           type: integer
- *         physicalTrainingEventId:
- *           type: integer
- */
 
-/**
- * @swagger
- * /api/physical-training-events/{eventId}/register:
- *   post:
- *     summary: Register for a physical training event
- *     tags: [Physical Training Registration]
- *     parameters:
- *       - in: path
- *         name: eventId
- *         required: true
- *         schema:
- *           type: integer
- *         description: Training event ID
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - userType
- *               - userId
- *             properties:
- *               userType:
- *                 type: string
- *                 enum: [CITIZEN, WORKER]
- *                 description: Type of user registering
- *               userId:
- *                 type: integer
- *                 description: ID of the citizen or worker
- *     responses:
- *       201:
- *         description: Successfully registered for the event
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/PhysicalTrainingRegistration'
- *       400:
- *         description: Invalid request or validation error
- *       409:
- *         description: Conflict - already registered, capacity full, or time conflict
- *       404:
- *         description: Event or user not found
- */
 export const registerForEvent = async (req: Request, res: Response) => {
   try {
     const { eventId } = req.params;
@@ -297,42 +231,7 @@ export const registerForEvent = async (req: Request, res: Response) => {
   }
 };
 
-/**
- * @swagger
- * /api/physical-training-events/{eventId}/register:
- *   delete:
- *     summary: Cancel registration for a physical training event
- *     tags: [Physical Training Registration]
- *     parameters:
- *       - in: path
- *         name: eventId
- *         required: true
- *         schema:
- *           type: integer
- *         description: Training event ID
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - userType
- *               - userId
- *             properties:
- *               userType:
- *                 type: string
- *                 enum: [CITIZEN, WORKER]
- *               userId:
- *                 type: integer
- *     responses:
- *       200:
- *         description: Successfully cancelled registration
- *       404:
- *         description: Registration not found
- *       400:
- *         description: Cannot cancel registration (event started, etc.)
- */
+
 export const cancelRegistration = async (req: Request, res: Response) => {
   try {
     const { eventId } = req.params;
@@ -419,50 +318,7 @@ export const cancelRegistration = async (req: Request, res: Response) => {
   }
 };
 
-/**
- * @swagger
- * /api/users/{userType}/{userId}/registrations:
- *   get:
- *     summary: Get user's training event registrations
- *     tags: [Physical Training Registration]
- *     parameters:
- *       - in: path
- *         name: userType
- *         required: true
- *         schema:
- *           type: string
- *           enum: [citizen, worker]
- *         description: Type of user
- *       - in: path
- *         name: userId
- *         required: true
- *         schema:
- *           type: integer
- *         description: User ID
- *       - in: query
- *         name: status
- *         schema:
- *           type: string
- *           enum: [REGISTERED, CANCELLED, WAITLISTED]
- *         description: Filter by registration status
- *       - in: query
- *         name: upcoming
- *         schema:
- *           type: boolean
- *         description: Filter for upcoming events only
- *     responses:
- *       200:
- *         description: List of user's registrations
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 registrations:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/PhysicalTrainingRegistration'
- */
+
 export const getUserRegistrations = async (req: Request, res: Response) => {
   try {
     const { userType, userId } = req.params;
@@ -540,31 +396,7 @@ export const getUserRegistrations = async (req: Request, res: Response) => {
   }
 };
 
-/**
- * @swagger
- * /api/physical-training-events/{eventId}/registrations:
- *   get:
- *     summary: Get all registrations for a specific event (Admin only)
- *     tags: [Physical Training Registration]
- *     parameters:
- *       - in: path
- *         name: eventId
- *         required: true
- *         schema:
- *           type: integer
- *         description: Training event ID
- *       - in: query
- *         name: status
- *         schema:
- *           type: string
- *           enum: [REGISTERED, CANCELLED, WAITLISTED]
- *         description: Filter by registration status
- *     responses:
- *       200:
- *         description: List of event registrations
- *       403:
- *         description: Unauthorized - Admin access required
- */
+
 export const getEventRegistrations = async (req: Request, res: Response) => {
   try {
     const { eventId } = req.params;
