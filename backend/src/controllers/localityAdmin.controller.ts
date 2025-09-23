@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { PrismaClient } from '../../prisma/generated/prisma';
+import { PrismaClient } from "../../prisma/generated/prisma";
 const prisma = new PrismaClient();
 
 export const createLocalityAdmin = async (req: Request, res: Response) => {
@@ -131,7 +131,7 @@ export const getLocalityComplaints = async (req: Request, res: Response) => {
 
     if (!admin) return res.status(404).json({ error: 'Locality admin not found' });
 
-    const complaints = admin.locality?.citizens.flatMap(citizen => citizen.complaints) || [];
+    const complaints = admin.locality?.citizens.flatMap((citizen: any) => citizen.complaints) || [];
     res.json(complaints);
   } catch (err) {
     res.status(500).json({ error: 'Internal server error', details: err });

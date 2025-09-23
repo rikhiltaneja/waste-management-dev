@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { PrismaClient } from '../../prisma/generated/prisma';
+import { PrismaClient } from "../../prisma/generated/prisma";
 const prisma = new PrismaClient();
 
 export const createDistrictAdmin = async (req: Request, res: Response) => {

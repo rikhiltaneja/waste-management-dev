@@ -8,11 +8,9 @@ import {
   getCitizenComplaintStatus,
   deleteCitizen,
 } from '../controllers/citizen.controller';
-import { clerkMiddleware } from '@clerk/express';
 export const citizenRouter = express.Router();
 
 citizenRouter.use(express.json());
-citizenRouter.use(clerkMiddleware())
 
 /**
  * @swagger
