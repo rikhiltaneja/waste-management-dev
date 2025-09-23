@@ -34,7 +34,7 @@ interface SideBarLayoutProps {
   activeItem?: string;
 }
 
-export function SideBarLayout({
+function SideBarLayout({
   children,
   customSidebarSections,
   activeItem: customActiveItem,
@@ -121,3 +121,5 @@ export function SideBarLayout({
     </div>
   );
 }
+
+export default SideBarLayout;
