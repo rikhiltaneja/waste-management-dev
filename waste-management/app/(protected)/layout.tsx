@@ -1,4 +1,3 @@
-import SideBarLayout from "@/components/sidebar/sidebar-layout";
 import MobileNavbar from "@/components/ui/mob-navbar";
 import { ClerkProvider } from "@clerk/nextjs";
 
@@ -9,10 +8,12 @@ export default function ProtectedLayout({
 }>) {
   return (
     <ClerkProvider>
-          <SideBarLayout>{children}</SideBarLayout>
-          <div>
-            <MobileNavbar />
-          </div>
+      <div className="h-screen bg-background overflow-hidden">
+        {children}
+        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50">
+          <MobileNavbar />
+        </div>
+      </div>
     </ClerkProvider>
   );
 }

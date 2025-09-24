@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { Sidebar, SidebarItem, SidebarSection } from "@/components/sidebar/sidebar";
-// import { Header } from "@components/header"
+import { Header } from "@/components/ui/header";
 import {
   Home,
   Users,
@@ -32,12 +32,28 @@ interface SideBarLayoutProps {
   };
   customSidebarSections?: SidebarSection[];
   activeItem?: string;
+  showLogo?: boolean;
+  sidebarBackButton?: boolean;
+  sidebarBackText?: string;
+  onSidebarBackClick?: () => void;
+  searchPlaceholder?: string;
+  onSearchChange?: (value: string) => void;
 }
 
 function SideBarLayout({
   children,
+  title,
+  showBackButton = false,
+  onBackClick,
+  primaryAction,
   customSidebarSections,
   activeItem: customActiveItem,
+  showLogo = true,
+  sidebarBackButton = false,
+  sidebarBackText = "Back",
+  onSidebarBackClick,
+  searchPlaceholder = "Search Here...",
+  onSearchChange
 }: SideBarLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -105,18 +121,53 @@ function SideBarLayout({
 
   return (
     <div className="flex h-screen bg-background overflow-hidden">
-      <Sidebar
-        sections={customSidebarSections || sidebarSections}
-        activeItem={getActiveItem()}
-        onItemClick={handleItemClick}
-        collapsed={collapsed}
-        onToggleCollapse={() => setCollapsed(!collapsed)}
-      />
-
+      <div className="flex flex-col">
+        {sidebarBackButton && (
+          <div className="mx-4 mt-4 mb-2">
+            <button
+              onClick={onSidebarBackClick}
+              className="flex items-center space-x-3 bg-sidebar border border-sidebar-border rounded-full hover:bg-sidebar-accent transition-all duration-200 w-full sm:w-64 h-12"
+            >
+              <div className="w-10 h-10 rounded-full flex items-center justify-center bg-white">
+                <div className="w-6 h-6 bg-muted/50 rounded-full flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 text-black">
+                    <path d="M15 18l-6-6 6-6"/>
+                  </svg>
+                </div>
+              </div>
+              <span className="text-sidebar-foreground font-medium text-sm">{sidebarBackText}</span>
+            </button>
+          </div>
+        )}
+        
+        <Sidebar
+          sections={customSidebarSections || sidebarSections}
+          activeItem={getActiveItem()}
+          onItemClick={handleItemClick}
+          collapsed={collapsed}
+          onToggleCollapse={() => setCollapsed(!collapsed)}
+          showLogo={showLogo}
+          showBackButton={false}
+        />
+      </div>
+      
       <div className="flex-1 flex flex-col min-h-0">
-        <main className="flex-1 overflow-y-auto p-4 pb-8 bg-background">
-          <div className="mx-auto h-full">{children}</div>
-        </main>
+        {/* Header */}
+        <Header
+          // className="mb-4"
+          showBackButton={showBackButton}
+          onBackClick={onBackClick}
+          searchPlaceholder={searchPlaceholder}
+          onSearchChange={onSearchChange}
+          primaryAction={primaryAction}
+        />
+        
+        {/* Main Content - Scrollable Container */}
+        <div className="flex-1 overflow-y-auto p-2 sm:p-4 pt-1 sm:pt-1 mb-20 sm:mb-7">
+          {/* <div className="p-3 sm:p-6 rounded-2xl h-full"> */}
+            {children}
+          {/* </div> */}
+        </div>
       </div>
     </div>
   );
