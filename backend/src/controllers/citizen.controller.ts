@@ -29,6 +29,10 @@ export const createCitizen = async (req: Request, res: Response) => {
 
 export const getCitizenProfile = async (req: Request, res: Response) => {
   const id = req.params.id;
+  const auth = getAuth(req);
+  if (id !== auth.userId) {
+    return res.status(401).json({ error: "Not authorised to access this resource" });
+  }
 
   try {
     const citizen = await prisma.citizen.findUnique({ where: { id } });

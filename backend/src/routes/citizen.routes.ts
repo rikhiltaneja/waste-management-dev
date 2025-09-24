@@ -8,9 +8,13 @@ import {
   getCitizenComplaintStatus,
   deleteCitizen,
 } from '../controllers/citizen.controller';
+import { clerkMiddleware } from '@clerk/express';
+import { authenticationCheck } from '../middlewares/authorization/general.auth';
+import { adminsAndCitizens, onlyAdmins } from '../middlewares/authorization/role-based.auth';
 export const citizenRouter = express.Router();
 
 citizenRouter.use(express.json());
+// citizenRouter.use(clerkMiddleware())
 
 /**
  * @swagger
@@ -60,7 +64,7 @@ citizenRouter.post('/create', createCitizen);
  *       200:
  *         description: Citizen profile
  */
-citizenRouter.get('/:id', getCitizenProfile);
+citizenRouter.get('/:id', authenticationCheck, adminsAndCitizens, getCitizenProfile);
 
 /**
  * @swagger
@@ -78,7 +82,7 @@ citizenRouter.get('/:id', getCitizenProfile);
  *       200:
  *         description: List of complaints
  */
-citizenRouter.get('/:id/complaints', getCitizenComplaints);
+citizenRouter.get('/:id/complaints', authenticationCheck, adminsAndCitizens, getCitizenComplaints);
 
 /**
  * @swagger
@@ -105,7 +109,7 @@ citizenRouter.get('/:id/complaints', getCitizenComplaints);
  *       200:
  *         description: Points updated
  */
-citizenRouter.put('/:id/points', updateCitizenPoints);
+citizenRouter.put('/:id/points', authenticationCheck, adminsAndCitizens, updateCitizenPoints);
 
 /**
  * @swagger
@@ -134,7 +138,7 @@ citizenRouter.put('/:id/points', updateCitizenPoints);
  *       200:
  *         description: Review updated
  */
-citizenRouter.put('/:id/review', updateCitizenReview);
+citizenRouter.put('/:id/review', authenticationCheck, adminsAndCitizens, updateCitizenReview);
 
 /**
  * @swagger
@@ -152,7 +156,7 @@ citizenRouter.put('/:id/review', updateCitizenReview);
  *       200:
  *         description: List of complaints with status tracking
  */
-citizenRouter.get('/:id/complaint-status', getCitizenComplaintStatus);
+citizenRouter.get('/:id/complaint-status', authenticationCheck, adminsAndCitizens, getCitizenComplaintStatus);
 
 /**
  * @swagger

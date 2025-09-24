@@ -1,3 +1,4 @@
+import { getAuth } from "@clerk/express";
 import { NextFunction, Request, Response } from "express";
 
 export const authenticationCheck = (
@@ -5,5 +6,8 @@ export const authenticationCheck = (
   res: Response,
   next: NextFunction
 ) => {
-  next();
+  const auth = getAuth(req);
+  if (auth.isAuthenticated) {
+    next();
+  }
 };

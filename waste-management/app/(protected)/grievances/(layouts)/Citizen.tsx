@@ -1,10 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export function CitizenGrievances() {
   const [videoSrc, setVideoSrc] = useState(undefined);
   const [imageSrc, setImageSrc] = useState(undefined);
+  const [geolocationObject, setGeoLocationObject] = useState<Geolocation | null>(null)
+
+  useEffect(()=>{
+    // setGeoLocation()
+    const geolocation = navigator.geolocation
+    setGeoLocationObject(geolocation)
+    geolocation.getCurrentPosition((location)=>{
+      console.log(location)
+    })
+  }, [])
 
   const clickPhoto = () => {
     if (navigator.mediaDevices) {
@@ -39,6 +49,9 @@ export function CitizenGrievances() {
         capture="environment"
         onChange={(e) => {
           if (e.target.files?.[0]) {
+            geolocationObject?.getCurrentPosition((location)=>{
+              console.log(location)
+            })
             setImageSrc(URL.createObjectURL(e.target.files[0]) as any);
           }
         }}

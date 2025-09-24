@@ -16,6 +16,7 @@ import userRegistrationsRouter from './routes/userRegistrations.routes';
 
 import swaggerUI from 'swagger-ui-express';
 import swaggerSpec from './swagger';
+import { clerkMiddleware } from "@clerk/express";
 import { errorHandler } from './middlewares/errorHandler.middleware';
 
 const app = express();
@@ -23,6 +24,7 @@ const PORT = 8080;
 
 app.use(cors());
 app.use(express.json());
+app.use(clerkMiddleware());
 
 app.get('/', (req, res) => {
     res.send("Welcome to the server!");
