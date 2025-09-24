@@ -19,7 +19,7 @@ export const createComplaint = async (req: Request, res: Response) => {
 
   try {
     const citizen = await prisma.citizen.findUnique({
-      where: { id: citizenId }, // No need to convert to Number
+      where: { id: citizenId },
       include: {
         locality: {
           include: {
