@@ -76,7 +76,7 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
           )}
         </div>
 
-        <div className="flex items-center justify-between w-full sm:max-w-sm md:max-w-md lg:max-w-lg sm:ml-4 md:ml-6 sm:mr-auto">
+        {/* <div className="flex items-center justify-between w-full sm:max-w-sm md:max-w-md lg:max-w-lg sm:ml-4 md:ml-6 sm:mr-auto">
           <div className="relative w-3/4 sm:w-full">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -105,7 +105,7 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
           >
             <Bell className="h-4 w-4 text-gray-700 dark:text-white" />
           </div>
-        </div>
+        </div> */}
 
         <div className="flex items-center space-x-2 sm:space-x-3 w-full sm:w-auto justify-center sm:justify-end sm:ml-auto">
           
