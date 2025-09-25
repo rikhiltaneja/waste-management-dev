@@ -49,7 +49,7 @@ export default function DashboardPage() {
     }else{
       return (
         <SideBarLayout>
-          <AdminDashboard />
+          <p>User not logged in</p>
         </SideBarLayout>
       )
     }
