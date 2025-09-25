@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import SideBarLayout from "@/components/sidebar/sidebar-layout";
+import Loading from "@/app/loading";
 import {
   CalendarPlus,
   Eye,
@@ -183,9 +184,7 @@ const CampaignPage = () => {
   if (loading) {
     return (
       <SideBarLayout>
-        <div className="flex items-center justify-center h-64">
-          <div className="text-lg">Loading events...</div>
-        </div>
+        <Loading />
       </SideBarLayout>
     );
   }

@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import SideBarLayout from "@/components/sidebar/sidebar-layout";
+import Loading from "@/app/loading";
 import {
   ArrowLeft,
   MapPin,
@@ -190,9 +191,7 @@ const EventDetailPage = () => {
   if (loading) {
     return (
       <SideBarLayout>
-        <div className="flex items-center justify-center h-64">
-          <div className="text-lg">Loading event details...</div>
-        </div>
+        <Loading />
       </SideBarLayout>
     );
   }

@@ -1,14 +1,15 @@
 "use client";
 
-import { useSignIn } from "@clerk/nextjs";
+import { useSignIn, useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-import { FormEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
 import { setToast } from "@/components/ui/toast";
+import Loading from "@/app/loading";
+import { Loader2 } from "lucide-react";
 
 // Define carousel images directly in this file
 const carouselImages = [
@@ -38,6 +39,7 @@ interface SignInDetails {
 export default function SignIn() {
   const router = useRouter();
   const { isLoaded, signIn, setActive } = useSignIn();
+  const { isSignedIn } = useAuth();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingType, setLoadingType] = useState<'otp' | 'verify' | null>(null);
@@ -47,6 +49,42 @@ export default function SignIn() {
     otp: "",
     step: 1
   });
+
+  useEffect(() => {
+    if (isLoaded && isSignedIn) {
+      router.push("/dashboard");
+    }
+  }, [isLoaded, isSignedIn, router]);
+
+  // Global paste handler for OTP
+  useEffect(() => {
+    const handleGlobalPaste = (e: ClipboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target && target.tagName === 'INPUT' && target.getAttribute('data-index')) {
+        const pastedData = e.clipboardData?.getData('text') || '';
+        const numbers = pastedData.replace(/\D/g, '').slice(0, 6);
+        
+        if (numbers.length > 1) {
+          e.preventDefault();
+          const newOtp = details.otp.split('');
+          for (let i = 0; i < numbers.length && i < 6; i++) {
+            newOtp[i] = numbers[i];
+          }
+          setDetails({ ...details, otp: newOtp.join('') });
+          
+          // Focus the next empty input or the last filled input
+          const nextIndex = Math.min(numbers.length, 5);
+          const nextInput = document.querySelector(`input[data-index="${nextIndex}"]`) as HTMLInputElement;
+          if (nextInput) {
+            nextInput.focus();
+          }
+        }
+      }
+    };
+
+    document.addEventListener('paste', handleGlobalPaste);
+    return () => document.removeEventListener('paste', handleGlobalPaste);
+  }, [details.otp]);
 
 
   // Auto-rotation for carousel
@@ -250,20 +288,7 @@ export default function SignIn() {
 
   if (!isLoaded) {
     return (
-      <div className="h-[100dvh] w-[100dvw] flex items-center justify-center bg-white">
-        <div className="flex flex-col items-center gap-4">
-          <Image 
-            src="/logo_green.png" 
-            alt="Logo" 
-            width={80} 
-            height={80} 
-            className="w-[80px] h-auto object-contain" 
-            priority
-          />
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-sm text-gray-500">Loading...</p>
-        </div>
-      </div>
+      <Loading />
     );
   }
 
@@ -298,7 +323,7 @@ export default function SignIn() {
             >
               {isLoading && loadingType === 'otp' ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin" /> 
+                  <Loader2 size="sm" className="animate-spin" /> 
                   Sending OTP...
                 </>
               ) : (
@@ -325,6 +350,7 @@ export default function SignIn() {
                 {Array(6).fill(0).map((_, index) => (
                   <Input
                     key={index}
+                    data-index={index}
                     type="text"
                     inputMode="numeric"
                     pattern="[0-9]*"
@@ -340,6 +366,26 @@ export default function SignIn() {
                         
                         if (value && e.target.nextElementSibling instanceof HTMLInputElement) {
                           (e.target.nextElementSibling as HTMLInputElement).focus();
+                        }
+                      }
+                    }}
+                    onPaste={(e) => {
+                      e.preventDefault();
+                      const pastedData = e.clipboardData.getData('text');
+                      const numbers = pastedData.replace(/\D/g, '').slice(0, 6);
+                      
+                      if (numbers.length > 0) {
+                        const newOtp = details.otp.split('');
+                        for (let i = 0; i < numbers.length && (index + i) < 6; i++) {
+                          newOtp[index + i] = numbers[i];
+                        }
+                        setDetails({ ...details, otp: newOtp.join('') });
+                        
+                        // Focus the next empty input or the last filled input
+                        const nextIndex = Math.min(index + numbers.length, 5);
+                        const nextInput = document.querySelector(`input[data-index="${nextIndex}"]`) as HTMLInputElement;
+                        if (nextInput) {
+                          nextInput.focus();
                         }
                       }
                     }}
@@ -371,7 +417,7 @@ export default function SignIn() {
             >
               {isLoading && loadingType === 'verify' ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin" /> 
+                  <Loader2 size="sm" className="animate-spin" /> 
                   Verifying...
                 </>
               ) : (
