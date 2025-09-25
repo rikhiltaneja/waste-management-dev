@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,7 +27,6 @@ import {
   MapPin, 
   CheckCircle,
   AlertCircle,
-  Filter,
   Search,
   ArrowUpDown,
   Crown,
@@ -37,22 +36,12 @@ import {
   Mail,
   Calendar,
   Clock,
-  Dumbbell,
   Rocket,
-  Eye
+  Eye,
+  Loader2,
+  RefreshCw
 } from "lucide-react";
-
-// Mock data based on the CSV structure
-const mockWorkerData = [
-  { worker_id: 44, worker_name: "Alex Johnson", tasks_assigned: 5, tasks_completed: 5, completion_ratio: 1.0, avg_difficulty: 5, locality_rating: 4, citizen_rating: 2, predicted_score: 0.88 },
-  { worker_id: 128, worker_name: "Sarah Chen", tasks_assigned: 16, tasks_completed: 12, completion_ratio: 0.75, avg_difficulty: 5, locality_rating: 5, citizen_rating: 5, predicted_score: 0.86 },
-  { worker_id: 85, worker_name: "Mike Rodriguez", tasks_assigned: 5, tasks_completed: 4, completion_ratio: 0.8, avg_difficulty: 5, locality_rating: 5, citizen_rating: 3, predicted_score: 0.82 },
-  { worker_id: 112, worker_name: "Emma Wilson", tasks_assigned: 19, tasks_completed: 15, completion_ratio: 0.79, avg_difficulty: 5, locality_rating: 5, citizen_rating: 3, predicted_score: 0.82 },
-  { worker_id: 79, worker_name: "David Kim", tasks_assigned: 16, tasks_completed: 11, completion_ratio: 0.69, avg_difficulty: 5, locality_rating: 4, citizen_rating: 5, predicted_score: 0.82 },
-  { worker_id: 13, worker_name: "Lisa Thompson", tasks_assigned: 18, tasks_completed: 16, completion_ratio: 0.89, avg_difficulty: 4, locality_rating: 2, citizen_rating: 4, predicted_score: 0.81 },
-  { worker_id: 124, worker_name: "James Brown", tasks_assigned: 17, tasks_completed: 17, completion_ratio: 1.0, avg_difficulty: 4, locality_rating: 2, citizen_rating: 4, predicted_score: 0.81 },
-  { worker_id: 16, worker_name: "Anna Garcia", tasks_assigned: 14, tasks_completed: 13, completion_ratio: 0.93, avg_difficulty: 4, locality_rating: 4, citizen_rating: 1, predicted_score: 0.81 },
-];
+import { LeaderboardService, WorkerData } from "@/services/leaderboard.service";
 
 type SortField = 'predicted_score' | 'completion_ratio' | 'tasks_completed' | 'citizen_rating' | 'locality_rating' | 'avg_difficulty';
 type SortOrder = 'asc' | 'desc';
@@ -61,11 +50,33 @@ export default function LeaderBoard() {
   const [sortField, setSortField] = useState<SortField>('predicted_score');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedWorker, setSelectedWorker] = useState<typeof mockWorkerData[0] | null>(null);
+  const [selectedWorker, setSelectedWorker] = useState<WorkerData | null>(null);
+  const [workerData, setWorkerData] = useState<WorkerData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch leaderboard data on component mount
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await LeaderboardService.fetchLeaderboardData();
+        setWorkerData(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch leaderboard data');
+        console.error('Error fetching leaderboard data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const sortedAndFilteredData = useMemo(() => {
-    let filtered = mockWorkerData.filter(worker => 
-      worker.worker_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const filtered = workerData.filter(worker => 
+      worker.worker_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       worker.worker_id.toString().includes(searchTerm)
     );
 
@@ -74,7 +85,7 @@ export default function LeaderBoard() {
       const bVal = b[sortField];
       return sortOrder === 'desc' ? bVal - aVal : aVal - bVal;
     });
-  }, [sortField, sortOrder, searchTerm]);
+  }, [workerData, sortField, sortOrder, searchTerm]);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -82,6 +93,20 @@ export default function LeaderBoard() {
     } else {
       setSortField(field);
       setSortOrder('desc');
+    }
+  };
+
+  const handleRefresh = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await LeaderboardService.fetchLeaderboardData();
+      setWorkerData(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to refresh leaderboard data');
+      console.error('Error refreshing leaderboard data:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -116,7 +141,23 @@ export default function LeaderBoard() {
             <h1 className="text-2xl lg:text-3xl font-semibold mb-2">Worker Leaderboard</h1>
             <p className="text-sm opacity-80">Monitor performance and assign tasks efficiently</p>
           </div>
-          <Trophy className="w-8 h-8 text-yellow-500" />
+          <div className="flex items-center gap-3">
+            <Button
+              onClick={handleRefresh}
+              disabled={loading}
+              variant="outline"
+              size="sm"
+              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+            >
+              {loading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <RefreshCw className="w-4 h-4" />
+              )}
+              Refresh
+            </Button>
+            <Trophy className="w-8 h-8 text-yellow-500" />
+          </div>
         </div>
         
         {/* Key Metrics */}
@@ -151,8 +192,44 @@ export default function LeaderBoard() {
         </div>
       </div>
 
+      {/* Error State */}
+      {error && (
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3 text-red-700">
+              <AlertCircle className="w-5 h-5" />
+              <div>
+                <h3 className="font-semibold">Failed to load leaderboard data</h3>
+                <p className="text-sm">{error}</p>
+                <Button 
+                  onClick={handleRefresh} 
+                  variant="outline" 
+                  size="sm" 
+                  className="mt-2 border-red-300 text-red-700 hover:bg-red-100"
+                >
+                  Try Again
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Loading State */}
+      {loading && !error && (
+        <Card>
+          <CardContent className="p-12">
+            <div className="flex flex-col items-center justify-center text-gray-500">
+              <Loader2 className="w-8 h-8 animate-spin mb-4" />
+              <p>Loading leaderboard data...</p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Top Performers */}
-      <Card>
+      {!loading && !error && (
+        <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
@@ -196,7 +273,7 @@ export default function LeaderBoard() {
                     {(worker.predicted_score * 100).toFixed(0)}%
                   </Badge>
                 </div>
-                <h3 className="font-semibold text-lg mb-1">{worker.worker_name}</h3>
+                <h3 className="font-semibold text-lg mb-1">{worker.worker_name || `Worker ${worker.worker_id}`}</h3>
                 <p className="text-sm text-gray-600 mb-3">ID: {worker.worker_id}</p>
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
@@ -213,9 +290,10 @@ export default function LeaderBoard() {
           </div>
         </CardContent>
       </Card>
+      )}
 
-    
       {/* Leaderboard Table */}
+      {!loading && !error && (
       <Card>
         <CardHeader>
           <div className="flex w-full items-center justify-between">
@@ -282,7 +360,7 @@ export default function LeaderBoard() {
                     </td>
                     <td className="p-4">
                       <div>
-                        <div className="font-medium">{worker.worker_name}</div>
+                        <div className="font-medium">{worker.worker_name || `Worker ${worker.worker_id}`}</div>
                         <div className="text-sm text-gray-500">ID: {worker.worker_id}</div>
                       </div>
                     </td>
@@ -343,13 +421,13 @@ export default function LeaderBoard() {
                                 {/* Profile Header */}
                                 <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
                                   <Avatar className="h-16 w-16">
-                                    <AvatarImage src="/profile-avatar.jpg" alt={selectedWorker.worker_name} />
+                                    <AvatarImage src="/profile-avatar.jpg" alt={selectedWorker.worker_name || `Worker ${selectedWorker.worker_id}`} />
                                     <AvatarFallback className="text-lg font-semibold bg-blue-500 text-white">
-                                      {getInitials(selectedWorker.worker_name)}
+                                      {getInitials(selectedWorker.worker_name || `Worker ${selectedWorker.worker_id}`)}
                                     </AvatarFallback>
                                   </Avatar>
                                   <div className="flex-1">
-                                    <h3 className="text-xl font-semibold">{selectedWorker.worker_name}</h3>
+                                    <h3 className="text-xl font-semibold">{selectedWorker.worker_name || `Worker ${selectedWorker.worker_id}`}</h3>
                                     <p className="text-gray-600">Worker ID: {selectedWorker.worker_id}</p>
                                     <Badge className={getPerformanceBadge(selectedWorker.predicted_score).color}>
                                       {getPerformanceBadge(selectedWorker.predicted_score).label}
@@ -368,7 +446,7 @@ export default function LeaderBoard() {
                                       <div className="space-y-2 text-sm">
                                         <div className="flex items-center gap-2">
                                           <Mail className="w-4 h-4 text-gray-500" />
-                                          <span>{selectedWorker.worker_name.toLowerCase().replace(' ', '.')}@wastemanagement.com</span>
+                                          <span>{(selectedWorker.worker_name || `worker${selectedWorker.worker_id}`).toLowerCase().replace(' ', '.')}@wastemanagement.com</span>
                                         </div>
                                         <div className="flex items-center gap-2">
                                           <Phone className="w-4 h-4 text-gray-500" />
@@ -476,6 +554,7 @@ export default function LeaderBoard() {
           </div>
         </CardContent>
       </Card>
+      )}
     </div>
   );
 }
