@@ -27,7 +27,6 @@ import {
 import { EventCard } from "@/components/ui/event-card";
 import { formatDate } from "@/helpers/date.helper";
 
-
 type ViewMode = "table" | "grid" | "list" | "cards";
 
 const CampaignPage = () => {
@@ -75,7 +74,7 @@ const CampaignPage = () => {
   };
 
   const handleViewEvent = (id: number) => {
-    router.push(`/dashboard/event/${id}`);
+    router.push(`/dashboard/trainings/${id}`);
   };
 
   const handleEditEvent = (id: number) => {
@@ -111,7 +110,6 @@ const CampaignPage = () => {
         return "bg-gray-100 text-gray-800";
     }
   };
-
 
   const filteredEvents = events.filter(
     (event) => filter === "ALL" || event.status === filter
@@ -451,8 +449,14 @@ const CampaignPage = () => {
                   status={event.status}
                   targetAudience={event.targetAudience}
                   variant="compact"
-                  onEdit={() => handleEditEvent(event.id)}
-                  onDelete={() => handleDeleteEvent(event.id)}
+                  onEdit={(e) => {
+                    e.stopPropagation(); // prevents bubbling to parent div
+                    handleEditEvent(event.id);
+                  }}
+                  onDelete={(e) => {
+                    e.stopPropagation(); // prevents bubbling to parent div
+                    handleDeleteEvent(event.id);
+                  }}
                 />
               </div>
             ))}
@@ -480,8 +484,14 @@ const CampaignPage = () => {
                     status={event.status}
                     targetAudience={event.targetAudience}
                     variant="list"
-                    onEdit={() => handleEditEvent(event.id)}
-                    onDelete={() => handleDeleteEvent(event.id)}
+                    onEdit={(e) => {
+                    e.stopPropagation(); // prevents bubbling to parent div
+                    handleEditEvent(event.id);
+                  }}
+                  onDelete={(e) => {
+                    e.stopPropagation(); // prevents bubbling to parent div
+                    handleDeleteEvent(event.id);
+                  }}
                   />
                 </div>
               ))}
@@ -509,8 +519,14 @@ const CampaignPage = () => {
                   status={event.status}
                   targetAudience={event.targetAudience}
                   variant="default"
-                  onEdit={() => handleEditEvent(event.id)}
-                  onDelete={() => handleDeleteEvent(event.id)}
+                  onEdit={(e) => {
+                    e.stopPropagation(); // prevents bubbling to parent div
+                    handleEditEvent(event.id);
+                  }}
+                  onDelete={(e) => {
+                    e.stopPropagation(); // prevents bubbling to parent div
+                    handleDeleteEvent(event.id);
+                  }}
                 />
               </div>
             ))}

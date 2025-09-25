@@ -14,14 +14,13 @@ interface EventCardProps {
   className?: string;
   registrations?: number;
   maxCapacity?: number;
-  status?: 'ACTIVE' | 'CANCELLED' | 'COMPLETED' | 'DRAFT';
+  status?: "ACTIVE" | "CANCELLED" | "COMPLETED" | "DRAFT";
   targetAudience?: string[];
-  onView?: () => void;
-  onEdit?: () => void;
-  onDelete?: () => void;
-  variant?: 'default' | 'compact' | 'list';
+  onView?: (e: React.MouseEvent<HTMLDivElement | HTMLButtonElement>) => void;
+  onEdit?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  onDelete?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  variant?: "default" | "compact" | "list";
 }
-
 export function EventCard({
   title,
   description,
