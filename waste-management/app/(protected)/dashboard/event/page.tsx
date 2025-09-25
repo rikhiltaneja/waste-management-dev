@@ -24,23 +24,8 @@ import {
   EventFormData,
 } from "@/components/modals/add-event-modal";
 import { EventCard } from "@/components/ui/event-card";
+import { formatDate } from "@/helpers/date.helper";
 
-interface PhysicalTrainingEvent {
-  id: number;
-  title: string;
-  description: string;
-  startDateTime: string;
-  endDateTime?: string;
-  location: string;
-  maxCapacity?: number;
-  targetAudience: string[];
-  status: "ACTIVE" | "CANCELLED" | "COMPLETED" | "DRAFT";
-  createdAt: string;
-  registrations: number;
-  locality?: {
-    name: string;
-  };
-}
 
 type ViewMode = "table" | "grid" | "list" | "cards";
 
@@ -126,15 +111,6 @@ const CampaignPage = () => {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
 
   const filteredEvents = events.filter(
     (event) => filter === "ALL" || event.status === filter
