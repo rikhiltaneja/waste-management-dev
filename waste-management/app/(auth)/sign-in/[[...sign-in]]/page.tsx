@@ -52,6 +52,11 @@ export default function SignIn() {
 
   useEffect(() => {
     if (isLoaded && isSignedIn) {
+      setToast({ 
+            title: "Signed In Successfull ✅", 
+            message: "Redirecting to dashboard...", 
+            type: "info" 
+          });
       router.push("/dashboard");
     }
   }, [isLoaded, isSignedIn, router]);
@@ -152,6 +157,21 @@ export default function SignIn() {
           // Redirect to dashboard after a short delay
           setTimeout(() => {
             router.push("/dashboard");
+          }, 2000);
+          return;
+        }
+      }
+      if (error && typeof error === 'object' && 'errors' in error) {
+        const clerkError = error as { errors?: Array<{ code: string; message: string }> };
+        if (clerkError.errors?.some((err) => err.code === "form_identifier_not_found")) {
+          setToast({ 
+            title: "You don't have a account", 
+            message: "You need to create an account. Redirecting to sign up page...", 
+            type: "info" 
+          });
+          // Redirect to sign up page after a short delay
+          setTimeout(() => {
+            router.push("/sign-up");
           }, 2000);
           return;
         }

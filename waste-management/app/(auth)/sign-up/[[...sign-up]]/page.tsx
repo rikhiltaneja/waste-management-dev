@@ -54,6 +54,8 @@ interface ClerkErrorResponse {
 }
 
 export default function SignUp() {
+
+  
   const router = useRouter();
   const { isLoaded, signUp, setActive } = useSignUp();
   const { isSignedIn, userId } = useAuth();
@@ -78,6 +80,7 @@ export default function SignUp() {
       router.push("/dashboard");
     }
   }, [isLoaded, isSignedIn, router]);
+  
 
   useEffect(() => {
     if (isSignedIn && userId) {
@@ -127,7 +130,7 @@ export default function SignUp() {
     }
 
     const userInfo = {
-      id: userId,
+      id: 1,
       name: details.firstName + " " + details.lastName,
       email: details.email,
       phoneNumber: details.phoneNumber,
@@ -195,6 +198,9 @@ export default function SignUp() {
       
       if (clerkError?.errors?.some((err) => err.code === "form_identifier_exists")) {
         setToast({ title: "Account Exists", message: "An account with this email already exists. Please sign in instead.", type: "error" });
+        setTimeout(() => {
+            router.push("/sign-in");
+          }, 2000);
         return;
       }
       
@@ -398,7 +404,7 @@ export default function SignUp() {
             </div>
             
             <Button 
-              onClick={sendOTP} 
+              onClick={() => signUpCustomRequest} 
               className="w-full h-12 bg-primary hover:bg-primary/90 cursor-pointer text-white rounded-full flex items-center justify-center gap-2"
               disabled={!details.firstName || !details.lastName || !details.phoneNumber || (isLoading && loadingType === 'otp')}
             >
