@@ -1,8 +1,5 @@
 import type { NextConfig } from "next";
 
-// @ts-expect-error - next-pwa doesn't have TypeScript declarations
-import withPWA from "next-pwa";
-
 const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
@@ -12,23 +9,7 @@ const nextConfig: NextConfig = {
   }
 };
 
-const pwaConfig = {
-  dest: "public",
-  disable: false, // Enable PWA for testing
-  register: true,
-  skipWaiting: true,
-  runtimeCaching: [
-    {
-      urlPattern: /^https?.*/,
-      handler: "NetworkFirst",
-      options: {
-        cacheName: "offlineCache",
-        expiration: {
-          maxEntries: 200,
-        },
-      },
-    },
-  ],
-};
+// Simple approach: Disable PWA when using Turbopack to avoid webpack conflicts
+// The warning occurs because Turbopack and webpack-based plugins don't mix well
 
-export default withPWA(pwaConfig)(nextConfig);
+export default nextConfig;
