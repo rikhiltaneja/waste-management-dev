@@ -15,6 +15,7 @@ import {
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "./card";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 const wasteCollectionData = [
   { month: "Jan", value: 220 },
@@ -248,6 +249,7 @@ export function ActionCard({
   iconColor = "text-blue-500",
   onClick,
   className,
+  href
 }: {
   title: string;
   description: string;
@@ -255,30 +257,33 @@ export function ActionCard({
   iconColor?: string;
   onClick?: () => void;
   className?: string;
+  href: string;
 }) {
   return (
-    <div
-      className={cn(
-        "bg-card border border-border rounded-2xl p-2 sm:p-4 cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 ease-linear active:scale-[0.98]",
-        className
-      )}
-      onClick={onClick}
-    >
-      <div className="flex items-center space-x-2 sm:space-x-3">
-        <div
-          className="p-2 sm:p-3 rounded-lg"
-          style={{ backgroundColor: "#F9FAFB" }}
-        >
-          <Icon className={cn("h-5 w-5 sm:h-6 sm:w-6", iconColor)} />
-        </div>
-        <div className="w-full">
-          <p className="text-md font-semibold truncate">{title}</p>
-          <p className="text-xs text-muted-foreground line-clamp-1 sm:line-clamp-2">
-            {description}
-          </p>
+    <Link href={href}>
+      <div
+        className={cn(
+          "bg-card border border-border rounded-2xl p-2 sm:p-4 cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 ease-linear active:scale-[0.98]",
+          className
+        )}
+        onClick={onClick}
+      >
+        <div className="flex items-center space-x-2 sm:space-x-3">
+          <div
+            className="p-2 sm:p-3 rounded-lg"
+            style={{ backgroundColor: "#F9FAFB" }}
+          >
+            <Icon className={cn("h-5 w-5 sm:h-6 sm:w-6", iconColor)} />
+          </div>
+          <div className="w-full">
+            <p className="text-md font-semibold truncate">{title}</p>
+            <p className="text-xs text-muted-foreground line-clamp-1 sm:line-clamp-2">
+              {description}
+            </p>
+          </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
 

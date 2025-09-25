@@ -126,7 +126,7 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
           {primaryAction && (
             <Button
               onClick={primaryAction.onClick}
-              className="flex items-center space-x-1 bg-[#166534] text-white hover:bg-[#0d4e27] rounded-full py-2 h-10 justify-center cursor-pointer w-auto px-4 sm:px-8"
+              className="flex items-center space-x-1 bg-[#1D923C] text-white hover:bg-[#0d4e27]/80 rounded-full py-2 h-10 justify-center cursor-pointer w-auto px-4 sm:px-8"
             >
               {primaryAction.icon && <primaryAction.icon className="h-5 w-5" />}
               <span className="font-medium text-xs sm:text-sm">{primaryAction.label}</span>

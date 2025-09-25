@@ -49,7 +49,7 @@ export default function DashboardPage() {
     }else{
       return (
         <SideBarLayout>
-          loading
+          <AdminDashboard />
         </SideBarLayout>
       )
     }

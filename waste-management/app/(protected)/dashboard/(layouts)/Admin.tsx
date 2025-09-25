@@ -9,7 +9,8 @@ import {
   FileText,
   Coins,
   MessageSquare,
-  Folder
+  Folder,
+  CalendarPlus
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { StatsCardGrid, DashboardCharts, ActionCard } from "@/components/ui/charts";
@@ -40,7 +41,7 @@ export function AdminDashboard() {
       {/* Greeting Section */}
       <div>
         <h1 className="text-xl sm:text-2xl font-bold text-foreground">{getGreeting()} {username}</h1>
-        <p className="text-sm sm:text-base text-muted-foreground">Explore whats today at WASTEX</p>
+        <p className="text-sm sm:text-base text-muted-foreground">Explore what&apos;s today at WASTEX</p>
       </div>
 
       {/* Stats Cards */}
@@ -79,42 +80,48 @@ export function AdminDashboard() {
       </div>
 
       {/* Action Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 pb-12 sm:pb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 pb-12 sm:pb-4">
         <ActionCard 
-          title="Create Campaign" 
+          title="Create Event" 
           description="Lorem ipsum dolor sit amet" 
-          icon={Folder}
+          icon={CalendarPlus}
           iconColor="text-amber-500"
+          href="/dashboard/event"
         />
         <ActionCard 
           title="Manage Users" 
           description="Lorem ipsum dolor sit amet" 
           icon={Users}
           iconColor="text-blue-500"
+          href="/dashboard/users"
         />
         <ActionCard 
           title="Manage Donations" 
           description="Lorem ipsum dolor sit amet" 
           icon={DollarSign}
           iconColor="text-green-500"
+          href="/dashboard/manage-donations"
         />
         <ActionCard 
           title="Manage Incentives" 
           description="Lorem ipsum dolor sit amet" 
           icon={Coins}
           iconColor="text-green-500"
+          href="/dashboard/manage-incentives"
         />
         <ActionCard 
           title="View User Feedback" 
           description="Lorem ipsum dolor sit amet" 
           icon={FileText}
           iconColor="text-amber-500"
+          href="/dashboard/user-feedback"
         />
         <ActionCard 
           title="Collection Points" 
           description="Lorem ipsum dolor sit amet" 
           icon={MessageSquare}
           iconColor="text-blue-500"
+          href="/dashboard/collection-points"
         />
       </div>
     </div>

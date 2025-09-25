@@ -52,7 +52,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(({
       ref={ref}
       className={cn(
         "hidden md:flex flex-col bg-white border-r border-gray-200 transition-all duration-300 rounded-3xl m-3 mr-0 mb-3 h-[calc(100vh-2.5rem)]",
-        collapsed ? "w-16" : "w-72",
+        collapsed ? "w-16" : "w-64",
         className
       )}
     >
@@ -101,7 +101,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(({
       )}
 
       {/* Navigation */}
-         <div className="flex-1 overflow-y-auto px-4 space-y-6 pt-8 sidebar-scroll">
+         <div className="flex-1 overflow-y-auto px-4 space-y-6 pt-8 ">
           {sections.map((section, sectionIndex) => (
             <div key={sectionIndex} className="space-y-3">
               {section.title && !collapsed && (
@@ -122,14 +122,14 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(({
                       size="sm"
                       className={cn(
                         "w-full justify-start h-12 rounded-3xl transition-all duration-200 cursor-pointer",
-                        isActive ? "text-white" : "text-sidebar-foreground/80 hover:text-sidebar-foreground hover:shadow-sm hover:scale-[1.01] active:scale-[0.99]",
+                        isActive ? "text-white hover:text-white" : "text-sidebar-foreground/80 hover:text-sidebar-foreground hover:shadow-sm hover:scale-[1.01] active:scale-[0.99]",
                         collapsed && "justify-center px-2"
                       )}
                       onClick={() => onItemClick?.(item)}
                       style={{
                         backgroundColor: isActive 
                           ? '#1D923C'
-                          : (isHovered ? 'rgba(34, 197, 94, 0.1)' : '#f1f5f9')
+                          : (isHovered ? 'rgba(34, 197, 94, 0.1)' : '#f1f5f9'),
                       }}
                       onMouseEnter={() => setIsHovered(true)}
                       onMouseLeave={() => setIsHovered(false)}
