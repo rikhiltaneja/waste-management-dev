@@ -258,3 +258,101 @@ body {
   scrollbar-width: thin;
   scrollbar-color: #d1d5db transparent;
 }
+
+/* Toast color classes */
+.bg-toast-background-error {
+  background-color: #fef2f2 !important; /* Light red background */
+}
+
+.border-toast-border-error {
+  border-color: #fecaca !important; /* Light red border */
+}
+
+.text-toast-text-error {
+  color: #dc2626 !important; /* Red text */
+}
+
+.bg-toast-background-success {
+  background-color: #f0fdf4 !important; /* Light green background */
+}
+
+.border-toast-border-success {
+  border-color: #bbf7d0 !important; /* Light green border */
+}
+
+.text-toast-text-success {
+  color: #16a34a !important; /* Green text */
+}
+
+.bg-toast-background-info {
+  background-color: #eff6ff !important; /* Light blue background */
+}
+
+.border-toast-border-info {
+  border-color: #bfdbfe !important; /* Light blue border */
+}
+
+.text-toast-text-info {
+  color: #2563eb !important; /* Blue text */
+}
+
+.bg-toast-background-warning {
+  background-color: #fffbeb !important; /* Light yellow background */
+}
+
+.border-toast-border-warning {
+  border-color: #fed7aa !important; /* Light yellow border */
+}
+
+.text-toast-text-warning {
+  color: #d97706 !important; /* Orange text */
+}
+
+/* Dark mode toast colors */
+.dark .bg-toast-background-error {
+  background-color: #1f1415 !important; /* Dark red background */
+}
+
+.dark .border-toast-border-error {
+  border-color: #7f1d1d !important; /* Dark red border */
+}
+
+.dark .text-toast-text-error {
+  color: #fca5a5 !important; /* Light red text */
+}
+
+.dark .bg-toast-background-success {
+  background-color: #0f1f0f !important; /* Dark green background */
+}
+
+.dark .border-toast-border-success {
+  border-color: #166534 !important; /* Dark green border */
+}
+
+.dark .text-toast-text-success {
+  color: #86efac !important; /* Light green text */
+}
+
+.dark .bg-toast-background-info {
+  background-color: #0f1419 !important; /* Dark blue background */
+}
+
+.dark .border-toast-border-info {
+  border-color: #1e3a8a !important; /* Dark blue border */
+}
+
+.dark .text-toast-text-info {
+  color: #93c5fd !important; /* Light blue text */
+}
+
+.dark .bg-toast-background-warning {
+  background-color: #1f1b0f !important; /* Dark yellow background */
+}
+
+.dark .border-toast-border-warning {
+  border-color: #92400e !important; /* Dark yellow border */
+}
+
+.dark .text-toast-text-warning {
+  color: #fbbf24 !important; /* Light orange text */
+}

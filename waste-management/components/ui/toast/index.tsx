@@ -177,7 +177,7 @@ export const setToast = (props: SetToastProps) => {
          return toast.custom(
             (toastId) =>
                renderToastContent({
-                  backgroundColorClassName: "bg-toast-background-error",
+                  backgroundColorClassName: "bg-white",
                   borderColorClassName: "border-toast-border-error",
                   icon: (
                      <XCircle
@@ -196,7 +196,7 @@ export const setToast = (props: SetToastProps) => {
          return toast.custom(
             (toastId) =>
                renderToastContent({
-                  backgroundColorClassName: "bg-toast-background-info",
+                  backgroundColorClassName: "bg-white",
                   borderColorClassName: "border-toast-border-info",
                   textColorClassName: "text-toast-text-info",
                   toastId,
@@ -206,7 +206,7 @@ export const setToast = (props: SetToastProps) => {
       case "loading":
          return toast.custom((toastId) =>
             renderToastContent({
-               backgroundColorClassName: "bg-toast-background-loading",
+               backgroundColorClassName: "bg-white",
                borderColorClassName: "border-toast-border-loading",
                icon: (
                   <CircularBarSpinner className="text-toast-text-tertiary" />
@@ -219,7 +219,7 @@ export const setToast = (props: SetToastProps) => {
          return toast.custom(
             (toastId) =>
                renderToastContent({
-                  backgroundColorClassName: "bg-toast-background-success",
+                  backgroundColorClassName: "bg-white",
                   borderColorClassName: "border-toast-border-success",
                   icon: (
                      <CheckCircle2
