@@ -1,97 +1,105 @@
-import { getAuth } from "@clerk/express";
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
+
+interface AuthRequest extends Express.Request {
+  auth?: any; // ideally type this properly later
+}
 
 export const onlyAdmins = async (
-  req: Request,
+  req: AuthRequest,
   res: Response,
   next: NextFunction
 ) => {
-  const auth = getAuth(req);
-  const metadata: { role: string } = auth.sessionClaims?.metadata as {
+  const metadata: { role: string } = req.auth?.sessionClaims?.metadata as {
     role: string;
   };
-  if (metadata.role == "Admin") {
-    next();
+
+  if (metadata?.role === "Admin") {
+    return next();
   }
-  res.status(401).json({ error: "Not Authorised" });
+
+  return res.status(401).json({ error: "Not Authorised" });
 };
 
 export const allAdmins = async (
-  req: Request,
+  req: AuthRequest,
   res: Response,
   next: NextFunction
 ) => {
-  const auth = getAuth(req);
-  const metadata: { role: string } = auth.sessionClaims?.metadata as {
+  const metadata: { role: string } = req.auth?.sessionClaims?.metadata as {
     role: string;
   };
+
   if (
-    metadata.role == "Admin" ||
-    metadata.role == "DistrictAdmin" ||
-    metadata.role == "LocalityAdmin"
+    metadata?.role === "Admin" ||
+    metadata?.role === "DistrictAdmin" ||
+    metadata?.role === "LocalityAdmin"
   ) {
-    next();
+    return next();
   }
-  res.status(401).json({ error: "Not Authorised" });
+
+  return res.status(401).json({ error: "Not Authorised" });
 };
 
 export const adminsAndWorkers = async (
-  req: Request,
+  req: AuthRequest,
   res: Response,
   next: NextFunction
 ) => {
-  const auth = getAuth(req);
-  const metadata: { role: string } = auth.sessionClaims?.metadata as {
+  const metadata: { role: string } = req.auth?.sessionClaims?.metadata as {
     role: string;
   };
+
   if (
-    metadata.role == "Admin" ||
-    metadata.role == "DistrictAdmin" ||
-    metadata.role == "LocalityAdmin" ||
-    metadata.role == "Worker"
+    metadata?.role === "Admin" ||
+    metadata?.role === "DistrictAdmin" ||
+    metadata?.role === "LocalityAdmin" ||
+    metadata?.role === "Worker"
   ) {
-    next();
+    return next();
   }
-  res.status(401).json({ error: "Not Authorised" });
+
+  return res.status(401).json({ error: "Not Authorised" });
 };
 
 export const adminsAndCitizens = async (
-  req: Request,
+  req: AuthRequest,
   res: Response,
   next: NextFunction
 ) => {
-  const auth = getAuth(req);
-  const metadata: { role: string } = auth.sessionClaims?.metadata as {
+  const metadata: { role: string } = req.auth?.sessionClaims?.metadata as {
     role: string;
   };
+
   if (
-    metadata.role == "Admin" ||
-    metadata.role == "DistrictAdmin" ||
-    metadata.role == "LocalityAdmin" ||
-    metadata.role == "Citizen"
+    metadata?.role === "Admin" ||
+    metadata?.role === "DistrictAdmin" ||
+    metadata?.role === "LocalityAdmin" ||
+    metadata?.role === "Citizen"
   ) {
-    next();
+    return next();
   }
-  res.status(401).json({ error: "Not Authorised" });
+
+  return res.status(401).json({ error: "Not Authorised" });
 };
 
 export const allUserTypes = async (
-  req: Request,
+  req: AuthRequest,
   res: Response,
   next: NextFunction
 ) => {
-  const auth = getAuth(req);
-  const metadata: { role: string } = auth.sessionClaims?.metadata as {
+  const metadata: { role: string } = req.auth?.sessionClaims?.metadata as {
     role: string;
   };
+
   if (
-    metadata.role == "Admin" ||
-    metadata.role == "DistrictAdmin" ||
-    metadata.role == "LocalityAdmin" ||
-    metadata.role == "Citizen" ||
-    metadata.role == "Worker"
+    metadata?.role === "Admin" ||
+    metadata?.role === "DistrictAdmin" ||
+    metadata?.role === "LocalityAdmin" ||
+    metadata?.role === "Citizen" ||
+    metadata?.role === "Worker"
   ) {
-    next();
+    return next();
   }
-  res.status(401).json({ error: "Not Authorised" });
+
+  return res.status(401).json({ error: "Not Authorised" });
 };

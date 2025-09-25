@@ -150,7 +150,7 @@ function SideBarLayout({
           id: "trainings",
           label: "Trainings",
           icon: BookOpenCheck,
-          href: "/trainings",
+          href: "/dashboard/trainings",
         },
         {
           id: "incentives",

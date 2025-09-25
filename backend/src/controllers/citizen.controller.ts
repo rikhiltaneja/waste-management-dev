@@ -4,6 +4,10 @@ import { clerkClient, getAuth } from "@clerk/express";
 
 const prisma = new PrismaClient();
 
+interface AuthRequest extends Request{
+  auth?: any
+}
+
 export const createCitizen = async (req: Request, res: Response) => {
   try {
     console.log("Received request body:", req.body);
@@ -58,19 +62,25 @@ export const createCitizen = async (req: Request, res: Response) => {
   }
 };
 
-export const getCitizenProfile = async (req: Request, res: Response) => {
-  const id = req.params.id;
-  const auth = getAuth(req);
-  if (id !== auth.userId) {
-    return res.status(401).json({ error: "Not authorised to access this resource" });
-  }
-
+export const getCitizenProfile = async (req: AuthRequest, res: Response) => {
   try {
+    const id = req.params.id;
+    const auth = req.auth;
+
+    if (id !== auth.userId) {
+      console.log('Unauthorized access attempt');
+      return res.status(401).json({ error: "Not authorised to access this resource" });
+    }
+
     const citizen = await prisma.citizen.findUnique({ where: { id } });
-    if (!citizen) return res.status(404).json({ error: "Citizen not found" });
-    res.json(citizen);
+    if (!citizen) {
+      return res.status(404).json({ error: "Citizen not found" });
+    }
+
+    return res.json(citizen);
   } catch (err) {
-    res.status(500).json({ error: "Internal server error", details: err });
+    console.error(err);
+    return res.status(500).json({ error: "Internal server error", details: err });
   }
 };
 
