@@ -6,6 +6,7 @@ import { LogOut, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useClerk } from "@clerk/nextjs";
+import Image from "next/image";
 
 export interface SidebarItem {
   id: string;
@@ -97,7 +98,9 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(({
         <div className="flex items-center justify-center p-4 pb-2">
           {!collapsed ? (
             <div className="flex items-center justify-center">
-              <img
+              <Image
+                width={100}
+                height={100}
                 src="/logo_green.png"
                 alt="Logo"
                 className="h-20 w-20 object-contain"
@@ -111,7 +114,9 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(({
               /> */}
             </div>
           ) : (
-            <img
+            <Image
+              width={100}
+              height={100}
               src="/logo_green.png"
               alt="Logo"
               className="h-8 w-8 object-contain mx-auto"

@@ -64,27 +64,9 @@ function SideBarLayout({
 
   const getActiveItem = () => {
     if (customActiveItem) return customActiveItem;
-
-    if (pathname === "/dashboard") return "dashboard";
-    if (pathname === "/dashboard/monitoring") return "monitoring";
-    if (pathname === "/dashboard/reports") return "reports";
-    if (pathname === "/dashboard/trainings") return "trainings";
-    if (pathname === "/dashboard/donations") return "donations";
-
-    if (pathname === "/dashboard/workers") return "workers";
-    if (pathname === "/dashboard/users") return "users";
-    if (pathname === "/dashboard/facilities") return "facilities";
-    if (pathname === "/shop/inventory") return "inventory";
-
-    if (pathname === "/cleaningdrives") return "cleaningdrives";
-    if (pathname === "/dashboard/complaints") return "complaints";
-    if (pathname === "/dashboard/complaints/new") return "complaints";
-
-    if (pathname === "/incentives") return "incentives";
-    if (pathname === "/support") return "support";
-    if (pathname === "/settings") return "settings";
-
-    return "dashboard";
+    const allItems = (customSidebarSections || []).flatMap(section => section.items);
+    const active = allItems.find(item => item.href === pathname);
+    return active?.id ?? "dashboard";
   };
 
   const handleItemClick = (item: SidebarItem) => {
