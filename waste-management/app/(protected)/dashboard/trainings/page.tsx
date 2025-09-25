@@ -1,6 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { useAuth } from "@clerk/nextjs";
+import React, { useState } from "react";
 import SideBarLayout from "@/components/sidebar/sidebar-layout";
 import Loading from "@/app/loading";
 import {
@@ -27,33 +26,21 @@ import {
 } from "@/components/modals/add-event-modal";
 import { EventCard } from "@/components/ui/event-card";
 import { formatDate } from "@/helpers/date.helper";
+import { useTrainingEvents } from "@/hooks/useTrainingEvents";
 
 type ViewMode = "table" | "grid" | "list" | "cards";
 
-// Backend API response interface
-interface BackendTrainingEvent {
-  id: number;
-  title: string;
-  description: string;
-  startDateTime: string;
-  endDateTime: string | null;
-  location: string;
-  maxCapacity: number | null;
-  targetAudience: string[];
-  status: string;
-  createdAt: string;
-  registrations?: unknown[]; // Array of registration objects
-  locality?: {
-    id: number;
-    name: string;
-  };
-}
-
 const CampaignPage = () => {
   const router = useRouter();
-  const { getToken } = useAuth();
-  const [events, setEvents] = useState<PhysicalTrainingEvent[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { 
+    events, 
+    loading, 
+    isOperating, 
+    createEvent, 
+    updateEvent, 
+    deleteEvent 
+  } = useTrainingEvents();
+  
   const [filter, setFilter] = useState<
     "ALL" | "ACTIVE" | "COMPLETED" | "CANCELLED" | "DRAFT"
   >("ALL");
@@ -61,81 +48,17 @@ const CampaignPage = () => {
   const [viewingEvent, setViewingEvent] =
     useState<PhysicalTrainingEvent | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
-  const [isCreatingEvent, setIsCreatingEvent] = useState(false);
 
   const handleAddEvent = () => {
     setIsAddModalOpen(true);
   };
 
   const handleCreateEvent = async (eventData: EventFormData) => {
-    setIsCreatingEvent(true);
     try {
-      // Get the authentication token
-      const token = await getToken();
-      
-      if (!token) {
-        throw new Error('Authentication token not available');
-      }
-
-      // Prepare the payload according to the backend API schema
-      const payload = {
-        title: eventData.title,
-        description: eventData.description,
-        startDateTime: new Date(eventData.startDateTime).toISOString(),
-        endDateTime: eventData.endDateTime ? new Date(eventData.endDateTime).toISOString() : null,
-        location: eventData.location,
-        maxCapacity: eventData.maxCapacity || null,
-        targetAudience: eventData.targetAudience,
-        status: eventData.status,
-        localityId: eventData.localityId || 1, // Default to locality 1 if not specified
-      };
-
-      console.log("Creating event with payload:", payload);
-
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/physical-training`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create event');
-      }
-
-      const newEvent = await response.json();
-      
-      // Transform the backend response to match frontend interface
-      const transformedEvent: PhysicalTrainingEvent = {
-        id: newEvent.id,
-        title: newEvent.title,
-        description: newEvent.description,
-        startDateTime: newEvent.startDateTime,
-        endDateTime: newEvent.endDateTime,
-        location: newEvent.location,
-        maxCapacity: newEvent.maxCapacity,
-        targetAudience: newEvent.targetAudience,
-        status: newEvent.status,
-        createdAt: newEvent.createdAt,
-        registrations: 0, // New events start with 0 registrations
-        locality: newEvent.locality ? { name: newEvent.locality.name } : undefined,
-      };
-
-      setEvents((prev) => [transformedEvent, ...prev]);
+      await createEvent(eventData);
       setIsAddModalOpen(false);
-      
-      // Show success message (you can add a toast/notification here)
-      console.log("Event created successfully!");
-      
     } catch (error) {
-      console.error("Error creating event:", error);
-      // Show error message to user (you can add a toast/notification here)
       alert(`Failed to create event: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    } finally {
-      setIsCreatingEvent(false);
     }
   };
 
@@ -150,33 +73,22 @@ const CampaignPage = () => {
     }
   };
 
+  const handleUpdateEvent = async (eventData: EventFormData) => {
+    if (!viewingEvent) return;
+    
+    try {
+      await updateEvent(viewingEvent.id, eventData);
+      setViewingEvent(null);
+    } catch (error) {
+      alert(`Failed to update event: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  };
+
   const handleDeleteEvent = async (id: number) => {
     if (confirm("Are you sure you want to delete this event?")) {
       try {
-        // Get the authentication token
-        const token = await getToken();
-        
-        if (!token) {
-          throw new Error('Authentication token not available');
-        }
-
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/physical-training/${id}`, {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to delete event');
-        }
-
-        setEvents(events.filter((event) => event.id !== id));
-        console.log("Event deleted successfully!");
-        
+        await deleteEvent(id);
       } catch (error) {
-        console.error("Error deleting event:", error);
         alert(`Failed to delete event: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
     }
@@ -209,78 +121,7 @@ const CampaignPage = () => {
     completedEvents: events.filter((e) => e.status === "COMPLETED").length,
   };
 
-  // Fetch training events from backend API
-  useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        setLoading(true);
-        
-        // Get the authentication token
-        const token = await getToken();
-        
-        if (!token) {
-          throw new Error('Authentication token not available');
-        }
 
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/physical-training`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to fetch events');
-        }
-
-        const responseData = await response.json();
-        console.log("Backend response:", responseData); // Debug log
-        
-        // Check if response is an array or has events property
-        let backendEvents: BackendTrainingEvent[];
-        if (Array.isArray(responseData)) {
-          backendEvents = responseData;
-        } else if (responseData.events && Array.isArray(responseData.events)) {
-          backendEvents = responseData.events;
-        } else if (responseData.data && Array.isArray(responseData.data)) {
-          backendEvents = responseData.data;
-        } else {
-          console.error("Unexpected response format:", responseData);
-          backendEvents = [];
-        }
-        
-        // Transform backend response to match frontend interface
-        const transformedEvents: PhysicalTrainingEvent[] = backendEvents.map((event: BackendTrainingEvent) => ({
-          id: event.id,
-          title: event.title,
-          description: event.description,
-          startDateTime: event.startDateTime,
-          endDateTime: event.endDateTime || undefined, // Convert null to undefined
-          location: event.location,
-          maxCapacity: event.maxCapacity || undefined, // Convert null to undefined
-          targetAudience: event.targetAudience,
-          status: event.status as "ACTIVE" | "CANCELLED" | "COMPLETED" | "DRAFT",
-          createdAt: event.createdAt,
-          registrations: event.registrations?.length || 0, // Count registrations if available
-          locality: event.locality ? { name: event.locality.name } : undefined,
-        }));
-
-        setEvents(transformedEvents);
-        
-      } catch (error) {
-        console.error("Error fetching events:", error);
-        // Set empty array on error so UI still works
-        setEvents([]);
-        // You can add a toast/notification here to show error to user
-        alert(`Failed to fetch events: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchEvents();
-  }, [getToken]);
 
   if (loading) {
     return (
@@ -352,7 +193,7 @@ const CampaignPage = () => {
                 key={status}
                 variant={filter === status ? "default" : "outline"}
                 onClick={() => setFilter(status)}
-                className="text-xs md:text-sm px-3 py-2"
+                className="text-xs md:text-sm px-3 py-2 cursor-pointer"
               >
                 {status}
               </Button>
@@ -367,7 +208,7 @@ const CampaignPage = () => {
                 variant={viewMode === "table" ? "default" : "ghost"}
                 size="sm"
                 onClick={() => setViewMode("table")}
-                className="px-3 py-2"
+                className="px-3 py-2 cursor-pointer"
               >
                 <List className="h-4 w-4" />
                 <span className="hidden lg:inline ml-2">Table</span>
@@ -378,7 +219,7 @@ const CampaignPage = () => {
               variant={viewMode === "grid" ? "default" : "ghost"}
               size="sm"
               onClick={() => setViewMode("grid")}
-              className="px-3 py-2"
+              className="px-3 py-2 cursor-pointer"
             >
               <Grid3X3 className="h-4 w-4" />
               <span className="hidden sm:inline ml-2">Grid</span>
@@ -389,7 +230,7 @@ const CampaignPage = () => {
                 variant={viewMode === "list" ? "default" : "ghost"}
                 size="sm"
                 onClick={() => setViewMode("list")}
-                className="px-3 py-2"
+                className="px-3 py-2 cursor-pointer"
               >
                 <LayoutGrid className="h-4 w-4" />
                 <span className="hidden lg:inline ml-2">List</span>
@@ -400,7 +241,7 @@ const CampaignPage = () => {
               variant={viewMode === "cards" ? "default" : "ghost"}
               size="sm"
               onClick={() => setViewMode("cards")}
-              className="px-3 py-2"
+              className="px-3 py-2 cursor-pointer"
             >
               <Calendar className="h-4 w-4" />
               <span className="hidden sm:inline ml-2">Cards</span>
@@ -502,7 +343,7 @@ const CampaignPage = () => {
                               variant="outline"
                               size="sm"
                               onClick={() => handleViewEvent(event.id)}
-                              className="p-2"
+                              className="p-2 cursor-pointer"
                             >
                               <Eye className="h-4 w-4" />
                             </Button>
@@ -510,7 +351,7 @@ const CampaignPage = () => {
                               variant="outline"
                               size="sm"
                               onClick={() => handleEditEvent(event.id)}
-                              className="p-2"
+                              className="p-2 cursor-pointer"
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
@@ -518,7 +359,7 @@ const CampaignPage = () => {
                               variant="outline"
                               size="sm"
                               onClick={() => handleDeleteEvent(event.id)}
-                              className="p-2 text-red-600 hover:text-red-700"
+                              className="p-2 text-red-600 hover:text-red-700 cursor-pointer"
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
@@ -653,7 +494,7 @@ const CampaignPage = () => {
               <div className="mt-6">
                 <Button
                   onClick={handleAddEvent}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 cursor-pointer"
                 >
                   <CalendarPlus className="h-4 w-4" />
                   Create Event
@@ -668,14 +509,15 @@ const CampaignPage = () => {
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onSubmit={handleCreateEvent}
-        isLoading={isCreatingEvent}
+        isLoading={isOperating}
       />
 
       <AddEventModal
         isOpen={!!viewingEvent}
         onClose={() => setViewingEvent(null)}
-        onSubmit={() => {}} // No submit action needed for view mode
-        mode="view"
+        onSubmit={handleUpdateEvent}
+        mode="edit"
+        isLoading={isOperating}
         initialData={
           viewingEvent
             ? {
@@ -691,7 +533,7 @@ const CampaignPage = () => {
                   viewingEvent.status === "CANCELLED"
                     ? "ACTIVE"
                     : viewingEvent.status,
-                localityId: null,
+                localityId: viewingEvent.localityId || null,
               }
             : undefined
         }
