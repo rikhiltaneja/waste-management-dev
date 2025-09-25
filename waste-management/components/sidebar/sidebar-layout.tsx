@@ -76,7 +76,7 @@ function SideBarLayout({
     if (pathname === "/grievances/new") return "grievances";
     if (pathname === "/trainings") return "trainings";
     if (pathname === "/incentives") return "incentives";
-    if (pathname === "/donations") return "donations";
+    if (pathname === "/dashboard/donations") return "donations";
     if (pathname === "/support") return "support";
     if (pathname === "/settings") return "settings";
 
