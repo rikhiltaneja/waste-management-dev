@@ -6,6 +6,8 @@ import {
   getPhysicalTrainingEventById,
   deletePhysicalTrainingEvent
 } from '../controllers/physicalTraining.controllers';
+import { authenticationCheck } from '../middlewares/authorization/general.auth';
+import { allAdmins, allUserTypes } from '../middlewares/authorization/role-based.auth';
 
 const router = Router();
 
@@ -314,10 +316,10 @@ const router = Router();
  *       500:
  *         description: Internal server error
  */
-router.get('/', getPhysicalTrainingEvents);
-router.post('/', createPhysicalTrainingEvent);
+router.get('/', authenticationCheck, allUserTypes, getPhysicalTrainingEvents);
+router.post('/', authenticationCheck, allAdmins, createPhysicalTrainingEvent);
 router.get('/:id', getPhysicalTrainingEventById);
-router.put('/:id', updatePhysicalTrainingEvent);
-router.delete('/:id', deletePhysicalTrainingEvent);
+router.put('/:id', authenticationCheck, allAdmins, updatePhysicalTrainingEvent);
+router.delete('/:id', authenticationCheck, allAdmins, deletePhysicalTrainingEvent);
 
 export default router;

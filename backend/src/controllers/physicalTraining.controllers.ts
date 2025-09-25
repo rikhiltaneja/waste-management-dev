@@ -3,6 +3,10 @@ import { PrismaClient } from "../../prisma/generated/prisma";
 
 const prisma = new PrismaClient();
 
+interface AuthRequest extends Request {
+  auth?: any;
+}
+
 export const getPhysicalTrainingEvents = async (req: Request, res: Response) => {
   try {
     const page = parseInt(req.query.page as string) || 1;
@@ -117,7 +121,7 @@ export const getPhysicalTrainingEvents = async (req: Request, res: Response) => 
   }
 };
 
-export const createPhysicalTrainingEvent = async (req: Request, res: Response) => {
+export const createPhysicalTrainingEvent = async (req: AuthRequest, res: Response) => {
   try {
     console.log('Request body:', JSON.stringify(req.body));
     
@@ -131,8 +135,6 @@ export const createPhysicalTrainingEvent = async (req: Request, res: Response) =
       targetAudience,
       status = 'ACTIVE',
       localityId,
-      createdByDistrictAdminId,
-      createdByLocalityAdminId
     } = req.body;
     
     console.log('Extracted values:', { title, description, startDateTime, location, targetAudience, localityId });
@@ -200,32 +202,30 @@ export const createPhysicalTrainingEvent = async (req: Request, res: Response) =
       });
     }
 
-    if (createdByDistrictAdminId) {
-      const districtAdmin = await prisma.districtAdmin.findUnique({
-        where: { id: createdByDistrictAdminId }
+    // Get user role and ID from authentication
+    const metadata: { role: string } = req.auth?.sessionClaims?.metadata as { role: string };
+    const userId = req.auth?.userId;
+    
+    if (!metadata?.role || !userId) {
+      return res.status(401).json({
+        error: {
+          message: 'Authentication information not available',
+          code: 'AUTH_ERROR'
+        }
       });
-      if (!districtAdmin) {
-        return res.status(400).json({
-          error: {
-            message: 'District admin not found',
-            code: 'DISTRICT_ADMIN_NOT_FOUND'
-          }
-        });
-      }
     }
 
-    if (createdByLocalityAdminId) {
-      const localityAdmin = await prisma.localityAdmin.findUnique({
-        where: { id: createdByLocalityAdminId }
-      });
-      if (!localityAdmin) {
-        return res.status(400).json({
-          error: {
-            message: 'Locality admin not found',
-            code: 'LOCALITY_ADMIN_NOT_FOUND'
-          }
-        });
-      }
+    // Set admin IDs based on user role
+    let createdByDistrictAdminId = null;
+    let createdByLocalityAdminId = null;
+    
+    if (metadata.role === 'DistrictAdmin') {
+      createdByDistrictAdminId = userId;
+    } else if (metadata.role === 'LocalityAdmin') {
+      createdByLocalityAdminId = userId;
+    } else if (metadata.role === 'Admin') {
+      // Super admin can create events, but we don't track their ID in these fields
+      // You might want to add a separate field for super admin if needed
     }
 
     const event = await prisma.physicalTrainingEvent.create({
