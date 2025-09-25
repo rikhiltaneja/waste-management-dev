@@ -120,7 +120,7 @@ function SideBarLayout({
   };
 
   return (
-    <div className="flex h-screen bg-background overflow-hidden">
+    <div className="flex h-screen bg-background overflow-hidden sidebar-layout">
       <div className="flex flex-col">
         {sidebarBackButton && (
           <div className="mx-4 mt-4 mb-2">
