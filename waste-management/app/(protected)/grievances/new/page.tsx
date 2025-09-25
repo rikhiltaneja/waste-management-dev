@@ -33,8 +33,6 @@ export default function NewGrievances() {
     };
   }, []);
 
-  // ...existing code...
-
   if (!isMobile) {
     return (
       <div className="flex flex-col items-center justify-center h-full">
@@ -72,12 +70,10 @@ export default function NewGrievances() {
 
   const handleNext = () => {
     alert("Proceeding to next step...");
-    // Add your next step logic here
   };
 
   return (
     <div className="flex flex-col items-center justify-center h-full">
-      {/* Hidden file input for camera */}
       <input
         ref={fileInputRef}
         type="file"
@@ -87,9 +83,8 @@ export default function NewGrievances() {
         onChange={handleImageChange}
       />
 
-      {/* Image template or captured image */}
       <div
-        className={`w-64 h-64 rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-100 cursor-pointer mb-6 ${
+        className={`w-64 h-64 rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-100 cursor-pointer mb-4 ${
           imageSrc ? "" : "hover:border-green-500"
         }`}
         onClick={!imageSrc ? handleTemplateClick : undefined}
@@ -105,7 +100,15 @@ export default function NewGrievances() {
         )}
       </div>
 
-      {/* Retake and Next buttons, only after photo is taken */}
+      <div className="mb-4 sm:mb-6 w-full text-center">
+        <h2 className="text-lg sm:text-xl font-semibold text-foreground">
+          Image Confirmation
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          Continue to enter details
+        </p>
+      </div>
+
       {imageSrc && (
         <div className="flex gap-4">
           <button
