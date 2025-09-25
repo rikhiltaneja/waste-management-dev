@@ -36,8 +36,6 @@ export function CitizenDashboard() {
     init();
   }, [isLoaded, isSignedIn, user, getToken, setUserProfile]);
 
-  
-
   const handleViewEvent = (id: number) => {
     router.push(`/dashboard/trainings/${id}`);
   };
@@ -132,7 +130,7 @@ export function CitizenDashboard() {
               imageSrc="/camera-dynamic.png"
               title="Report"
               description="Lorem ipsum dolor"
-              href="/complaints/new"
+              href="/dashboard/complaints/new"
             />
             <ServiceCard
               imageSrc="/trash-can-dynamic.png"
@@ -144,7 +142,7 @@ export function CitizenDashboard() {
               imageSrc="/megaphone-dynamic.png"
               title="Campaign"
               description="Lorem ipsum dolor"
-              href="/trainings"
+              href="/dashboard/trainings"
             />
             <ServiceCard
               imageSrc="/chat-bubble-dynamic.png"

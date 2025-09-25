@@ -20,9 +20,24 @@ interface NavItem {
 
 const items: NavItem[] = [
   { id: 0, icon: <Home size={23} />, label: "Home", href: "/dashboard" },
-  { id: 1, icon: <CalendarDays size={23} />, label: "Search", href: "/cleaningdrives" },
-  { id: 2, icon: <BriefcaseBusiness size={23} />, label: "Alerts", href: "/trainings" },
-  { id: 3, icon: <Clock2 size={23} />, label: "Profile", href: "/complaints" },
+  {
+    id: 1,
+    icon: <CalendarDays size={23} />,
+    label: "Search",
+    href: "/cleaningdrives",
+  },
+  {
+    id: 2,
+    icon: <BriefcaseBusiness size={23} />,
+    label: "Alerts",
+    href: "/dashboard/trainings",
+  },
+  {
+    id: 3,
+    icon: <Clock2 size={23} />,
+    label: "Profile",
+    href: "/dashboard/complaints",
+  },
   { id: 4, icon: <Settings size={23} />, label: "Saved", href: "/settings" },
 ];
 
@@ -34,8 +49,7 @@ const MobileNavbar = () => {
     <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-lg px-4 md:hidden">
       <div className="relative flex items-center justify-between gap-2 bg-[#111827e5] backdrop-blur-2xl rounded-full px-4 py-2 shadow-xl border-3 border-white overflow-hidden">
         {items.map((item) => {
-          const isActive = pathname.startsWith(item.href);
-
+          const isActive = pathname === item.href;
           return (
             <motion.div
               key={item.id}

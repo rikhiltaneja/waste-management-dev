@@ -163,7 +163,7 @@ export default function NewGrievances() {
           You will receive details over email.
         </p>
         <button
-          onClick={() => router.push("/dashboard/grievances")}
+          onClick={() => router.push("/dashboard/complaints")}
           className="px-8 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition"
         >
           Go Back

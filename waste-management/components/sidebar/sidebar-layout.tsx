@@ -87,7 +87,6 @@ function SideBarLayout({
     return "dashboard";
   };
 
-  
   const handleItemClick = (item: SidebarItem) => {
     if (item.href) router.push(item.href);
     if (item.onClick) item.onClick();
