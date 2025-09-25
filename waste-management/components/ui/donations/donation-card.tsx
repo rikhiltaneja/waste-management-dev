@@ -22,12 +22,12 @@ export function DonationTypeCard({
       )}
     >
       <div className="w-full aspect-square max-w-[110px] sm:max-w-[140px] md:max-w-[160px] lg:max-w-[128px] xl:max-w-[160px] rounded-2xl bg-gradient-to-bl from-[#90DBD0] to-[#BFDEC7] flex items-center justify-center mx-auto mb-2 sm:mb-3 p-3 sm:p-4 lg:p-6">
-  <img
-    src={imageSrc}
-    alt={title}
-    className="w-full h-full object-contain"
-  />
-</div>
+        <img
+          src={imageSrc}
+          alt={title}
+          className="w-full h-full object-contain"
+        />
+      </div>
       <div className="font-semibold text-foreground text-xs sm:text-sm lg:text-base">
         {title}
       </div>
