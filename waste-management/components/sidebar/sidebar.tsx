@@ -167,7 +167,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(({
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => signOut({ redirectUrl: "/" })}
+            onClick={() => signOut({ redirectUrl: "/sign-in" })}
             className={cn(
               "w-full justify-start h-12 rounded-3xl transition-all duration-200 cursor-pointer text-sidebar-foreground/80 hover:shadow-sm hover:scale-[1.01] active:scale-[0.99]",
               collapsed && "justify-center px-2"
