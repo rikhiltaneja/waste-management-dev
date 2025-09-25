@@ -162,7 +162,7 @@ function SideBarLayout({
           id: "donations",
           label: "Donations",
           icon: HandCoins,
-          href: "/donations",
+          href: "/dashboard/donations",
         },
         { id: "support", label: "Support", icon: HelpCircle, href: "/support" },
         {
