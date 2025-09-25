@@ -17,6 +17,7 @@ import userRegistrationsRouter from './routes/userRegistrations.routes';
 import swaggerUI from 'swagger-ui-express';
 import swaggerSpec from './swagger';
 import { errorHandler } from './middlewares/errorHandler.middleware';
+import { workersPredictionRouter } from "./routes/workersPrediction.routes";
 
 const app = express();
 const PORT = 8080;
@@ -42,6 +43,8 @@ app.use('/attendance', attendanceRouter);
 app.use('/learning-materials', learningMaterialsRouter);
 app.use('/compliance', complianceRouter);
 app.use('/user-registrations', userRegistrationsRouter);
+
+app.use('/workers-prediction', workersPredictionRouter)
 
 app.use(errorHandler);
 
