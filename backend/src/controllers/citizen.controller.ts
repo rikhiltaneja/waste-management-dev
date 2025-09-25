@@ -9,24 +9,55 @@ interface AuthRequest extends Request{
 }
 
 export const createCitizen = async (req: Request, res: Response) => {
-  const { id, name, phoneNumber, email, localityId } = req.body;
-
-  await clerkClient.users.updateUserMetadata(id, {
-    publicMetadata: {
-      role: "Citizen",
-    },
-  });
-
-  if (!id || !name || !phoneNumber || !email || !localityId) {
-    return res.status(400).json({ error: "All fields are required" });
-  }
-
   try {
+    console.log("Received request body:", req.body);
+    const { id, name, phoneNumber, email, localityId } = req.body;
+
+    // Validate first before making any external API calls
+    if (!id || !name || !phoneNumber || !email || !localityId) {
+      console.log("Validation failed - missing fields");
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
+    console.log("Attempting to update Clerk metadata for user:", id);
+    
+    // Update Clerk user metadata first
+    try {
+      await clerkClient.users.updateUserMetadata(String(id), {
+        publicMetadata: {
+          role: "Citizen",
+        },
+      });
+      console.log("Clerk metadata updated successfully");
+    } catch (clerkErr: any) {
+      console.error("Clerk error:", clerkErr);
+      if (clerkErr.status === 404) {
+        console.log(`User with ID '${id}' does not exist in Clerk`);
+        return res.status(404).json({ 
+          error: "User not found", 
+          message: `User with ID '${id}' does not exist in authentication system`
+        });
+      }
+      return res.status(500).json({ error: "Failed to update user metadata", details: clerkErr.message });
+    }
+
+    console.log("Attempting to create citizen in database");
+    
+    // Create citizen in database
     const citizen = await prisma.citizen.create({
-      data: { id, name, phoneNumber: String(phoneNumber), email, localityId },
+      data: { 
+        id: String(id), 
+        name, 
+        phoneNumber: String(phoneNumber), 
+        email, 
+        localityId: Number(localityId) 
+      },
     });
+    
+    console.log("Citizen created successfully:", citizen);
     res.status(201).json(citizen);
   } catch (err) {
+    console.error("Error creating citizen:", err);
     res.status(500).json({ error: "Internal server error", details: err });
   }
 };

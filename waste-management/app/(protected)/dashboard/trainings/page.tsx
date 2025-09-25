@@ -1,6 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { useAuth } from "@clerk/nextjs";
 import SideBarLayout from "@/components/sidebar/sidebar-layout";
+import Loading from "@/app/loading";
 import {
   CalendarPlus,
   Eye,
@@ -31,6 +33,7 @@ type ViewMode = "table" | "grid" | "list" | "cards";
 
 const CampaignPage = () => {
   const router = useRouter();
+  const { getToken } = useAuth();
   const [events, setEvents] = useState<PhysicalTrainingEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<
@@ -40,36 +43,81 @@ const CampaignPage = () => {
   const [viewingEvent, setViewingEvent] =
     useState<PhysicalTrainingEvent | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
+  const [isCreatingEvent, setIsCreatingEvent] = useState(false);
 
   const handleAddEvent = () => {
     setIsAddModalOpen(true);
   };
 
   const handleCreateEvent = async (eventData: EventFormData) => {
+    setIsCreatingEvent(true);
     try {
-      // Here you would make an API call to create the event
-      // const newEvent = await createEvent(eventData)
+      // Get the authentication token
+      const token = await getToken();
+      
+      if (!token) {
+        throw new Error('Authentication token not available');
+      }
 
-      // For now, we'll create a mock event
-      const newEvent: PhysicalTrainingEvent = {
-        id: events.length + 1,
+      // Prepare the payload according to the backend API schema
+      const payload = {
         title: eventData.title,
         description: eventData.description,
-        startDateTime: eventData.startDateTime,
-        endDateTime: eventData.endDateTime,
+        startDateTime: new Date(eventData.startDateTime).toISOString(),
+        endDateTime: eventData.endDateTime ? new Date(eventData.endDateTime).toISOString() : null,
         location: eventData.location,
-        maxCapacity: eventData.maxCapacity ?? undefined,
+        maxCapacity: eventData.maxCapacity || null,
         targetAudience: eventData.targetAudience,
         status: eventData.status,
-        createdAt: new Date().toISOString(),
-        registrations: 0,
-        locality: { name: "New Locality" },
+        localityId: eventData.localityId || 1, // Default to locality 1 if not specified
       };
 
-      setEvents((prev) => [newEvent, ...prev]);
+      console.log("Creating event with payload:", payload);
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/physical-training`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create event');
+      }
+
+      const newEvent = await response.json();
+      
+      // Transform the backend response to match frontend interface
+      const transformedEvent: PhysicalTrainingEvent = {
+        id: newEvent.id,
+        title: newEvent.title,
+        description: newEvent.description,
+        startDateTime: newEvent.startDateTime,
+        endDateTime: newEvent.endDateTime,
+        location: newEvent.location,
+        maxCapacity: newEvent.maxCapacity,
+        targetAudience: newEvent.targetAudience,
+        status: newEvent.status,
+        createdAt: newEvent.createdAt,
+        registrations: 0, // New events start with 0 registrations
+        locality: newEvent.locality ? { name: newEvent.locality.name } : undefined,
+      };
+
+      setEvents((prev) => [transformedEvent, ...prev]);
       setIsAddModalOpen(false);
+      
+      // Show success message (you can add a toast/notification here)
+      console.log("Event created successfully!");
+      
     } catch (error) {
       console.error("Error creating event:", error);
+      // Show error message to user (you can add a toast/notification here)
+      alert(`Failed to create event: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setIsCreatingEvent(false);
     }
   };
 
@@ -87,11 +135,31 @@ const CampaignPage = () => {
   const handleDeleteEvent = async (id: number) => {
     if (confirm("Are you sure you want to delete this event?")) {
       try {
-        // API call to delete event
-        // await deleteEvent(id)
+        // Get the authentication token
+        const token = await getToken();
+        
+        if (!token) {
+          throw new Error('Authentication token not available');
+        }
+
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/physical-training/${id}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to delete event');
+        }
+
         setEvents(events.filter((event) => event.id !== id));
+        console.log("Event deleted successfully!");
+        
       } catch (error) {
         console.error("Error deleting event:", error);
+        alert(`Failed to delete event: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
     }
   };
@@ -181,9 +249,10 @@ const CampaignPage = () => {
 
   if (loading) {
     return (
-        <div className="flex items-center justify-center h-64">
-          <div className="text-lg">Loading events...</div>
-        </div>
+      <SideBarLayout>
+        <Loading />
+      </SideBarLayout>
+
     );
   }
   const statusOptions: Array<
@@ -565,6 +634,7 @@ const CampaignPage = () => {
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onSubmit={handleCreateEvent}
+        isLoading={isCreatingEvent}
       />
 
       <AddEventModal

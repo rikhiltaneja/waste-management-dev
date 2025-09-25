@@ -8,8 +8,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
 import { setToast } from "@/components/ui/toast";
+import Loading from "@/app/loading";
+import { Loader2 } from "lucide-react";
 
 const carouselImages = [
   {
@@ -73,10 +74,48 @@ export default function SignUp() {
   });
 
   useEffect(() => {
+    if (isLoaded && isSignedIn) {
+      router.push("/dashboard");
+    }
+  }, [isLoaded, isSignedIn, router]);
+  
+  console.log(process.env.NEXT_PUBLIC_API_URL)
+
+  useEffect(() => {
     if (isSignedIn && userId) {
       signUpCustomRequest();
     }
   }, [isSignedIn, userId]);
+
+  // Global paste handler for OTP
+  useEffect(() => {
+    const handleGlobalPaste = (e: ClipboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target && target.tagName === 'INPUT' && target.getAttribute('data-index')) {
+        const pastedData = e.clipboardData?.getData('text') || '';
+        const numbers = pastedData.replace(/\D/g, '').slice(0, 6);
+        
+        if (numbers.length > 1) {
+          e.preventDefault();
+          const newOtp = details.otp.split('');
+          for (let i = 0; i < numbers.length && i < 6; i++) {
+            newOtp[i] = numbers[i];
+          }
+          setDetails({ ...details, otp: newOtp.join('') });
+          
+          // Focus the next empty input or the last filled input
+          const nextIndex = Math.min(numbers.length, 5);
+          const nextInput = document.querySelector(`input[data-index="${nextIndex}"]`) as HTMLInputElement;
+          if (nextInput) {
+            nextInput.focus();
+          }
+        }
+      }
+    };
+
+    document.addEventListener('paste', handleGlobalPaste);
+    return () => document.removeEventListener('paste', handleGlobalPaste);
+  }, [details.otp]);
   
   const signUpCustomRequest = () => {
     if (!userId) {
@@ -158,6 +197,9 @@ export default function SignUp() {
       
       if (clerkError?.errors?.some((err) => err.code === "form_identifier_exists")) {
         setToast({ title: "Account Exists", message: "An account with this email already exists. Please sign in instead.", type: "error" });
+        setTimeout(() => {
+            router.push("/sign-in");
+          }, 2000);
         return;
       }
       
@@ -252,20 +294,7 @@ export default function SignUp() {
 
   if (!isLoaded) {
     return (
-      <div className="h-[100dvh] w-[100dvw] flex items-center justify-center bg-white">
-        <div className="flex flex-col items-center gap-4">
-          <Image 
-            src="/logo_green.png" 
-            alt="Logo" 
-            width={80} 
-            height={80} 
-            className="w-[80px] h-auto object-contain" 
-            priority
-          />
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-sm text-gray-500">Loading...</p>
-        </div>
-      </div>
+      <Loading/>
     );
   }
 
@@ -380,7 +409,7 @@ export default function SignUp() {
             >
               {isLoading && loadingType === 'otp' ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin" /> 
+                  <Loader2 size="sm" className="animate-spin" /> 
                   Sending OTP...
                 </>
               ) : (
@@ -401,6 +430,7 @@ export default function SignUp() {
                 {Array(6).fill(0).map((_, index) => (
                   <Input
                     key={index}
+                    data-index={index}
                     type="text"
                     inputMode="numeric"
                     pattern="[0-9]*"
@@ -416,6 +446,26 @@ export default function SignUp() {
                         
                         if (value && e.target.nextElementSibling instanceof HTMLInputElement) {
                           (e.target.nextElementSibling as HTMLInputElement).focus();
+                        }
+                      }
+                    }}
+                    onPaste={(e) => {
+                      e.preventDefault();
+                      const pastedData = e.clipboardData.getData('text');
+                      const numbers = pastedData.replace(/\D/g, '').slice(0, 6);
+                      
+                      if (numbers.length > 0) {
+                        const newOtp = details.otp.split('');
+                        for (let i = 0; i < numbers.length && (index + i) < 6; i++) {
+                          newOtp[index + i] = numbers[i];
+                        }
+                        setDetails({ ...details, otp: newOtp.join('') });
+                        
+                        // Focus the next empty input or the last filled input
+                        const nextIndex = Math.min(index + numbers.length, 5);
+                        const nextInput = document.querySelector(`input[data-index="${nextIndex}"]`) as HTMLInputElement;
+                        if (nextInput) {
+                          nextInput.focus();
                         }
                       }
                     }}
@@ -447,7 +497,7 @@ export default function SignUp() {
             >
               {isLoading && loadingType === 'verify' ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin" /> 
+                  <Loader2 size="sm" className="animate-spin" /> 
                   Verifying...
                 </>
               ) : (

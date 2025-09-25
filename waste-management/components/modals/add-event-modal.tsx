@@ -15,6 +15,7 @@ interface AddEventModalProps {
   onSubmit: (eventData: EventFormData) => void
   initialData?: Partial<EventFormData>
   mode?: 'create' | 'view' | 'edit'
+  isLoading?: boolean
 }
 
 export interface EventFormData {
@@ -41,7 +42,8 @@ export const AddEventModal: React.FC<AddEventModalProps> = ({
   onClose, 
   onSubmit, 
   initialData,
-  mode = 'create'
+  mode = 'create',
+  isLoading = false
 }) => {
   const [formData, setFormData] = useState<EventFormData>({
     title: '',
@@ -80,7 +82,7 @@ export const AddEventModal: React.FC<AddEventModalProps> = ({
 
   const [errors, setErrors] = useState<Partial<EventFormData>>({})
 
-  const handleInputChange = (field: keyof EventFormData, value: any) => {
+  const handleInputChange = (field: keyof EventFormData, value: string | number | string[] | null) => {
     setFormData(prev => ({ ...prev, [field]: value }))
     // Clear error when user starts typing
     if (errors[field]) {
@@ -272,6 +274,25 @@ export const AddEventModal: React.FC<AddEventModalProps> = ({
             {errors.targetAudience && <p className="text-sm text-red-500">{errors.targetAudience[0]}</p>}
           </div>
 
+          {/* Locality Selection */}
+          <div className="space-y-2">
+            <Label htmlFor="locality">Locality</Label>
+            <Select 
+              value={formData.localityId?.toString() || ''} 
+              onValueChange={(value) => handleInputChange('localityId', value ? parseInt(value) : null)}
+              disabled={mode === 'view'}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select locality (optional)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1">Koramangala</SelectItem>
+                <SelectItem value="2">Indiranagar</SelectItem>
+                <SelectItem value="3">VV Mohalla</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           {/* Status */}
           <div className="space-y-2">
             <Label htmlFor="status">Event Status</Label>
@@ -296,13 +317,13 @@ export const AddEventModal: React.FC<AddEventModalProps> = ({
               {mode === 'view' ? 'Close' : 'Cancel'}
             </Button>
             {mode === 'create' && (
-              <Button type="submit">
-                Create Event
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? "Creating..." : "Create Event"}
               </Button>
             )}
             {mode === 'edit' && (
-              <Button type="submit">
-                Update Event
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? "Updating..." : "Update Event"}
               </Button>
             )}
           </div>
