@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { CitizenDashboard } from "./(layouts)/Citizen";
 import { useUser } from "@clerk/nextjs";
+import { WorkerDashboard } from "./(layouts)/Worker";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -44,6 +45,12 @@ export default function DashboardPage() {
       return (
         <SideBarLayout>
           <CitizenDashboard />
+        </SideBarLayout>
+      );
+    } else if (role == "Worker") {
+      return (
+        <SideBarLayout>
+          <WorkerDashboard />
         </SideBarLayout>
       );
     }else{
