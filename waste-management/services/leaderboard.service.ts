@@ -11,7 +11,7 @@ export interface WorkerData {
 }
 
 export class LeaderboardService {
-  private static readonly API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+  private static readonly API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
   static async fetchLeaderboardData(): Promise<WorkerData[]> {
     try {

@@ -307,9 +307,11 @@ workersPredictionRouter.get("/recommend", (req, res) => {
       } else {
         // Convert back to CSV
         const csvHeaders = Object.keys(workers[0] || {}).join(',');
-        const csvRows = workers.map(worker => 
-          Object.values(worker).map(val => val.toString()).join(',')
-        );
+const csvRows = workers.map(worker => 
+  Object.values(worker as Record<string, any>)
+    .map(val => val.toString())
+    .join(',')
+);
         const csvData = [csvHeaders, ...csvRows].join('\n');
         
         res.setHeader("Content-Type", "text/csv");

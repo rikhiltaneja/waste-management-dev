@@ -35,7 +35,7 @@ interface AssignTaskResponse {
 }
 
 class WorkerRecommendationService {
-  private baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+  private baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
   async getRecommendedWorkers(options?: {
     locality?: string;
