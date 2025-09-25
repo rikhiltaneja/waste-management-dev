@@ -19,9 +19,17 @@ import swaggerSpec from './swagger';
 import { clerkMiddleware } from "@clerk/express";
 import { errorHandler } from './middlewares/errorHandler.middleware';
 import { workersPredictionRouter } from "./routes/workersPrediction.routes";
+import Razorpay from "razorpay";
+import { donationRouter } from "./routes/donations.routes";
 
 const app = express();
 const PORT = 8080;
+
+
+export const instance = new Razorpay({
+  key_id: process.env.KEY_ID,
+  key_secret: process.env.KEY_SECRET,
+});
 
 app.use(cors());
 app.use(express.json());
@@ -47,6 +55,8 @@ app.use('/compliance', complianceRouter);
 app.use('/user-registrations', userRegistrationsRouter);
 
 app.use('/workers-prediction', workersPredictionRouter)
+
+app.use('/donations', donationRouter)
 
 app.use(errorHandler);
 

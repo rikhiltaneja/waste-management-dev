@@ -15,7 +15,7 @@ datasource db {
 }
 
 model Admin {
-  id        String   @id  
+  id        String   @id
   name      String
   email     String   @unique
   verified  Boolean  @default(false)
@@ -25,7 +25,7 @@ model Admin {
 }
 
 model DistrictAdmin {
-  id          String   @id  
+  id          String    @id
   govtId      String    @unique
   name        String
   phoneNumber String    @unique
@@ -37,7 +37,7 @@ model DistrictAdmin {
 }
 
 model LocalityAdmin {
-  id          String      @id  
+  id          String      @id
   govtId      String      @unique
   name        String
   phoneNumber String      @unique
@@ -50,7 +50,7 @@ model LocalityAdmin {
 }
 
 model Citizen {
-  id          String      @id  
+  id          String      @id
   name        String
   phoneNumber String      @unique
   email       String      @unique
@@ -61,22 +61,22 @@ model Citizen {
 
   physicalTrainingRegistrations PhysicalTrainingRegistration[]
   physicalTrainingAttendances   PhysicalTrainingAttendance[]
-  learningProgress LearningProgress[]
+  learningProgress              LearningProgress[]
+  Donations                     Donations[]
 }
 
 model Worker {
-  id          String   @id  
-  name        String
-  phoneNumber String   @unique
-  email       String   @unique
-  locality    Locality @relation(fields: [localityId], references: [id])
-  localityId  Int
-  complaints  Complaint[] @relation("WorkerComplaints")
-  workerType  WorkerType
+  id                            String                         @id
+  name                          String
+  phoneNumber                   String                         @unique
+  email                         String                         @unique
+  locality                      Locality                       @relation(fields: [localityId], references: [id])
+  localityId                    Int
+  complaints                    Complaint[]                    @relation("WorkerComplaints")
+  workerType                    WorkerType
   physicalTrainingRegistrations PhysicalTrainingRegistration[]
   physicalTrainingAttendances   PhysicalTrainingAttendance[]
-  learningProgress LearningProgress[]
-
+  learningProgress              LearningProgress[]
   assignedTasks     Int      @default(0)
   completedTasks    Int      @default(0)
   avgDifficulty     Int      @default(0)
@@ -85,17 +85,17 @@ model Worker {
 }
 
 model District {
-  id             Int           @id @default(autoincrement())
-  localities     Locality[]
-  admin          DistrictAdmin? @relation(fields: [districtAdminId], references: [id])
+  id              Int            @id @default(autoincrement())
+  localities      Locality[]
+  admin           DistrictAdmin? @relation(fields: [districtAdminId], references: [id])
   districtAdminId String?        @unique
   name            String
   state           String
 }
 
 model Locality {
-  id              Int           @id @default(autoincrement())
-  district        District      @relation(fields: [districtId], references: [id])
+  id              Int            @id @default(autoincrement())
+  district        District       @relation(fields: [districtId], references: [id])
   districtId      Int
   citizens        Citizen[]
   workers         Worker[]
@@ -112,13 +112,13 @@ model Complaint {
   description     String
   complaintImage  String?
   createdAt       DateTime        @default(now())
-  citizenId       String      
+  citizenId       String
   status          ComplaintStatus @default(PENDING)
-  workerId        String?        
+  workerId        String?
   reviewText      String?
-  rating          Float       @default(0)
+  rating          Float           @default(0)
   workDoneImage   String?
-  localityAdminId String?        
+  localityAdminId String?
   citizen         Citizen         @relation("CitizenComplaints", fields: [citizenId], references: [id])
   localityAdmin   LocalityAdmin?  @relation("AssignedComplaints", fields: [localityAdminId], references: [id])
   worker          Worker?         @relation("WorkerComplaints", fields: [workerId], references: [id])
@@ -140,8 +140,8 @@ model PhysicalTrainingEvent {
   registrations PhysicalTrainingRegistration[]
   attendances   PhysicalTrainingAttendance[]
 
-  createdByDistrictAdminId String?      
-  createdByLocalityAdminId String?       
+  createdByDistrictAdminId String?
+  createdByLocalityAdminId String?
   createdByDistrictAdmin   DistrictAdmin? @relation("CreatedPhysicalByDistrictAdmin", fields: [createdByDistrictAdminId], references: [id])
   createdByLocalityAdmin   LocalityAdmin? @relation("CreatedPhysicalByLocalityAdmin", fields: [createdByLocalityAdminId], references: [id])
 
@@ -155,7 +155,7 @@ model PhysicalTrainingRegistration {
   registrationDate DateTime           @default(now())
   status           RegistrationStatus @default(REGISTERED)
 
-  citizenId String? 
+  citizenId String?
   workerId  String?
   citizen   Citizen? @relation(fields: [citizenId], references: [id])
   worker    Worker?  @relation(fields: [workerId], references: [id])
@@ -174,7 +174,7 @@ model PhysicalTrainingAttendance {
   completionStatus CompletionStatus @default(NOT_COMPLETED)
   certificateUrl   String?
 
-  citizenId String? 
+  citizenId String?
   workerId  String?
   citizen   Citizen? @relation(fields: [citizenId], references: [id])
   worker    Worker?  @relation(fields: [workerId], references: [id])
@@ -200,7 +200,7 @@ model LearningMaterial {
   createdAt         DateTime   @default(now())
   updatedAt         DateTime   @updatedAt
 
-  createdByAdminId String 
+  createdByAdminId String
   createdByAdmin   Admin  @relation(fields: [createdByAdminId], references: [id])
 
   progress LearningProgress[]
@@ -224,6 +224,15 @@ model LearningProgress {
   @@unique([workerId, learningMaterialId])
 }
 
+model Donations {
+  id        Int          @id @default(autoincrement())
+  time      DateTime     @default(now())
+  citizenId String
+  citizen   Citizen      @relation(fields: [citizenId], references: [id])
+  amount    Int
+  type      DonationType
+}
+
 enum EventStatus {
   ACTIVE
   CANCELLED
@@ -240,7 +249,7 @@ enum UserRole {
 }
 
 enum RegistrationStatus {
-  CANCELLED 
+  CANCELLED
   REGISTERED
   WAITLISTED
 }
@@ -267,4 +276,14 @@ enum ComplaintStatus {
 enum WorkerType {
   WASTE_COLLECTOR
   SWEEPER
+}
+
+enum DonationType {
+  CLEANUP
+  RECYCLING
+  SAFETY
+  AWARENESS
+  PLANTATION
+  ENERGY
+  OTHERS
 }
