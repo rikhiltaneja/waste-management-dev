@@ -22,7 +22,6 @@ export default function DashboardPage() {
   }, [isSignedIn, isLoaded]);
 
   const handleAddWorker = () => {
-    // Navigate to worker creation page
     router.push("/dashboard/workers/new");
   };
 

@@ -1,76 +1,21 @@
 "use client";
 
 import React from "react";
-import { HeaderCard } from "@/components/ui/header-card";
 import { ServiceCard } from "@/components/ui/service-card";
 import { EventCard } from "@/components/ui/event-card";
+import { DashboardHeroSection } from "@/components/ui/dashboardherosection";
 
 export function CitizenDashboard() {
   return (
     <div className="bg-background">
       <div className="p-4 sm:p-0 space-y-4 sm:space-y-6">
         {/* Mobile Hero Section */}
-        <section className="sm:hidden relative mb-20">
-          <div className="bg-[#1B1B25] rounded-3xl p-6 text-white pb-30">
-            <div className="flex items-center gap-3 mb-4">
-              <img
-                src="/profile-avatar.jpg"
-                alt="Profile"
-                className="w-12 h-12 rounded-full border-2 border-green-500 object-cover"
-              />
-              <div>
-                <div className="text-lg font-semibold">Welcome Back,</div>
-                <div className="text-sm opacity-80">Citizen</div>
-              </div>
-            </div>
-          </div>
-          <div className="absolute -bottom-12 left-4 right-4">
-            <HeaderCard
-              title="Rajab Shoukath"
-              leftSideProp={{
-                label: "Attended Trainings:",
-                value: 24,
-              }}
-              rightSideProp={{
-                label: "Total Points",
-                value: 12,
-              }}
-              className="shadow-lg"
-            />
-          </div>
-        </section>
-
-        {/* Desktop Hero Section */}
-        <section className="hidden sm:grid grid-cols-1 lg:grid-cols-3 gap-6 bg-[#1B1B25] p-6 lg:p-10 rounded-3xl lg:rounded-4xl">
-          <div className="lg:col-span-2 p-6 lg:p-8 text-white">
-            <div className="flex items-center gap-3 mb-6">
-              <img
-                src="/profile-avatar.jpg"
-                alt="Profile"
-                className="w-12 h-12 rounded-full border-2 border-green-500 object-cover"
-              />
-              <div>
-                <div className="text-sm opacity-80">Welcome Back,</div>
-                <div className="text-sm opacity-80">Citizen</div>
-              </div>
-            </div>
-            <h1 className="text-2xl lg:text-3xl font-semibold leading-tight">
-              Clean future starts<br />
-              with smart waste management.
-            </h1>
-          </div>
-          <HeaderCard
-            title="Rajab Shoukath"
-            leftSideProp={{
-              label: "Contributions",
-              value: 24,
-            }}
-            rightSideProp={{
-              label: "Incentives",
-              value: "$248",
-            }}
-          />
-        </section>
+        <DashboardHeroSection
+          title="Rajab Shoukath"
+          showHeading={true}
+          leftSideProp={{ label: "Attended Trainings:", value: 24 }}
+          rightSideProp={{ label: "Total Points", value: 12 }}
+        />
 
         {/* Services */}
         <section>
@@ -78,7 +23,7 @@ export function CitizenDashboard() {
             <h2 className="text-lg sm:text-xl font-semibold text-foreground">Services</h2>
             <p className="text-sm text-muted-foreground">Explore services</p>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             <ServiceCard
               imageSrc="/rupee-dynamic.png"
               title="Donate"

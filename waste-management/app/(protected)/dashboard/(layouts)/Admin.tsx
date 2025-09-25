@@ -6,7 +6,6 @@ import {
   Users, 
   Wrench, 
   DollarSign, 
-  Plus,
   FileText,
   Coins,
   MessageSquare,
@@ -41,7 +40,7 @@ export function AdminDashboard() {
       {/* Greeting Section */}
       <div>
         <h1 className="text-xl sm:text-2xl font-bold text-foreground">{getGreeting()} {username}</h1>
-        <p className="text-sm sm:text-base text-muted-foreground">Explore what's today at WASTEX</p>
+        <p className="text-sm sm:text-base text-muted-foreground">Explore whats today at WASTEX</p>
       </div>
 
       {/* Stats Cards */}
