@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
+import { useRouter, usePathname } from "next/navigation";
 import { LogOut, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -46,6 +46,27 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(({
   onBackClick,
 }, ref) => {
   const { signOut } = useClerk();
+  const router = useRouter();
+  const pathname = usePathname();
+  const [hoveredItems, setHoveredItems] = React.useState<Record<string, boolean>>({});
+
+  const handleItemClick = (item: SidebarItem) => {
+    if (item.href) {
+      router.push(item.href);
+    }
+    if (item.onClick) {
+      item.onClick();
+    }
+    onItemClick?.(item);
+  };
+
+  const isItemActive = (item: SidebarItem) => {
+    if (activeItem) {
+      return activeItem === item.id;
+    }
+    // Fallback to pathname matching if no activeItem is provided
+    return item.href && pathname === item.href;
+  };
 
   return (
     <div
@@ -112,8 +133,8 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(({
               <div className="space-y-2">
                 {section.items.map((item) => {
                   const Icon = item.icon
-                  const isActive = activeItem === item.id
-                  const [isHovered, setIsHovered] = React.useState(false)
+                  const isActive = isItemActive(item)
+                  const isHovered = hoveredItems[item.id] || false
                   
                   return (
                     <Button
@@ -125,14 +146,14 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(({
                         isActive ? "text-white hover:text-white" : "text-sidebar-foreground/80 hover:text-sidebar-foreground hover:shadow-sm hover:scale-[1.01] active:scale-[0.99]",
                         collapsed && "justify-center px-2"
                       )}
-                      onClick={() => onItemClick?.(item)}
+                      onClick={() => handleItemClick(item)}
                       style={{
                         backgroundColor: isActive 
                           ? '#1D923C'
                           : (isHovered ? 'rgba(34, 197, 94, 0.1)' : '#f1f5f9'),
                       }}
-                      onMouseEnter={() => setIsHovered(true)}
-                      onMouseLeave={() => setIsHovered(false)}
+                      onMouseEnter={() => setHoveredItems(prev => ({ ...prev, [item.id]: true }))}
+                      onMouseLeave={() => setHoveredItems(prev => ({ ...prev, [item.id]: false }))}
                     >
                       <div
                         className={cn(

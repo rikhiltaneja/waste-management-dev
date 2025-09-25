@@ -7,7 +7,6 @@ import {
   SidebarItem,
   SidebarSection,
 } from "@/components/sidebar/sidebar";
-import { Header } from "@/components/ui/header";
 import {
   Home,
   Users,
@@ -88,93 +87,7 @@ function SideBarLayout({
     return "dashboard";
   };
 
-  const sidebarSections: SidebarSection[] = [
-    {
-      title: "Overview",
-      items: [
-        { id: "dashboard", label: "Dashboard", icon: Home, href: "/dashboard" },
-        {
-          id: "monitoring",
-          label: "Monitoring",
-          icon: Activity,
-          href: "/dashboard/monitoring",
-        },
-        {
-          id: "reports",
-          label: "Reports",
-          icon: BarChart3,
-          href: "/dashboard/reports",
-        },
-      ],
-    },
-    {
-      title: "Management",
-      items: [
-        {
-          id: "workers",
-          label: "Workers",
-          icon: Wrench,
-          href: "/dashboard/workers",
-        },
-        { id: "users", label: "Users", icon: Users, href: "/dashboard/users" },
-        {
-          id: "facilities",
-          label: "Facilities",
-          icon: Settings,
-          href: "/dashboard/facilities",
-        },
-        {
-          id: "inventory",
-          label: "Inventory",
-          icon: Warehouse,
-          href: "/shop/inventory",
-        },
-      ],
-    },
-    {
-      title: "Community and Compliance",
-      items: [
-        {
-          id: "cleaningdrives",
-          label: "Drives & Campaigns",
-          icon: BrushCleaning,
-          href: "/cleaningdrives",
-        },
-        {
-          id: "grievances",
-          label: "Grievances",
-          icon: MessageSquareWarning,
-          href: "/dashboard/grievances",
-        },
-        {
-          id: "trainings",
-          label: "Trainings",
-          icon: BookOpenCheck,
-          href: "/dashboard/trainings",
-        },
-        {
-          id: "incentives",
-          label: "Incentives/Penalties",
-          icon: Coins,
-          href: "/incentives",
-        },
-        {
-          id: "donations",
-          label: "Donations",
-          icon: HandCoins,
-          href: "/dashboard/donations",
-        },
-        { id: "support", label: "Support", icon: HelpCircle, href: "/support" },
-        {
-          id: "settings",
-          label: "Settings",
-          icon: Settings,
-          href: "/settings",
-        },
-      ],
-    },
-  ];
-
+  
   const handleItemClick = (item: SidebarItem) => {
     if (item.href) router.push(item.href);
     if (item.onClick) item.onClick();
@@ -215,7 +128,7 @@ function SideBarLayout({
         )}
 
         <Sidebar
-          sections={customSidebarSections || sidebarSections}
+          sections={customSidebarSections || []}
           activeItem={getActiveItem()}
           onItemClick={handleItemClick}
           collapsed={collapsed}
@@ -226,15 +139,6 @@ function SideBarLayout({
       </div>
 
       <div className="flex-1 flex flex-col min-h-0">
-        {/* Header */}
-        <Header
-          // className="mb-4"
-          showBackButton={showBackButton}
-          onBackClick={onBackClick}
-          searchPlaceholder={searchPlaceholder}
-          onSearchChange={onSearchChange}
-          primaryAction={primaryAction}
-        />
 
         {/* Main Content - Scrollable Container */}
         <div className="flex-1 overflow-y-auto p-2 sm:p-4 pt-1 sm:pt-1 mb-20 sm:mb-7">
