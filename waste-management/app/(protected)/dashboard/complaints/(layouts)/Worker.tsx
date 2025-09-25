@@ -1,6 +1,6 @@
 "use client";
 
-export function WorkerGrievances() {
+export function WorkerComplaint() {
   return (
     <>
     Worker view of Complaints Page!

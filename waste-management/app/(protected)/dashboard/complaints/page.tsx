@@ -1,7 +1,7 @@
-import { CitizenGrievances } from "./(layouts)/Citizen";
+import { AdminComplaintPage } from "./(layouts)/Admin";
 
 export default function Complaints() {
   return (
-      <CitizenGrievances />
+      <AdminComplaintPage />
   );
 }
