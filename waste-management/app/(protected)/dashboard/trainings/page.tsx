@@ -34,7 +34,6 @@ const CampaignPage = () => {
   const router = useRouter();
   const { 
     events, 
-    loading, 
     isOperating, 
     createEvent, 
     updateEvent, 
@@ -121,14 +120,6 @@ const CampaignPage = () => {
     completedEvents: events.filter((e) => e.status === "COMPLETED").length,
   };
 
-
-
-  if (loading) {
-    return (
-        <Loading />
-
-    );
-  }
   const statusOptions: Array<
     "ALL" | "ACTIVE" | "DRAFT" | "COMPLETED" | "CANCELLED"
   > = ["ALL", "ACTIVE", "DRAFT", "COMPLETED", "CANCELLED"];
