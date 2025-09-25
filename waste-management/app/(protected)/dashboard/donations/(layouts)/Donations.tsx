@@ -215,7 +215,7 @@ export function DonationsPage() {
     });
   }
 
-  async function displayRazorpay(amount: number, token: any) {
+  async function displayRazorpay(amount: number, token: unknown) {
     const res = await loadScript(
       "https://checkout.razorpay.com/v1/checkout.js"
     );
@@ -328,7 +328,7 @@ export function DonationsPage() {
       />
       <div className="p-4 sm:p-8 max-w-7xl mx-auto">
         {/* Main Grid Container */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-3 gap-6">
           {/* Header - Full Width */}
           <div className="col-span-full">
             <div className="flex items-center gap-3 mb-2">
