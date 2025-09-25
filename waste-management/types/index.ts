@@ -13,4 +13,5 @@ interface PhysicalTrainingEvent {
   locality?: {
     name: string;
   };
+  localityId?: number;
 }

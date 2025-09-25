@@ -7,7 +7,7 @@ interface AuthRequest extends Request {
   auth?: any;
 }
 
-export const getPhysicalTrainingEvents = async (req: Request, res: Response) => {
+export const getPhysicalTrainingEvents = async (req: AuthRequest, res: Response) => {
   try {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
@@ -16,6 +16,22 @@ export const getPhysicalTrainingEvents = async (req: Request, res: Response) => 
     const { status, localityId, targetAudience, search, dateFrom, dateTo } = req.query;
     
     const where: any = {};
+    
+    // Role-based filtering
+    const metadata: { role: string } = req.auth?.sessionClaims?.metadata as { role: string };
+    const userId = req.auth?.userId;
+    
+    if (metadata?.role && userId) {
+      if (metadata.role === 'DistrictAdmin') {
+        // District admin can only see events they created
+        where.createdByDistrictAdminId = userId;
+      } else if (metadata.role === 'LocalityAdmin') {
+        // Locality admin can only see events they created
+        where.createdByLocalityAdminId = userId;
+      }
+      // Admin (super admin) can see all events, so no additional filtering
+      // Citizens and Workers can see all events (for viewing/registration purposes)
+    }
     
     if (status) {
       where.status = status;
@@ -289,7 +305,7 @@ export const createPhysicalTrainingEvent = async (req: AuthRequest, res: Respons
   }
 };
 
-export const updatePhysicalTrainingEvent = async (req: Request, res: Response) => {
+export const updatePhysicalTrainingEvent = async (req: AuthRequest, res: Response) => {
   try {
     const eventId = parseInt(req.params.id);
     const {
@@ -314,7 +330,14 @@ export const updatePhysicalTrainingEvent = async (req: Request, res: Response) =
     }
 
     const existingEvent = await prisma.physicalTrainingEvent.findUnique({
-      where: { id: eventId }
+      where: { id: eventId },
+      include: {
+        locality: {
+          select: {
+            districtId: true
+          }
+        }
+      }
     });
 
     if (!existingEvent) {
@@ -322,6 +345,42 @@ export const updatePhysicalTrainingEvent = async (req: Request, res: Response) =
         error: {
           message: 'Physical training event not found',
           code: 'EVENT_NOT_FOUND'
+        }
+      });
+    }
+
+    // Check if user has permission to update this event
+    const metadata: { role: string } = req.auth?.sessionClaims?.metadata as { role: string };
+    const userId = req.auth?.userId;
+    
+    if (!metadata?.role || !userId) {
+      return res.status(401).json({
+        error: {
+          message: 'Authentication information not available',
+          code: 'AUTH_ERROR'
+        }
+      });
+    }
+
+    // Role-based authorization
+    let canUpdate = false;
+    
+    if (metadata.role === 'Admin') {
+      // Super admin can update any event
+      canUpdate = true;
+    } else if (metadata.role === 'DistrictAdmin') {
+      // District admin can update events they created or in their district
+      canUpdate = existingEvent.createdByDistrictAdminId === userId;
+    } else if (metadata.role === 'LocalityAdmin') {
+      // Locality admin can update events they created
+      canUpdate = existingEvent.createdByLocalityAdminId === userId;
+    }
+
+    if (!canUpdate) {
+      return res.status(403).json({
+        error: {
+          message: 'You do not have permission to update this event',
+          code: 'PERMISSION_DENIED'
         }
       });
     }
@@ -453,7 +512,7 @@ export const updatePhysicalTrainingEvent = async (req: Request, res: Response) =
   }
 };
 
-export const getPhysicalTrainingEventById = async (req: Request, res: Response) => {
+export const getPhysicalTrainingEventById = async (req: AuthRequest, res: Response) => {
   try {
     const eventId = parseInt(req.params.id);
 
@@ -543,7 +602,7 @@ export const getPhysicalTrainingEventById = async (req: Request, res: Response) 
   }
 };
 
-export const deletePhysicalTrainingEvent = async (req: Request, res: Response) => {
+export const deletePhysicalTrainingEvent = async (req: AuthRequest, res: Response) => {
   try {
     const eventId = parseInt(req.params.id);
 
@@ -559,6 +618,11 @@ export const deletePhysicalTrainingEvent = async (req: Request, res: Response) =
     const existingEvent = await prisma.physicalTrainingEvent.findUnique({
       where: { id: eventId },
       include: {
+        locality: {
+          select: {
+            districtId: true
+          }
+        },
         _count: {
           select: {
             registrations: true,
@@ -573,6 +637,42 @@ export const deletePhysicalTrainingEvent = async (req: Request, res: Response) =
         error: {
           message: 'Physical training event not found',
           code: 'EVENT_NOT_FOUND'
+        }
+      });
+    }
+
+    // Check if user has permission to delete this event
+    const metadata: { role: string } = req.auth?.sessionClaims?.metadata as { role: string };
+    const userId = req.auth?.userId;
+    
+    if (!metadata?.role || !userId) {
+      return res.status(401).json({
+        error: {
+          message: 'Authentication information not available',
+          code: 'AUTH_ERROR'
+        }
+      });
+    }
+
+    // Role-based authorization
+    let canDelete = false;
+    
+    if (metadata.role === 'Admin') {
+      // Super admin can delete any event
+      canDelete = true;
+    } else if (metadata.role === 'DistrictAdmin') {
+      // District admin can delete events they created or in their district
+      canDelete = existingEvent.createdByDistrictAdminId === userId;
+    } else if (metadata.role === 'LocalityAdmin') {
+      // Locality admin can delete events they created
+      canDelete = existingEvent.createdByLocalityAdminId === userId;
+    }
+
+    if (!canDelete) {
+      return res.status(403).json({
+        error: {
+          message: 'You do not have permission to delete this event',
+          code: 'PERMISSION_DENIED'
         }
       });
     }
