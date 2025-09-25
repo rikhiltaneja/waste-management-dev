@@ -30,6 +30,25 @@ import { formatDate } from "@/helpers/date.helper";
 
 type ViewMode = "table" | "grid" | "list" | "cards";
 
+// Backend API response interface
+interface BackendTrainingEvent {
+  id: number;
+  title: string;
+  description: string;
+  startDateTime: string;
+  endDateTime: string | null;
+  location: string;
+  maxCapacity: number | null;
+  targetAudience: string[];
+  status: string;
+  createdAt: string;
+  registrations?: unknown[]; // Array of registration objects
+  locality?: {
+    id: number;
+    name: string;
+  };
+}
+
 const CampaignPage = () => {
   const router = useRouter();
   const { getToken } = useAuth();
@@ -190,61 +209,78 @@ const CampaignPage = () => {
     completedEvents: events.filter((e) => e.status === "COMPLETED").length,
   };
 
-  // Mock data - replace with actual API call
+  // Fetch training events from backend API
   useEffect(() => {
-    const mockEvents: PhysicalTrainingEvent[] = [
-      {
-        id: 1,
-        title: "Recycling Workshop",
-        description:
-          "Lorem ipsum dolor sit amet consectetur. In ridiculus nec Lorem ipsum dolor sit amet consectetur. In ridiculus nec",
-        startDateTime: "2025-11-28T10:00:00Z",
-        endDateTime: "2025-11-28T12:00:00Z",
-        location: "Delhi, India",
-        maxCapacity: 50,
-        targetAudience: ["CITIZEN", "WORKER"],
-        status: "ACTIVE",
-        createdAt: "2024-01-01T00:00:00Z",
-        registrations: 35,
-        locality: { name: "Central Delhi" },
-      },
-      {
-        id: 2,
-        title: "Waste Segregation Training",
-        description:
-          "Learn proper waste segregation techniques for better waste management",
-        startDateTime: "2024-01-15T10:00:00Z",
-        endDateTime: "2024-01-15T12:00:00Z",
-        location: "Jalandhar",
-        maxCapacity: 50,
-        targetAudience: ["CITIZEN", "WORKER"],
-        status: "COMPLETED",
-        createdAt: "2024-01-01T00:00:00Z",
-        registrations: 45,
-        locality: { name: "Downtown" },
-      },
-      {
-        id: 3,
-        title: "Composting Workshop",
-        description:
-          "Hands-on composting techniques for households and community gardens",
-        startDateTime: "2024-01-20T14:00:00Z",
-        endDateTime: "2024-01-20T16:00:00Z",
-        location: "Green Park",
-        maxCapacity: 30,
-        targetAudience: ["CITIZEN"],
-        status: "DRAFT",
-        createdAt: "2024-01-02T00:00:00Z",
-        registrations: 0,
-        locality: { name: "Uptown" },
-      },
-    ];
+    const fetchEvents = async () => {
+      try {
+        setLoading(true);
+        
+        // Get the authentication token
+        const token = await getToken();
+        
+        if (!token) {
+          throw new Error('Authentication token not available');
+        }
 
-    setTimeout(() => {
-      setEvents(mockEvents);
-      setLoading(false);
-    }, 100);
-  }, []);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/physical-training`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to fetch events');
+        }
+
+        const responseData = await response.json();
+        console.log("Backend response:", responseData); // Debug log
+        
+        // Check if response is an array or has events property
+        let backendEvents: BackendTrainingEvent[];
+        if (Array.isArray(responseData)) {
+          backendEvents = responseData;
+        } else if (responseData.events && Array.isArray(responseData.events)) {
+          backendEvents = responseData.events;
+        } else if (responseData.data && Array.isArray(responseData.data)) {
+          backendEvents = responseData.data;
+        } else {
+          console.error("Unexpected response format:", responseData);
+          backendEvents = [];
+        }
+        
+        // Transform backend response to match frontend interface
+        const transformedEvents: PhysicalTrainingEvent[] = backendEvents.map((event: BackendTrainingEvent) => ({
+          id: event.id,
+          title: event.title,
+          description: event.description,
+          startDateTime: event.startDateTime,
+          endDateTime: event.endDateTime || undefined, // Convert null to undefined
+          location: event.location,
+          maxCapacity: event.maxCapacity || undefined, // Convert null to undefined
+          targetAudience: event.targetAudience,
+          status: event.status as "ACTIVE" | "CANCELLED" | "COMPLETED" | "DRAFT",
+          createdAt: event.createdAt,
+          registrations: event.registrations?.length || 0, // Count registrations if available
+          locality: event.locality ? { name: event.locality.name } : undefined,
+        }));
+
+        setEvents(transformedEvents);
+        
+      } catch (error) {
+        console.error("Error fetching events:", error);
+        // Set empty array on error so UI still works
+        setEvents([]);
+        // You can add a toast/notification here to show error to user
+        alert(`Failed to fetch events: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, [getToken]);
 
   if (loading) {
     return (

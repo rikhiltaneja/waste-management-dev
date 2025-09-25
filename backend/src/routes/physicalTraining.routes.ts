@@ -318,7 +318,7 @@ const router = Router();
  */
 router.get('/', authenticationCheck, allUserTypes, getPhysicalTrainingEvents);
 router.post('/', authenticationCheck, allAdmins, createPhysicalTrainingEvent);
-router.get('/:id', getPhysicalTrainingEventById);
+router.get('/:id', authenticationCheck, allUserTypes, getPhysicalTrainingEventById);
 router.put('/:id', authenticationCheck, allAdmins, updatePhysicalTrainingEvent);
 router.delete('/:id', authenticationCheck, allAdmins, deletePhysicalTrainingEvent);
 
