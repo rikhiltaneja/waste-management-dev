@@ -20,7 +20,9 @@ export function AdminComplaintPage() {
     workers, 
     assignWorker,
     deleteComplaint,
-    getRecommendedWorkers
+    getRecommendedWorkers,
+    fetchRecommendedWorkers,
+    isLoadingRecommendations
   } = useComplaints();
   
   const [selectedComplaint, setSelectedComplaint] = useState<Complaint | null>(null);
@@ -262,6 +264,8 @@ export function AdminComplaintPage() {
         workers={workers}
         recommendedWorkers={getRecommendedWorkers(selectedComplaint)}
         onAssign={handleWorkerAssignment}
+        onRefreshRecommendations={fetchRecommendedWorkers}
+        isLoadingRecommendations={isLoadingRecommendations}
       />
 
       <ComplaintDetailsModal

@@ -8,10 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Complaint, Worker } from "@/types";
-
-interface RecommendedWorker extends Worker {
-  predictedScore: number;
-}
+import { RecommendedWorker } from "@/services/workerRecommendation.service";
+import { Loader2, RefreshCw } from "lucide-react";
 
 interface AssignWorkerDialogProps {
   isOpen: boolean;
@@ -20,6 +18,8 @@ interface AssignWorkerDialogProps {
   workers: Worker[];
   recommendedWorkers?: RecommendedWorker[];
   onAssign: (complaintId: number, workerId: string) => void;
+  onRefreshRecommendations?: () => void;
+  isLoadingRecommendations?: boolean;
 }
 
 export function AssignWorkerDialog({ 
@@ -28,10 +28,13 @@ export function AssignWorkerDialog({
   complaint, 
   workers, 
   recommendedWorkers = [],
-  onAssign 
+  onAssign,
+  onRefreshRecommendations,
+  isLoadingRecommendations = false
 }: AssignWorkerDialogProps) {
   const [selectedWorker, setSelectedWorker] = useState<string>("");
   const [showAllWorkers, setShowAllWorkers] = useState(false);
+  const [isAssigning, setIsAssigning] = useState(false);
 
   // Helper function to get worker initials
   const getWorkerInitials = (name: string) => {
@@ -44,16 +47,25 @@ export function AssignWorkerDialog({
   };
 
   // Helper function to generate avatar URL (using a placeholder service)
-  const getAvatarUrl = (workerId: string, name: string) => {
+  const getAvatarUrl = (workerId: string) => {
     // Using DiceBear API for consistent avatars based on worker ID
     return `https://api.dicebear.com/7.x/initials/svg?seed=${workerId}&backgroundColor=3b82f6,8b5cf6,06b6d4,10b981,f59e0b,ef4444&textColor=ffffff`;
   };
 
-  const handleAssign = () => {
+  const handleAssign = async () => {
     if (!complaint || !selectedWorker) return;
-    onAssign(complaint.id, selectedWorker);
-    setSelectedWorker("");
-    onClose();
+    
+    setIsAssigning(true);
+    try {
+      await onAssign(complaint.id, selectedWorker);
+      setSelectedWorker("");
+      onClose();
+    } catch (error) {
+      console.error('Failed to assign worker:', error);
+      // Handle error (could show toast notification)
+    } finally {
+      setIsAssigning(false);
+    }
   };
 
   // Get top 5 recommended workers or fallback to first 5 workers
@@ -72,17 +84,64 @@ export function AssignWorkerDialog({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl">
-            Assign Worker to Complaint #{complaint?.id}
-          </DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle className="text-xl">
+              Assign Worker to Complaint #{complaint?.id}
+            </DialogTitle>
+            {onRefreshRecommendations && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onRefreshRecommendations}
+                disabled={isLoadingRecommendations}
+                className="flex items-center gap-2"
+              >
+                <RefreshCw className={`h-4 w-4 ${isLoadingRecommendations ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
+            )}
+          </div>
         </DialogHeader>
         
         <div className="space-y-6">
           {/* Top Recommended Workers Grid */}
           <div>
-            <h3 className="font-semibold mb-3">Recommended Workers</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {topRecommended.map((worker) => (
+            <div className="flex items-center gap-2 mb-3">
+              <h3 className="font-semibold">Recommended Workers</h3>
+              {isLoadingRecommendations && (
+                <Loader2 className="h-4 w-4 animate-spin text-gray-500" />
+              )}
+            </div>
+            
+            {isLoadingRecommendations ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {[...Array(6)].map((_, index) => (
+                  <Card key={index} className="animate-pulse">
+                    <CardContent className="p-4">
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 bg-gray-200 rounded-full"></div>
+                          <div className="flex-1">
+                            <div className="h-4 bg-gray-200 rounded mb-1"></div>
+                            <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          {[...Array(5)].map((_, i) => (
+                            <div key={i} className="flex justify-between">
+                              <div className="h-3 bg-gray-200 rounded w-1/3"></div>
+                              <div className="h-3 bg-gray-200 rounded w-1/4"></div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {topRecommended.map((worker) => (
                 <Card 
                   key={worker.id} 
                   className={`cursor-pointer transition-all hover:shadow-md ${
@@ -95,7 +154,7 @@ export function AssignWorkerDialog({
                       <div className="flex items-center gap-3">
                         <Avatar className="h-10 w-10">
                           <AvatarImage 
-                            src={getAvatarUrl(worker.id, worker.name)} 
+                            src={getAvatarUrl(worker.id)} 
                             alt={worker.name}
                           />
                           <AvatarFallback className="bg-blue-500 text-white text-xs">
@@ -132,14 +191,17 @@ export function AssignWorkerDialog({
                         </div>
                         <div className="flex justify-between">
                           <span>Location:</span>
-                          <span className="font-medium truncate ml-1">{worker.locality.name}</span>
+                          <span className="font-medium truncate ml-1">
+                            {typeof worker.locality === 'string' ? worker.locality : worker.locality.name}
+                          </span>
                         </div>
                       </div>
                     </div>
                   </CardContent>
-                </Card>
-              ))}
-            </div>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Other Workers Dropdown */}
@@ -162,7 +224,7 @@ export function AssignWorkerDialog({
                       <div className="flex items-center gap-3 w-full">
                         <Avatar className="h-6 w-6">
                           <AvatarImage 
-                            src={getAvatarUrl(worker.id, worker.name)} 
+                            src={getAvatarUrl(worker.id)} 
                             alt={worker.name}
                           />
                           <AvatarFallback className="bg-gray-500 text-white text-xs">
@@ -172,7 +234,7 @@ export function AssignWorkerDialog({
                         <div className="flex items-center justify-between flex-1">
                           <span>{worker.name} - {worker.workerType.replace('_', ' ')}</span>
                           <span className="text-xs text-gray-500 ml-2">
-                            Tasks: {worker.assignedTasks} | Rating: {worker.citizenRating}/5
+                            Tasks: {worker.assignedTasks} | Rating: {worker.citizenRating.toFixed(1)}/5
                           </span>
                         </div>
                       </div>
@@ -189,7 +251,7 @@ export function AssignWorkerDialog({
               <div className="flex items-center gap-3 mb-4">
                 <Avatar className="h-12 w-12">
                   <AvatarImage 
-                    src={getAvatarUrl(selectedWorkerData.id, selectedWorkerData.name)} 
+                    src={getAvatarUrl(selectedWorkerData.id)} 
                     alt={selectedWorkerData.name}
                   />
                   <AvatarFallback className="bg-blue-500 text-white">
@@ -227,7 +289,9 @@ export function AssignWorkerDialog({
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Location:</span>
-                    <span className="font-medium">{selectedWorkerData.locality.name}</span>
+                    <span className="font-medium">
+                      {typeof selectedWorkerData.locality === 'string' ? selectedWorkerData.locality : selectedWorkerData.locality.name}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -238,14 +302,22 @@ export function AssignWorkerDialog({
         <div className="flex gap-3 mt-6">
           <Button 
             onClick={handleAssign}
-            disabled={!selectedWorker}
+            disabled={!selectedWorker || isAssigning || isLoadingRecommendations}
             className="flex-1"
           >
-            Assign Worker
+            {isAssigning ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Assigning...
+              </>
+            ) : (
+              'Assign Worker'
+            )}
           </Button>
           <Button 
             variant="outline" 
             onClick={onClose}
+            disabled={isAssigning}
             className="flex-1"
           >
             Cancel

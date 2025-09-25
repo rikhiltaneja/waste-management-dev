@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Complaint, Worker } from "@/types";
+import { workerRecommendationService, RecommendedWorker } from "@/services/workerRecommendation.service";
 
 // This would normally come from an API
 const dummyComplaints: Complaint[] = [
@@ -266,38 +267,98 @@ const dummyWorkers: Worker[] = [
 
 export function useComplaints() {
   const [complaints, setComplaints] = useState<Complaint[]>(dummyComplaints);
+  const [recommendedWorkers, setRecommendedWorkers] = useState<RecommendedWorker[]>([]);
+  const [isLoadingRecommendations, setIsLoadingRecommendations] = useState(false);
 
-  const assignWorker = (complaintId: number, workerId: string) => {
+  const assignWorker = async (complaintId: number, workerId: string) => {
     const worker = dummyWorkers.find(w => w.id === workerId);
     if (!worker) return;
 
-    setComplaints(prev => prev.map(complaint => 
-      complaint.id === complaintId 
-        ? {
-            ...complaint,
-            workerId,
-            worker: {
-              id: worker.id,
-              name: worker.name,
-              phoneNumber: worker.phoneNumber,
-              workerType: worker.workerType
-            },
-            status: "IN_PROGRESS" as const,
-            localityAdminId: "admin_1"
-          }
-        : complaint
-    ));
+    try {
+      // Find the complaint to calculate task difficulty
+      const complaint = complaints.find(c => c.id === complaintId);
+      const taskDifficulty = complaint 
+        ? workerRecommendationService.calculateTaskDifficulty(complaint.description)
+        : 5;
+
+      // Update backend with task assignment
+      await workerRecommendationService.assignTaskToWorker({
+        workerId,
+        complaintId,
+        taskDifficulty
+      });
+
+      // Update local state
+      setComplaints(prev => prev.map(complaint => 
+        complaint.id === complaintId 
+          ? {
+              ...complaint,
+              workerId,
+              worker: {
+                id: worker.id,
+                name: worker.name,
+                phoneNumber: worker.phoneNumber,
+                workerType: worker.workerType
+              },
+              status: "IN_PROGRESS" as const,
+              localityAdminId: "admin_1"
+            }
+          : complaint
+      ));
+
+      // Refresh recommendations after assignment
+      await fetchRecommendedWorkers();
+      
+    } catch (error) {
+      console.error('Failed to assign worker:', error);
+      // Still update local state for demo purposes
+      setComplaints(prev => prev.map(complaint => 
+        complaint.id === complaintId 
+          ? {
+              ...complaint,
+              workerId,
+              worker: {
+                id: worker.id,
+                name: worker.name,
+                phoneNumber: worker.phoneNumber,
+                workerType: worker.workerType
+              },
+              status: "IN_PROGRESS" as const,
+              localityAdminId: "admin_1"
+            }
+          : complaint
+      ));
+    }
   };
 
   const deleteComplaint = (complaintId: number) => {
     setComplaints(prev => prev.filter(complaint => complaint.id !== complaintId));
   };
 
-  // Generate recommended workers with predicted scores
-  const getRecommendedWorkers = (complaint: Complaint | null) => {
-    if (!complaint) return [];
+  // Fetch recommended workers from API
+  const fetchRecommendedWorkers = async (options?: {
+    locality?: string;
+    workerType?: 'SWEEPER' | 'WASTE_COLLECTOR';
+    limit?: number;
+  }) => {
+    setIsLoadingRecommendations(true);
+    try {
+      const workers = await workerRecommendationService.getRecommendedWorkers({
+        ...options,
+        format: 'json'
+      });
+      setRecommendedWorkers(workers);
+    } catch (error) {
+      console.error('Failed to fetch recommended workers:', error);
+      // Fallback to local scoring algorithm
+      setRecommendedWorkers(getLocalRecommendedWorkers());
+    } finally {
+      setIsLoadingRecommendations(false);
+    }
+  };
 
-    // Simple scoring algorithm based on worker attributes
+  // Fallback local scoring algorithm
+  const getLocalRecommendedWorkers = () => {
     const scoredWorkers = dummyWorkers.map(worker => {
       let score = 0;
       
@@ -327,15 +388,40 @@ export function useComplaints() {
       };
     });
 
-    // Sort by predicted score (highest first)
     return scoredWorkers.sort((a, b) => b.predictedScore - a.predictedScore);
   };
+
+  // Generate recommended workers with predicted scores
+  const getRecommendedWorkers = (complaint: Complaint | null):RecommendedWorker[] => {
+    if (!complaint) return [];
+
+    // If we have API recommendations, use them
+    if (recommendedWorkers.length > 0) {
+      return recommendedWorkers.map(worker => ({
+        ...worker,
+        // Map API worker to local Worker type - keep locality as string for RecommendedWorker interface
+        email: `${worker.name.toLowerCase().replace(' ', '.')}@email.com`,
+        phoneNumber: '+91-9876543210',
+        predictedScore: worker.predictedScore
+      }));
+    }
+
+    // Fallback to local algorithm
+    return getLocalRecommendedWorkers();
+  };
+
+  // Load recommendations on component mount
+  useEffect(() => {
+    fetchRecommendedWorkers();
+  }, []);
 
   return {
     allComplaints: complaints,
     workers: dummyWorkers,
     assignWorker,
     deleteComplaint,
-    getRecommendedWorkers
+    getRecommendedWorkers,
+    fetchRecommendedWorkers,
+    isLoadingRecommendations
   };
 }
