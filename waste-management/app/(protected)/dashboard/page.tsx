@@ -1,66 +1,37 @@
 "use client";
 
-import { AdminDashboard } from "./(layouts)/Admin";
-import SideBarLayout from "@/components/sidebar/sidebar-layout";
-import { UserPlus } from "lucide-react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { CitizenDashboard } from "./(layouts)/Citizen";
 import { useUser } from "@clerk/nextjs";
+import { AdminDashboard } from "./(layouts)/Admin";
+import { CitizenDashboard } from "./(layouts)/Citizen";
 import { WorkerDashboard } from "./(layouts)/Worker";
 
 export default function DashboardPage() {
   const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState("");
   const { isSignedIn, user, isLoaded } = useUser();
-  const [role, setRole] = useState<string>("");
+  const role = (user?.publicMetadata?.role as string) || "";
 
-  useEffect(() => {
-    if (isSignedIn && isLoaded) {
-      console.log(user.publicMetadata)
-      setRole(user.publicMetadata.role as string);
+  // Determine dashboard content and sidebar sections dynamically
+  const dashboardContent = (() => {
+    if (!isLoaded) return <p>Loading...</p>;
+    if (!isSignedIn) return <p>User not logged in</p>;
+
+    switch (role) {
+      case "Admin":
+        return <AdminDashboard/>;
+      case "Citizen":
+        return <CitizenDashboard />;
+      case "Worker":
+        return <WorkerDashboard />;
+      default:
+        return <p>Role not recognized</p>;
     }
-  }, [isSignedIn, isLoaded]);
+  })();
 
-  const handleAddWorker = () => {
-    router.push("/dashboard/workers/new");
-  };
-
-  const roleBasedRendered = (role: string) => {
-    if (role == "Admin") {
-      return (
-        <SideBarLayout
-          primaryAction={{
-            label: "Add Worker",
-            onClick: handleAddWorker,
-            icon: UserPlus,
-          }}
-          searchPlaceholder="Search Here..."
-          onSearchChange={(value) => setSearchQuery(value)}
-        >
-          <AdminDashboard />
-        </SideBarLayout>
-      );
-    } else if (role == "Citizen") {
-      return (
-        <SideBarLayout>
-          <CitizenDashboard />
-        </SideBarLayout>
-      );
-    } else if (role == "Worker") {
-      return (
-        <SideBarLayout>
-          <WorkerDashboard />
-        </SideBarLayout>
-      );
-    }else{
-      return (
-        <SideBarLayout>
-          <p>User not logged in</p>
-        </SideBarLayout>
-      )
-    }
-  };
-
-  return <>{roleBasedRendered(role)}</>;
+  return (
+      <>
+      {dashboardContent}
+      </>
+  );
 }

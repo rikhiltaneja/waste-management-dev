@@ -189,17 +189,14 @@ const EventDetailPage = () => {
 
   if (loading) {
     return (
-      <SideBarLayout>
         <div className="flex items-center justify-center h-64">
           <div className="text-lg">Loading event details...</div>
         </div>
-      </SideBarLayout>
     );
   }
 
   if (!event) {
     return (
-      <SideBarLayout>
         <div className="flex flex-col items-center justify-center h-64 px-4">
           <div className="text-lg font-medium text-gray-900 text-center">
             Event not found
@@ -216,12 +213,11 @@ const EventDetailPage = () => {
             Back
           </Button>
         </div>
-      </SideBarLayout>
     );
   }
 
   return (
-    <SideBarLayout>
+    <>
       <div className="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
         {/* Header */}
         <div className="space-y-4">
@@ -503,7 +499,7 @@ const EventDetailPage = () => {
           </div>
         </div>
       </div>
-    </SideBarLayout>
+    </>
   );
 };
 
