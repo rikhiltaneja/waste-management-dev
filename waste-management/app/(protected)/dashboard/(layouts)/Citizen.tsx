@@ -4,12 +4,45 @@ import React, { useEffect, useState } from "react";
 import { ServiceCard } from "@/components/ui/service-card";
 import { EventCard } from "@/components/ui/event-card";
 import { DashboardHeroSection } from "@/components/ui/dashboardherosection";
+import { useAuth, useUser } from "@clerk/nextjs";
+import { InitialisationService } from "@/services/initialization.service";
+import { useUserProfile } from "@/store/profile.store";
 import { useRouter } from "next/navigation";
 import { formatDate } from "@/helpers/date.helper";
 
 export function CitizenDashboard() {
+  const { isLoaded, isSignedIn, userId, sessionId, getToken } = useAuth();
+  const { user } = useUser();
+  const setUserProfile = useUserProfile((state) => state.updateProfile);
+  const profile = useUserProfile((state) => state.profile);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function init() {
+      if (isLoaded && isSignedIn && user) {
+        const token = await getToken();
+        const initializationService = new InitialisationService(
+          user.publicMetadata.role as string,
+          user.id,
+          token as string
+        );
+        const profileData = await initializationService.getCitizenProfile();
+        setUserProfile(profileData);
+        setLoading(false);
+      }
+    }
+    init();
+  }, [isLoaded, isSignedIn, user, getToken, setUserProfile]);
+
+  if (loading || !profile) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p>Loading profile...</p>
+      </div>
+    );
+  }
+
     const [events, setEvents] = useState<PhysicalTrainingEvent[]>([]);
-    const [loading, setLoading] = useState(true);
   const router = useRouter()
   const handleViewEvent = (id: number) => {
     router.push(`/dashboard/event/${id}`);
@@ -73,10 +106,10 @@ export function CitizenDashboard() {
       <div className="p-4 sm:p-0 space-y-4 sm:space-y-6">
         {/* Mobile Hero Section */}
         <DashboardHeroSection
-          title="Rajab Shoukath"
+          title={profile.name}
           showHeading={true}
-          leftSideProp={{ label: "Attended Trainings:", value: 24 }}
-          rightSideProp={{ label: "Total Points", value: 12 }}
+          leftSideProp={{ label: "Attended Trainings:", value: 10 }}
+          rightSideProp={{ label: "Total Points", value: profile.points }}
         />
 
         {/* Services */}
