@@ -6,7 +6,7 @@ export function CitizenGrievances() {
   const router = useRouter();
 
   const handleRaiseGrievance = () => {
-    router.push("/grievances/new");
+    router.push("/dashboard/grievances/new");
   };
 
   return (

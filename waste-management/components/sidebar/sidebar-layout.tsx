@@ -78,8 +78,8 @@ function SideBarLayout({
     if (pathname === "/shop/inventory") return "inventory";
 
     if (pathname === "/cleaningdrives") return "cleaningdrives";
-    if (pathname === "/grievances") return "grievances";
-    if (pathname === "/grievances/new") return "grievances";
+    if (pathname === "/dashboard/grievances") return "grievances";
+    if (pathname === "/dashboard/grievances/new") return "grievances";
 
     if (pathname === "/incentives") return "incentives";
     if (pathname === "/support") return "support";
@@ -144,7 +144,7 @@ function SideBarLayout({
           id: "grievances",
           label: "Grievances",
           icon: MessageSquareWarning,
-          href: "/grievances",
+          href: "/dashboard/grievances",
         },
         {
           id: "trainings",
