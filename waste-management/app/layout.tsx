@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
+import { Toast } from "@/components/ui/toast";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -28,13 +29,14 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-    <html lang="en">
-      <body
-        className={`${inter.variable} ${instrumentSerif.variable} font-sans antialiased`}
-      >
-        {children}
-      </body>
-    </html>
+      <html lang="en">
+        <body
+          className={`${inter.variable} ${instrumentSerif.variable} font-sans antialiased`}
+        >
+          {children}
+          <Toast theme="light" />
+        </body>
+      </html>
     </ClerkProvider>
   );
 }
