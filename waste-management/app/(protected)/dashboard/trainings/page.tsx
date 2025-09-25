@@ -1,6 +1,5 @@
 "use client";
 import React, { useState } from "react";
-import SideBarLayout from "@/components/sidebar/sidebar-layout";
 import Loading from "@/app/loading";
 import {
   CalendarPlus,
@@ -126,9 +125,7 @@ const CampaignPage = () => {
 
   if (loading) {
     return (
-      <SideBarLayout>
         <Loading />
-      </SideBarLayout>
 
     );
   }

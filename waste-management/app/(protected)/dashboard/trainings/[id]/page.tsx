@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import SideBarLayout from "@/components/sidebar/sidebar-layout";
 import Loading from "@/app/loading";
 import {
   ArrowLeft,
@@ -190,9 +189,7 @@ const EventDetailPage = () => {
 
   if (loading) {
     return (
-      <SideBarLayout>
         <Loading />
-      </SideBarLayout>
     );
   }
 
