@@ -16,6 +16,7 @@ import {
   Grid3X3,
   List,
   LayoutGrid,
+  Plus,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -251,6 +252,7 @@ const CampaignPage = () => {
       <SideBarLayout>
         <Loading />
       </SideBarLayout>
+
     );
   }
   const statusOptions: Array<
@@ -258,13 +260,7 @@ const CampaignPage = () => {
   > = ["ALL", "ACTIVE", "DRAFT", "COMPLETED", "CANCELLED"];
 
   return (
-    <SideBarLayout
-      primaryAction={{
-        label: "Add Event",
-        icon: CalendarPlus,
-        onClick: handleAddEvent,
-      }}
-    >
+  <>
       <div className="p-4 md:p-6 space-y-4 md:space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
@@ -275,6 +271,12 @@ const CampaignPage = () => {
             <p className="text-gray-600 mt-1 text-sm md:text-base">
               Manage and monitor training events for citizens and workers
             </p>
+          </div>
+          <div>
+            <Button onClick={handleAddEvent}>
+              <Plus/>
+              Add Event
+            </Button>
           </div>
         </div>
 
@@ -660,7 +662,7 @@ const CampaignPage = () => {
             : undefined
         }
       />
-    </SideBarLayout>
+  </>
   );
 };
 
