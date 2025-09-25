@@ -54,8 +54,6 @@ interface ClerkErrorResponse {
 }
 
 export default function SignUp() {
-
-  
   const router = useRouter();
   const { isLoaded, signUp, setActive } = useSignUp();
   const { isSignedIn, userId } = useAuth();
@@ -81,6 +79,7 @@ export default function SignUp() {
     }
   }, [isLoaded, isSignedIn, router]);
   
+  console.log(process.env.NEXT_PUBLIC_API_URL)
 
   useEffect(() => {
     if (isSignedIn && userId) {
@@ -130,7 +129,7 @@ export default function SignUp() {
     }
 
     const userInfo = {
-      id: 1,
+      id: userId,
       name: details.firstName + " " + details.lastName,
       email: details.email,
       phoneNumber: details.phoneNumber,
@@ -404,7 +403,7 @@ export default function SignUp() {
             </div>
             
             <Button 
-              onClick={() => signUpCustomRequest} 
+              onClick={sendOTP} 
               className="w-full h-12 bg-primary hover:bg-primary/90 cursor-pointer text-white rounded-full flex items-center justify-center gap-2"
               disabled={!details.firstName || !details.lastName || !details.phoneNumber || (isLoading && loadingType === 'otp')}
             >
