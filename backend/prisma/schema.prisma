@@ -76,6 +76,12 @@ model Worker {
   physicalTrainingRegistrations PhysicalTrainingRegistration[]
   physicalTrainingAttendances   PhysicalTrainingAttendance[]
   learningProgress LearningProgress[]
+
+  assignedTasks     Int      @default(0)
+  completedTasks    Int      @default(0)
+  avgDifficulty     Int      @default(0)
+  localityRating    Int      @default(0)
+  citizenRating     Int      @default(0)
 }
 
 model District {
