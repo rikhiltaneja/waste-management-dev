@@ -90,7 +90,7 @@ export function CitizenDashboard() {
               imageSrc="/rupee-dynamic.png"
               title="Donate"
               description="Lorem ipsum dolor"
-              href="/donations"
+              href="/dashboard/donations"
             />
             <ServiceCard
               imageSrc="/camera-dynamic.png"
