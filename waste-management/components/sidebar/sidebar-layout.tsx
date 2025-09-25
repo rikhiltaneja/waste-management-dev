@@ -2,7 +2,11 @@
 
 import * as React from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { Sidebar, SidebarItem, SidebarSection } from "@/components/sidebar/sidebar";
+import {
+  Sidebar,
+  SidebarItem,
+  SidebarSection,
+} from "@/components/sidebar/sidebar";
 import { Header } from "@/components/ui/header";
 import {
   Home,
@@ -53,7 +57,7 @@ function SideBarLayout({
   sidebarBackText = "Back",
   onSidebarBackClick,
   searchPlaceholder = "Search Here...",
-  onSearchChange
+  onSearchChange,
 }: SideBarLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -65,6 +69,8 @@ function SideBarLayout({
     if (pathname === "/dashboard") return "dashboard";
     if (pathname === "/dashboard/monitoring") return "monitoring";
     if (pathname === "/dashboard/reports") return "reports";
+    if (pathname === "/dashboard/trainings") return "trainings";
+    if (pathname === "/dashboard/donations") return "donations";
 
     if (pathname === "/dashboard/workers") return "workers";
     if (pathname === "/dashboard/users") return "users";
@@ -74,9 +80,8 @@ function SideBarLayout({
     if (pathname === "/cleaningdrives") return "cleaningdrives";
     if (pathname === "/grievances") return "grievances";
     if (pathname === "/grievances/new") return "grievances";
-    if (pathname === "/trainings") return "trainings";
+
     if (pathname === "/incentives") return "incentives";
-    if (pathname === "/dashboard/donations") return "donations";
     if (pathname === "/support") return "support";
     if (pathname === "/settings") return "settings";
 
@@ -88,29 +93,84 @@ function SideBarLayout({
       title: "Overview",
       items: [
         { id: "dashboard", label: "Dashboard", icon: Home, href: "/dashboard" },
-        { id: "monitoring", label: "Monitoring", icon: Activity, href: "/dashboard/monitoring" },
-        { id: "reports", label: "Reports", icon: BarChart3, href: "/dashboard/reports" },
+        {
+          id: "monitoring",
+          label: "Monitoring",
+          icon: Activity,
+          href: "/dashboard/monitoring",
+        },
+        {
+          id: "reports",
+          label: "Reports",
+          icon: BarChart3,
+          href: "/dashboard/reports",
+        },
       ],
     },
     {
       title: "Management",
       items: [
-        { id: "workers", label: "Workers", icon: Wrench, href: "/dashboard/workers" },
+        {
+          id: "workers",
+          label: "Workers",
+          icon: Wrench,
+          href: "/dashboard/workers",
+        },
         { id: "users", label: "Users", icon: Users, href: "/dashboard/users" },
-        { id: "facilities", label: "Facilities", icon: Settings, href: "/dashboard/facilities" },
-        { id: "inventory", label: "Inventory", icon: Warehouse, href: "/shop/inventory" },
+        {
+          id: "facilities",
+          label: "Facilities",
+          icon: Settings,
+          href: "/dashboard/facilities",
+        },
+        {
+          id: "inventory",
+          label: "Inventory",
+          icon: Warehouse,
+          href: "/shop/inventory",
+        },
       ],
     },
     {
       title: "Community and Compliance",
       items: [
-        { id: "cleaningdrives", label: "Drives & Campaigns", icon: BrushCleaning, href: "/cleaningdrives" },
-        { id: "grievances", label: "Grievances", icon: MessageSquareWarning, href: "/grievances" },
-        { id: "trainings", label: "Trainings", icon: BookOpenCheck, href: "/trainings" },
-        { id: "incentives", label: "Incentives/Penalties", icon: Coins, href: "/incentives" },
-        { id: "donations", label: "Donations", icon: HandCoins, href: "/donations" },
+        {
+          id: "cleaningdrives",
+          label: "Drives & Campaigns",
+          icon: BrushCleaning,
+          href: "/cleaningdrives",
+        },
+        {
+          id: "grievances",
+          label: "Grievances",
+          icon: MessageSquareWarning,
+          href: "/grievances",
+        },
+        {
+          id: "trainings",
+          label: "Trainings",
+          icon: BookOpenCheck,
+          href: "/trainings",
+        },
+        {
+          id: "incentives",
+          label: "Incentives/Penalties",
+          icon: Coins,
+          href: "/incentives",
+        },
+        {
+          id: "donations",
+          label: "Donations",
+          icon: HandCoins,
+          href: "/donations",
+        },
         { id: "support", label: "Support", icon: HelpCircle, href: "/support" },
-        { id: "settings", label: "Settings", icon: Settings, href: "/settings" },
+        {
+          id: "settings",
+          label: "Settings",
+          icon: Settings,
+          href: "/settings",
+        },
       ],
     },
   ];
@@ -131,16 +191,29 @@ function SideBarLayout({
             >
               <div className="w-10 h-10 rounded-full flex items-center justify-center bg-white">
                 <div className="w-6 h-6 bg-muted/50 rounded-full flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 text-black">
-                    <path d="M15 18l-6-6 6-6"/>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="w-5 h-5 text-black"
+                  >
+                    <path d="M15 18l-6-6 6-6" />
                   </svg>
                 </div>
               </div>
-              <span className="text-sidebar-foreground font-medium text-sm">{sidebarBackText}</span>
+              <span className="text-sidebar-foreground font-medium text-sm">
+                {sidebarBackText}
+              </span>
             </button>
           </div>
         )}
-        
+
         <Sidebar
           sections={customSidebarSections || sidebarSections}
           activeItem={getActiveItem()}
@@ -151,7 +224,7 @@ function SideBarLayout({
           showBackButton={false}
         />
       </div>
-      
+
       <div className="flex-1 flex flex-col min-h-0">
         {/* Header */}
         <Header
@@ -162,11 +235,11 @@ function SideBarLayout({
           onSearchChange={onSearchChange}
           primaryAction={primaryAction}
         />
-        
+
         {/* Main Content - Scrollable Container */}
         <div className="flex-1 overflow-y-auto p-2 sm:p-4 pt-1 sm:pt-1 mb-20 sm:mb-7">
           {/* <div className="p-3 sm:p-6 rounded-2xl h-full"> */}
-            {children}
+          {children}
           {/* </div> */}
         </div>
       </div>

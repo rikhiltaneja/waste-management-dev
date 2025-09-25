@@ -435,6 +435,7 @@ const CampaignPage = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {filteredEvents.map((event) => (
               <div
+                onClick={() => handleViewEvent(event.id)}
                 className="cursor-pointer"
                 key={event.id}
               >
@@ -485,13 +486,13 @@ const CampaignPage = () => {
                     targetAudience={event.targetAudience}
                     variant="list"
                     onEdit={(e) => {
-                    e.stopPropagation(); // prevents bubbling to parent div
-                    handleEditEvent(event.id);
-                  }}
-                  onDelete={(e) => {
-                    e.stopPropagation(); // prevents bubbling to parent div
-                    handleDeleteEvent(event.id);
-                  }}
+                      e.stopPropagation(); // prevents bubbling to parent div
+                      handleEditEvent(event.id);
+                    }}
+                    onDelete={(e) => {
+                      e.stopPropagation(); // prevents bubbling to parent div
+                      handleDeleteEvent(event.id);
+                    }}
                   />
                 </div>
               ))}
