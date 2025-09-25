@@ -208,12 +208,12 @@ const EventDetailPage = () => {
             The event you&apos;re looking for doesn&apos;t exist.
           </p>{" "}
           <Button
-            onClick={() => router.push("/dashboard/event")}
+            onClick={() => router.back()}
             className="mt-4"
             variant="outline"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Events
+            Back
           </Button>
         </div>
       </SideBarLayout>
@@ -228,8 +228,8 @@ const EventDetailPage = () => {
           <div className="flex items-center gap-3">
             <Button
               variant="outline"
-              onClick={() => router.push("/dashboard/event")}
-              className="p-2 shrink-0"
+              onClick={() => router.back()}
+              className="p-2 shrink-0 cursor-pointer"
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>
