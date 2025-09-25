@@ -24,7 +24,7 @@ export default function Layout({
   return (
       <div className="h-screen bg-background overflow-hidden">
          <SideBarLayout customSidebarSections={sidebarSections}>
-              <div className="pt-8">
+              <div className="pt-8 h-full">
                       {children}
               </div>
           </SideBarLayout>

@@ -77,8 +77,8 @@ function SideBarLayout({
     if (pathname === "/shop/inventory") return "inventory";
 
     if (pathname === "/cleaningdrives") return "cleaningdrives";
-    if (pathname === "/dashboard/grievances") return "grievances";
-    if (pathname === "/dashboard/grievances/new") return "grievances";
+    if (pathname === "/dashboard/complaints") return "complaints";
+    if (pathname === "/dashboard/complaints/new") return "complaints";
 
     if (pathname === "/incentives") return "incentives";
     if (pathname === "/support") return "support";

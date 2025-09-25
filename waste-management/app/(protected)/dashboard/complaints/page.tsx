@@ -1,6 +1,6 @@
 import { CitizenGrievances } from "./(layouts)/Citizen";
 
-export default function Grievances() {
+export default function Complaints() {
   return (
       <CitizenGrievances />
   );

@@ -3,7 +3,7 @@
 export function AdminGrievances() {
   return (
     <>
-    Admin view of Grievances Page!
+    Admin view of Complaints Page!
     </>
   );
 }

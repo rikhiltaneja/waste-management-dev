@@ -22,7 +22,7 @@ const items: NavItem[] = [
   { id: 0, icon: <Home size={23} />, label: "Home", href: "/dashboard" },
   { id: 1, icon: <CalendarDays size={23} />, label: "Search", href: "/cleaningdrives" },
   { id: 2, icon: <BriefcaseBusiness size={23} />, label: "Alerts", href: "/trainings" },
-  { id: 3, icon: <Clock2 size={23} />, label: "Profile", href: "/grievances" },
+  { id: 3, icon: <Clock2 size={23} />, label: "Profile", href: "/complaints" },
   { id: 4, icon: <Settings size={23} />, label: "Saved", href: "/settings" },
 ];
 

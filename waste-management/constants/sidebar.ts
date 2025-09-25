@@ -1,5 +1,5 @@
 import { SidebarSection } from "@/components/sidebar/sidebar";
-import { Activity, BarChart3, BookOpenCheck, BrushCleaning, Calendar, Coins, CoinsIcon, DollarSign, HandCoins, HelpCircle, Home, MessageSquareWarning, Settings, ShoppingBag, Users, Warehouse, Wrench } from "lucide-react";
+import { Activity, BarChart3, BookOpenCheck, BrushCleaning, Calendar, Camera, Coins, CoinsIcon, DollarSign, HandCoins, HelpCircle, Home, MessageSquareWarning, Settings, ShoppingBag, Users, Warehouse, Wrench } from "lucide-react";
 
 export const AdminSidebarSections: SidebarSection[] = [
     {
@@ -13,10 +13,10 @@ export const AdminSidebarSections: SidebarSection[] = [
           href: "/dashboard/leaderboard",
         },
         {
-          id: "reports",
-          label: "Reports",
-          icon: BarChart3,
-          href: "/dashboard/reports",
+          id: "complaints",
+          label: "Complaints",
+          icon: Camera,
+          href: "/dashboard/complaints",
         },
       ],
     },
@@ -52,12 +52,6 @@ export const AdminSidebarSections: SidebarSection[] = [
           label: "Drives & Campaigns",
           icon: BrushCleaning,
           href: "/dashboard/cleaningdrives",
-        },
-        {
-          id: "grievances",
-          label: "Grievances",
-          icon: MessageSquareWarning,
-          href: "/dashboard/grievances",
         },
         {
           id: "trainings",

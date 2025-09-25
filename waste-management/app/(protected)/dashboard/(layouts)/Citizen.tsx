@@ -132,7 +132,7 @@ export function CitizenDashboard() {
               imageSrc="/camera-dynamic.png"
               title="Report"
               description="Lorem ipsum dolor"
-              href="/grievances/new"
+              href="/complaints/new"
             />
             <ServiceCard
               imageSrc="/trash-can-dynamic.png"
