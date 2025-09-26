@@ -313,8 +313,8 @@ export function useComplaints() {
       
       // Make direct API call to avoid dependency issues
       const token = await getToken();
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"}/complaints?limit=100`, {
-        credentials: 'include',
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"}/complaints?limit=10`, {
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           ...(token && { 'Authorization': `Bearer ${token}` }),
@@ -378,7 +378,6 @@ export function useComplaints() {
       const token = await getToken();
       await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"}/complaints/${complaintId}/status`, {
         method: 'PUT',
-        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           ...(token && { 'Authorization': `Bearer ${token}` }),
@@ -418,7 +417,6 @@ export function useComplaints() {
       const token = await getToken();
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"}/complaints/${complaintId}/status`, {
         method: 'PUT',
-        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           ...(token && { 'Authorization': `Bearer ${token}` }),
