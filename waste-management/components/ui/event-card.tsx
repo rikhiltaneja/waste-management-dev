@@ -26,7 +26,7 @@ export function EventCard({
   description,
   date,
   location,
-  imageSrc = "/events.png",
+  imageSrc,
   className,
   registrations = 0,
   maxCapacity,

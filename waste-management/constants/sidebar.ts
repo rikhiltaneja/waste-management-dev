@@ -143,7 +143,7 @@ export const CitizenItems: NavItem[] = [
     label: "My Donations",
     href: "/dashboard/donations",
   },
-  { id: 4, icon: Settings, label: "Settings", href: "dashboard/settings" },
+  { id: 4, icon: Settings, label: "Settings", href: "/dashboard/settings" },
 ];
 export const AdminItems: NavItem[] = [
   { id: 0, icon: Home, label: "Home", href: "/dashboard" },
