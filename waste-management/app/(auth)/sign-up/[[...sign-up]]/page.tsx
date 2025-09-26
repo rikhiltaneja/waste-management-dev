@@ -425,7 +425,7 @@ export default function SignUp() {
               <h2 className="text-3xl font-semibold mb-8 text-center">Verification</h2>
               <p className="text-sm text-gray-600 mb-4 text-center">Enter the verification code sent to your email</p>
               <label htmlFor="otp" className="block text-sm mb-3 text-center font-medium">Enter OTP</label>
-              <div className="flex gap-1 sm:gap-2 justify-center px-2 py-4">
+              <div className="flex gap-1 sm:gap-2 justify-center px-1 sm:px-2 py-4">
                 {Array(6).fill(0).map((_, index) => (
                   <Input
                     key={index}
@@ -434,7 +434,7 @@ export default function SignUp() {
                     inputMode="numeric"
                     pattern="[0-9]*"
                     maxLength={1}
-                    className="h-12 sm:h-14 w-14 sm:w-14 text-center bg-gray-50 text-lg sm:text-xl font-medium px-0 mx-0.5 sm:mx-1 cursor-pointer"
+                    className="h-10 sm:h-14 w-10 sm:w-14 text-center bg-gray-50 text-base sm:text-xl font-medium px-0 cursor-pointer flex-shrink-0"
                     value={details.otp.split('')[index] || ''}
                     onChange={(e) => {
                       const value = e.target.value;
