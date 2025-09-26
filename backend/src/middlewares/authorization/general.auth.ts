@@ -14,5 +14,12 @@ export const authenticationCheck = (
   if (auth.isAuthenticated) {
     req.auth = auth
     next()
+  } else {
+    return res.status(401).json({
+      error: {
+        message: 'Authentication required',
+        code: 'UNAUTHORIZED'
+      }
+    });
   }
 };
