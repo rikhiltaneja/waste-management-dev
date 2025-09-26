@@ -313,7 +313,7 @@ export function useComplaints() {
       
       // Make direct API call to avoid dependency issues
       const token = await getToken();
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"}/complaints?limit=10`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"}/complaints`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

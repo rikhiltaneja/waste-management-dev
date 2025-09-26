@@ -62,6 +62,8 @@ export default function NewGrievances() {
         <Image
           src="/complaints_photo.svg"
           alt="Complaints Illustration"
+          height={100}
+          width={100}
           className="w-48 h-48 mb-4"
         />
         <p className="text-gray-500 mt-2 text-center">
@@ -197,6 +199,8 @@ export default function NewGrievances() {
           <Image
             src={imageSrc}
             alt="Captured"
+            height={100}
+            width={100}
             className="w-full h-full object-cover rounded-xl"
           />
         ) : (
