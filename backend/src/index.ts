@@ -21,6 +21,7 @@ import { errorHandler } from './middlewares/errorHandler.middleware';
 import { workersPredictionRouter } from "./routes/workersPrediction.routes";
 import Razorpay from "razorpay";
 import { donationRouter } from "./routes/donations.routes";
+import { localityRouter } from "./routes/locality.routes";
 
 const app = express();
 const PORT = 8080;
@@ -36,7 +37,7 @@ app.use(express.json());
 app.use(clerkMiddleware());
 
 app.get('/', (req, res) => {
-    res.send("Welcome to the server!");
+  res.send("Welcome to the server!");
 });
 
 app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
@@ -53,6 +54,7 @@ app.use('/attendance', attendanceRouter);
 app.use('/learning-materials', learningMaterialsRouter);
 app.use('/compliance', complianceRouter);
 app.use('/user-registrations', userRegistrationsRouter);
+app.use('/locality', localityRouter);
 
 app.use('/workers-prediction', workersPredictionRouter)
 
@@ -61,5 +63,5 @@ app.use('/donations', donationRouter)
 app.use(errorHandler);
 
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });

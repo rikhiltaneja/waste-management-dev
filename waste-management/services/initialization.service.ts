@@ -1,4 +1,3 @@
-import { useUserProfile } from "@/store/profile.store";
 import axios from "axios";
 
 export class InitialisationService {
@@ -6,14 +5,14 @@ export class InitialisationService {
     public userId: string;
     public token: string;
     public backendBaseURL: string | undefined = process.env.NEXT_PUBLIC_BACKEND_URL
-    constructor(role: string, userId: string, token: string){
+    constructor(role: string, userId: string, token: string) {
         this.role = role;
         this.userId = userId;
         this.token = token
     }
-    
-    public getUserProfile(){
-        if(this.role=="Citizen"){
+
+    public getUserProfile() {
+        if (this.role == "Citizen") {
             this.getCitizenProfile();
         }
     }
@@ -34,5 +33,5 @@ export class InitialisationService {
             throw err;
         }
     }
-    
+
 }

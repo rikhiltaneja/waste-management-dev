@@ -1,30 +1,16 @@
-// Simple locality service - you can replace with actual API calls later
-export const localityService = {
-  getLocalityName: (localityId: number): string => {
-    // This is a temporary mapping - replace with actual API call to backend
-    const localities: { [key: number]: string } = {
-      1: "MG Road",
-      2: "Brigade Road", 
-      3: "Koramangala",
-      4: "Indiranagar",
-      5: "Whitefield",
-      6: "Electronic City",
-      7: "HSR Layout",
-      8: "Marathahalli",
-      9: "Jayanagar",
-      10: "Rajajinagar"
-    };
-    
-    return localities[localityId] || `Locality ${localityId}`;
-  },
+import axios from "axios";
 
-  // You can add more methods here for API calls when backend is ready
-  async getLocalityById(localityId: number) {
-    // TODO: Replace with actual API call
-    return {
-      id: localityId,
-      name: this.getLocalityName(localityId),
-      pincode: "560001"
-    };
-  }
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
+
+export const localityService = {
+
+  async getLocalityByCitizenId(citizenId: string) {
+    try {
+      const response = await axios.get(`${BASE_URL}/locality/citizen/${citizenId}`);
+      return response.data.name;
+    } catch (error) {
+      console.error("Failed to fetch locality:", error);
+      return { id: 0, name: "Unknown Locality", pincode: "000000" };
+    }
+  },
 };
