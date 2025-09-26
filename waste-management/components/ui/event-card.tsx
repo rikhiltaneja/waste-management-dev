@@ -2,8 +2,9 @@
 
 import React from "react";
 import { cn } from "@/lib/utils";
-import { Calendar, MapPin, Users, Clock, Eye, Edit, Trash2 } from "lucide-react";
+import { Calendar, MapPin, Users, Eye, Edit, Trash2 } from "lucide-react";
 import { Button } from "./button";
+import Image from "next/image";
 
 interface EventCardProps {
   title: string;
@@ -26,7 +27,7 @@ export function EventCard({
   description,
   date,
   location,
-  imageSrc,
+  imageSrc = "/events.png",
   className,
   registrations = 0,
   maxCapacity,
@@ -50,14 +51,16 @@ export function EventCard({
   // Compact variant for grid view
   if (variant === 'compact') {
     return (
-      <div 
+      <div
         className={cn(
           "bg-card border border-border rounded-xl overflow-hidden hover:shadow-md transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]",
           className
         )}
       >
         <div className="aspect-[16/10] w-full relative">
-          <img
+          <Image
+            height={100}
+            width={100}
             src={imageSrc}
             alt={title}
             className="w-full h-full object-cover"
@@ -117,7 +120,7 @@ export function EventCard({
   // List variant for horizontal layout
   if (variant === 'list') {
     return (
-      <div 
+      <div
         className={cn(
           "bg-card border border-border rounded-xl overflow-hidden hover:shadow-md transition-all duration-200",
           className
@@ -125,7 +128,9 @@ export function EventCard({
       >
         <div className="flex gap-4 p-4">
           <div className="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
-            <img
+            <Image
+            height={100}
+            width={100}
               src={imageSrc}
               alt={title}
               className="w-full h-full object-cover"
@@ -185,7 +190,7 @@ export function EventCard({
 
   // Default variant (original design)
   return (
-    <div 
+    <div
       className={cn(
         "bg-card border border-border rounded-2xl sm:rounded-3xl overflow-hidden hover:shadow-md transition-all duration-200 hover:scale-[1.01] active:scale-[0.99]",
         className
@@ -194,7 +199,9 @@ export function EventCard({
       {/* Mobile layout - horizontal */}
       <div className="sm:hidden flex gap-3 p-3">
         <div className="w-16 h-16 rounded-2xl overflow-hidden flex-shrink-0">
-          <img
+          <Image
+          width={100}
+          height={100}
             src={imageSrc}
             alt={title}
             className="w-full h-full object-cover"
@@ -252,7 +259,9 @@ export function EventCard({
       {/* Desktop layout - vertical */}
       <div className="hidden sm:block">
         <div className="aspect-[16/10] w-full relative p-3 sm:p-4">
-          <img
+          <Image
+            height={100}
+            width={100}
             src={imageSrc}
             alt={title}
             className="w-full h-full rounded-2xl object-cover"
