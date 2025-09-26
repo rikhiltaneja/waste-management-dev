@@ -65,8 +65,21 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(({
     if (activeItem) {
       return activeItem === item.id;
     }
-    // Fallback to pathname matching if no activeItem is provided
-    return item.href && pathname === item.href;
+    
+    // Enhanced pathname matching for nested routes
+    if (item.href) {
+      // Exact match for root paths
+      if (item.href === '/' || item.href === '/dashboard') {
+        return pathname === item.href;
+      }
+      
+      // For other paths, check if current pathname starts with the item href
+      // This handles nested routes like /users/123 matching /users
+      return pathname.startsWith(item.href) && 
+             (pathname === item.href || pathname.charAt(item.href.length) === '/');
+    }
+    
+    return false;
   };
 
   return (
@@ -96,16 +109,19 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(({
       {/* Header with Logo */}
       {showLogo && (
         <div className="flex items-center justify-center p-4 pb-2">
-          {!collapsed ? (
-            <div className="flex items-center justify-center">
+            <div className="flex gap-2 items-center w-full justify-center">
               <Image
                 width={100}
                 height={100}
                 src="/logo_green.png"
                 alt="Logo"
-                className="h-20 w-20 object-contain"
+                className="size-16 object-contain transition-transform duration-300 hover:scale-110 hover:rotate-3"
                 loading="lazy"
               />
+              <div className="flex flex-col">
+              <p className="font-semibold text-xl">WASTEWISE</p>
+              <p className="text-gray-400 text-[10px]">Smart Waste, Smart Future</p>
+                   </div>
               {/* <img
                 src="/wastex-logo.png"
                 alt="WASTEX"
@@ -113,16 +129,6 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(({
                 loading="lazy"
               /> */}
             </div>
-          ) : (
-            <Image
-              width={100}
-              height={100}
-              src="/logo_green.png"
-              alt="Logo"
-              className="h-8 w-8 object-contain mx-auto"
-              loading="lazy"
-            />
-          )}
         </div>
       )}
 
@@ -148,15 +154,10 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(({
                       size="sm"
                       className={cn(
                         "w-full justify-start h-12 rounded-3xl transition-all duration-200 cursor-pointer",
-                        isActive ? "text-white hover:text-white" : "text-sidebar-foreground/80 hover:text-sidebar-foreground hover:shadow-sm hover:scale-[1.01] active:scale-[0.99]",
+                        isActive ? "text-white hover:text-white bg-primary/80 hover:bg-primary" : "bg-[#e2e8f0]/30 text-sidebar-foreground/80 hover:text-sidebar-foreground hover:shadow-sm hover:scale-[1.01] active:scale-[0.99]",
                         collapsed && "justify-center px-2"
                       )}
                       onClick={() => handleItemClick(item)}
-                      style={{
-                        backgroundColor: isActive 
-                          ? '#1D923C'
-                          : (isHovered ? 'rgba(34, 197, 94, 0.1)' : '#f1f5f9'),
-                      }}
                       onMouseEnter={() => setHoveredItems(prev => ({ ...prev, [item.id]: true }))}
                       onMouseLeave={() => setHoveredItems(prev => ({ ...prev, [item.id]: false }))}
                     >

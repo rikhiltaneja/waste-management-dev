@@ -1,5 +1,5 @@
 import { SidebarSection } from "@/components/sidebar/sidebar";
-import { Activity } from "lucide-react";
+import { Activity, CalendarClock, Megaphone } from "lucide-react";
 import { BookOpenCheck } from "lucide-react";
 import { BrushCleaning } from "lucide-react";
 import { Calendar } from "lucide-react";
@@ -24,6 +24,8 @@ export const AdminSidebarSections: SidebarSection[] = [
       { id: "dashboard", label: "Dashboard", icon: Home, href: "/dashboard" },
       { id: "leaderboard", label: "Leader Board", icon: Activity, href: "/dashboard/leaderboard" },
       { id: "complaints", label: "Complaints", icon: Camera, href: "/dashboard/complaints" },
+      { id: "trainings", label: "Trainings", icon: CalendarClock, href: "/dashboard/trainings" },
+    
     ],
   },
   {
@@ -31,21 +33,19 @@ export const AdminSidebarSections: SidebarSection[] = [
     items: [
       { id: "workers", label: "Workers", icon: Wrench, href: "/dashboard/workers" },
       { id: "users", label: "Users", icon: Users, href: "/dashboard/users" },
-      { id: "facilities", label: "Facilities", icon: Settings, href: "/dashboard/facilities" },
-      { id: "inventory", label: "Inventory", icon: Warehouse, href: "/shop/inventory" },
-    ],
-  },
-  {
-    title: "Community and Compliance",
-    items: [
-      { id: "cleaningdrives", label: "Drives & Campaigns", icon: BrushCleaning, href: "/dashboard/cleaningdrives" },
-      { id: "trainings", label: "Trainings", icon: BookOpenCheck, href: "/dashboard/trainings" },
-      { id: "incentives", label: "Incentives/Penalties", icon: Coins, href: "/dashboard/incentives" },
       { id: "donations", label: "Donations", icon: HandCoins, href: "/dashboard/donations" },
-      { id: "support", label: "Support", icon: HelpCircle, href: "/support" },
-      { id: "settings", label: "Settings", icon: Settings, href: "/dashboard/settings" },
     ],
   },
+  // {
+  //   title: "Community and Compliance",
+  //   items: [
+  //     { id: "cleaningdrives", label: "Drives & Campaigns", icon: BrushCleaning, href: "/dashboard/cleaningdrives" },
+  //     { id: "trainings", label: "Trainings", icon: BookOpenCheck, href: "/dashboard/trainings" },
+  //     { id: "incentives", label: "Incentives/Penalties", icon: Coins, href: "/dashboard/incentives" },
+  //     { id: "support", label: "Support", icon: HelpCircle, href: "/support" },
+  //     { id: "settings", label: "Settings", icon: Settings, href: "/dashboard/settings" },
+  //   ],
+  // },
 ];
 
 export const WorkerSidebarSection: SidebarSection[] = [
@@ -84,22 +84,23 @@ export const CitizenSidebarSection: SidebarSection[] = [
     items: [
       { id: "dashboard", label: "Dashboard", icon: Home, href: "/dashboard" },
       { id: "events", label: "Trainings", icon: Calendar, href: "/dashboard/trainings" },
+      { id: "complaints", label: "Complaints", icon: Camera, href: "/dashboard/complaints/new" },
     ],
   },
   {
     title: "Community & Compliance",
     items: [
       { id: "donate", label: "Donate", icon: HandCoins, href: "/dashboard/donations" },
-      { id: "facilities", label: "Facilities", icon: BookOpenCheck, href: "/dashboard/facilities" },
-      { id: "cleaningdrives", label: "Cleaning Drives", icon: BrushCleaning, href: "/cleaningdrives" },
+      // { id: "facilities", label: "Facilities", icon: BookOpenCheck, href: "/dashboard/facilities" },
+      // { id: "cleaningdrives", label: "Cleaning Drives", icon: BrushCleaning, href: "/cleaningdrives" },
       { id: "shop", label: "Shop", icon: ShoppingBasket, href: "/shop" },
     ],
   },
-  {
-    title: "Support & Settings",
-    items: [
-      { id: "support", label: "Support", icon: HelpCircle, href: "/support" },
-      { id: "settings", label: "Settings", icon: Settings, href: "/settings" },
-    ],
-  },
+  // {
+  //   title: "Support & Settings",
+  //   items: [
+  //     { id: "support", label: "Support", icon: HelpCircle, href: "/support" },
+  //     { id: "settings", label: "Settings", icon: Settings, href: "/settings" },
+  //   ],
+  // },
 ];
