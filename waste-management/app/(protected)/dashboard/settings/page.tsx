@@ -84,7 +84,7 @@ export default function Settings() {
   // Show loading state while user data is loading
   if (!isLoaded) {
     return (
-      <div className="min-h-screen bg-background p-4 md:p-6">
+      <div className="h-full bg-background p-4 md:p-6">
         <div className="mx-auto max-w-2xl">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-foreground">Settings</h1>

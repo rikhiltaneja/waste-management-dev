@@ -12,13 +12,15 @@ import Image from "next/image";
 export default function NewGrievances() {
   const [isMobile, setIsMobile] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [localityLoading, setLocalityLoading] = useState(true);
+  const [localityName, setLocalityName] = useState("Loading...");
   const [imageSrc, setImageSrc] = useState<string | undefined>(undefined);
-  const [geolocationObject, setGeoLocationObject] =
-    useState<Geolocation | null>(null);
+  const [geolocationObject, setGeoLocationObject] = useState<Geolocation | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [wasteType, setWasteType] = useState("");
   const [description, setDescription] = useState("");
   const [successId, setSuccessId] = useState<string | null>(null);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const profile = useUserProfile((state) => state.profile);
   const { getToken } = useAuth();
@@ -33,7 +35,27 @@ export default function NewGrievances() {
     { value: "Other", label: "Other" },
   ];
 
+  // Fetch locality immediately when page loads
   useEffect(() => {
+    async function fetchLocality() {
+      if (!profile?.id) {
+        setLocalityName("Unknown Location");
+        setLocalityLoading(false);
+        return;
+      }
+      try {
+        const locality = await localityService.getLocalityByCitizenId(profile.id);
+        setLocalityName(locality || "Unknown Location");
+      } catch (err) {
+        console.error(err);
+        setLocalityName("Unknown Location");
+      } finally {
+        setLocalityLoading(false);
+      }
+    }
+
+    fetchLocality();
+
     function handleResize() {
       setIsMobile(window.innerWidth < 640);
     }
@@ -45,16 +67,13 @@ export default function NewGrievances() {
 
     const geolocation = navigator.geolocation;
     setGeoLocationObject(geolocation);
-    geolocation.getCurrentPosition((loc) => {
-      console.log(loc);
-    });
 
     return () => {
       if (typeof window !== "undefined") {
         window.removeEventListener("resize", handleResize);
       }
     };
-  }, []);
+  }, [profile?.id]);
 
   if (!isMobile) {
     return (
@@ -72,6 +91,9 @@ export default function NewGrievances() {
       </div>
     );
   }
+
+  if (localityLoading) return <Loading />;
+
 
   const handleTemplateClick = () => {
     if (fileInputRef.current) {
@@ -242,7 +264,7 @@ export default function NewGrievances() {
           <input
             type="text"
             placeholder="Location"
-            value={profile.localityId ? localityService.getLocalityName(profile.localityId) : "Unknown Location"}
+            value={localityName}
             className="w-full px-4 py-2 rounded border border-gray-300 bg-gray-100"
             required
             disabled
