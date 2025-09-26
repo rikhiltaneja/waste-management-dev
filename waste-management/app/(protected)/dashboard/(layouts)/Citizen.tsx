@@ -26,6 +26,7 @@ interface PhysicalTrainingEvent {
   locality: {
     name: string;
   };
+  imageUrl:string;
 }
 
 export function CitizenDashboard() {
@@ -73,6 +74,8 @@ export function CitizenDashboard() {
         createdAt: "2024-01-01T00:00:00Z",
         registrations: 35,
         locality: { name: "Central Delhi" },
+                  imageUrl:'https://images.unsplash.com/photo-1675395594169-c6b14260e271?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+
       },
       {
         id: 2,
@@ -88,6 +91,8 @@ export function CitizenDashboard() {
         createdAt: "2024-01-01T00:00:00Z",
         registrations: 45,
         locality: { name: "Downtown" },
+        imageUrl:'https://images.unsplash.com/photo-1611284446314-60a58ac0deb9?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+
       },
       {
         id: 3,
@@ -103,6 +108,7 @@ export function CitizenDashboard() {
         createdAt: "2024-01-02T00:00:00Z",
         registrations: 0,
         locality: { name: "Uptown" },
+          imageUrl:'https://images.unsplash.com/photo-1614201991207-765637dd6183?q=80&w=988&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
       },
     ];
 
@@ -187,6 +193,7 @@ export function CitizenDashboard() {
                 <EventCard
                   key={event.id}
                   title={event.title}
+                  imageSrc={event.imageUrl}
                   description={event.description}
                   date={formatDate(event.startDateTime)}
                   location={event.location}
