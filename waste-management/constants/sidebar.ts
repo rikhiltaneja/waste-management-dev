@@ -64,6 +64,8 @@ export const WorkerSidebarSection: SidebarSection[] = [
     items: [
       { id: "dashboard", label: "Dashboard", icon: Home, href: "/dashboard" },
       { id: "events", label: "Trainings", icon: Calendar, href: "/dashboard/trainings" },
+      { id: "facilities", label: "Collection Points", icon: MapPin, href: "/dashboard/facilities" },
+
     ],
   },
   {
@@ -93,8 +95,10 @@ export const CitizenSidebarSection: SidebarSection[] = [
     title: "Overview",
     items: [
       { id: "dashboard", label: "Dashboard", icon: Home, href: "/dashboard" },
-      { id: "events", label: "Trainings", icon: Calendar, href: "/dashboard/trainings" },
       { id: "complaints", label: "Complaints", icon: Camera, href: "/dashboard/complaints/new" },
+      { id: "events", label: "Trainings", icon: Calendar, href: "/dashboard/trainings" },
+      { id: "facilities", label: "Collection Points", icon: MapPin, href: "/dashboard/facilities" },
+
     ],
   },
   {

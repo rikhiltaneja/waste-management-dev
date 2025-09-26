@@ -355,22 +355,26 @@ const CampaignPage = () => {
                             >
                               <Eye className="h-4 w-4" />
                             </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleEditEvent(event.id)}
-                              className="p-2 cursor-pointer"
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleDeleteEvent(event.id)}
-                              className="p-2 text-red-600 hover:text-red-700 cursor-pointer"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                            {isAdmin && (
+                              <>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleEditEvent(event.id)}
+                                  className="p-2 cursor-pointer"
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleDeleteEvent(event.id)}
+                                  className="p-2 text-red-600 hover:text-red-700 cursor-pointer"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </>
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -402,14 +406,14 @@ const CampaignPage = () => {
                   status={event.status}
                   targetAudience={event.targetAudience}
                   variant="compact"
-                  onEdit={(e) => {
+                  onEdit={isAdmin ? (e) => {
                     e.stopPropagation(); // prevents bubbling to parent div
                     handleEditEvent(event.id);
-                  }}
-                  onDelete={(e) => {
+                  } : undefined}
+                  onDelete={isAdmin ? (e) => {
                     e.stopPropagation(); // prevents bubbling to parent div
                     handleDeleteEvent(event.id);
-                  }}
+                  } : undefined}
                 />
               </div>
             ))}
@@ -437,14 +441,14 @@ const CampaignPage = () => {
                     status={event.status}
                     targetAudience={event.targetAudience}
                     variant="list"
-                    onEdit={(e) => {
+                    onEdit={isAdmin ? (e) => {
                       e.stopPropagation(); // prevents bubbling to parent div
                       handleEditEvent(event.id);
-                    }}
-                    onDelete={(e) => {
+                    } : undefined}
+                    onDelete={isAdmin ? (e) => {
                       e.stopPropagation(); // prevents bubbling to parent div
                       handleDeleteEvent(event.id);
-                    }}
+                    } : undefined}
                   />
                 </div>
               ))}
@@ -472,14 +476,14 @@ const CampaignPage = () => {
                   status={event.status}
                   targetAudience={event.targetAudience}
                   variant="default"
-                  onEdit={(e) => {
+                  onEdit={isAdmin ? (e) => {
                     e.stopPropagation(); // prevents bubbling to parent div
                     handleEditEvent(event.id);
-                  }}
-                  onDelete={(e) => {
+                  } : undefined}
+                  onDelete={isAdmin ? (e) => {
                     e.stopPropagation(); // prevents bubbling to parent div
                     handleDeleteEvent(event.id);
-                  }}
+                  } : undefined}
                 />
               </div>
             ))}

@@ -69,7 +69,7 @@ export function EventCard({
           </div>
         </div>
         <div className="p-4">
-          <h3 className="font-semibold text-foreground text-sm mb-2 line-clamp-1">{title}</h3>
+          <h3 className="font-semibold text-foreground mb-2 line-clamp-1">{title}</h3>
           <p className="text-xs text-muted-foreground mb-3 leading-relaxed line-clamp-2">
             {description}
           </p>
