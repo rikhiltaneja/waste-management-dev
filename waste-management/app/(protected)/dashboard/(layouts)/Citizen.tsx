@@ -154,9 +154,9 @@ export function CitizenDashboard() {
             />
             <ServiceCard
               imageSrc="/trash-can-dynamic.png"
-              title="Station"
+              title="Stations"
               description="Locate recycling points nearby."
-              href="/dashboard/stations"
+              href="/dashboard/facilities"
             />
             <ServiceCard
               imageSrc="/megaphone-dynamic.png"

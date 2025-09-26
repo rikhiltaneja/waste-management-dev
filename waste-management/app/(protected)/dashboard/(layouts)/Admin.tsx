@@ -11,6 +11,7 @@ import {
   MessageSquare,
   Folder,
   CalendarPlus,
+  MapPin,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
@@ -89,48 +90,49 @@ export function AdminDashboard() {
 
       {/* Action Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 pb-12 sm:pb-4">
-        <ActionCard
-          title="Create Event"
-          description="Lorem ipsum dolor sit amet"
-          icon={CalendarPlus}
-          iconColor="text-amber-500"
-          href="/dashboard/event"
-        />
-        <ActionCard
-          title="Manage Users"
-          description="Lorem ipsum dolor sit amet"
-          icon={Users}
-          iconColor="text-blue-500"
-          href="/dashboard/users"
-        />
-        <ActionCard
-          title="Manage Donations"
-          description="Lorem ipsum dolor sit amet"
-          icon={DollarSign}
-          iconColor="text-green-500"
-          href="/dashboard/manage-donations"
-        />
-        <ActionCard
-          title="Manage Incentives"
-          description="Lorem ipsum dolor sit amet"
-          icon={Coins}
-          iconColor="text-green-500"
-          href="/dashboard/manage-incentives"
-        />
-        <ActionCard
-          title="View User Feedback"
-          description="Lorem ipsum dolor sit amet"
-          icon={FileText}
-          iconColor="text-amber-500"
-          href="/dashboard/user-feedback"
-        />
-        <ActionCard
-          title="Collection Points"
-          description="Lorem ipsum dolor sit amet"
-          icon={MessageSquare}
-          iconColor="text-blue-500"
-          href="/dashboard/collection-points"
-        />
+       <ActionCard
+  title="Create Event"
+  description="Plan and schedule new waste management events."
+  icon={CalendarPlus}
+  iconColor="text-amber-500"
+  href="/dashboard/trainings"
+/>
+<ActionCard
+  title="Manage Users"
+  description="View, edit, and control user accounts and roles."
+  icon={Users}
+  iconColor="text-blue-500"
+  href="/dashboard/users"
+/>
+<ActionCard
+  title="Manage Donations"
+  description="Track and oversee donation records and activity."
+  icon={DollarSign}
+  iconColor="text-green-500"
+  href="/dashboard/donations"
+/>
+<ActionCard
+  title="Manage Incentives"
+  description="Create and manage rewards for citizen participation."
+  icon={Coins}
+  iconColor="text-green-500"
+  href="/dashboard/incentives"
+/>
+<ActionCard
+  title="View User Feedback"
+  description="Read and respond to citizen feedback and reports."
+  icon={FileText}
+  iconColor="text-amber-500"
+  href="/dashboard/user-feedback"
+/>
+<ActionCard
+  title="Collection Points"
+  description="Monitor and update waste collection point locations."
+  icon={MapPin}
+  iconColor="text-red-500"
+  href="/dashboard/facilities"
+/>
+
       </div>
     </div>
   );

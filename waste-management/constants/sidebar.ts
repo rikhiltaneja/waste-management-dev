@@ -1,5 +1,5 @@
 import { SidebarSection } from "@/components/sidebar/sidebar";
-import { Activity, CalendarClock, ChartBar, ChartBarIncreasing, ChartColumn, Megaphone } from "lucide-react";
+import { Activity, CalendarClock, ChartBar, ChartBarIncreasing, ChartColumn, MapPin, Megaphone, Trash } from "lucide-react";
 import { BookOpenCheck } from "lucide-react";
 import { BrushCleaning } from "lucide-react";
 import { Calendar } from "lucide-react";
@@ -27,6 +27,7 @@ export const AdminSidebarSections: SidebarSection[] = [
       { id: "leaderboard", label: "Leader Board", icon: Activity, href: "/dashboard/leaderboard" },
       { id: "complaints", label: "Complaints", icon: Megaphone, href: "/dashboard/complaints" },
       { id: "trainings", label: "Trainings", icon: CalendarClock, href: "/dashboard/trainings" },
+      { id: "facilities", label: "Collection Points", icon: MapPin, href: "/dashboard/facilities" },
     
     ],
   },
@@ -63,6 +64,8 @@ export const WorkerSidebarSection: SidebarSection[] = [
     items: [
       { id: "dashboard", label: "Dashboard", icon: Home, href: "/dashboard" },
       { id: "events", label: "Trainings", icon: Calendar, href: "/dashboard/trainings" },
+      { id: "facilities", label: "Collection Points", icon: MapPin, href: "/dashboard/facilities" },
+
     ],
   },
   {
@@ -92,8 +95,10 @@ export const CitizenSidebarSection: SidebarSection[] = [
     title: "Overview",
     items: [
       { id: "dashboard", label: "Dashboard", icon: Home, href: "/dashboard" },
-      { id: "events", label: "Trainings", icon: Calendar, href: "/dashboard/trainings" },
       { id: "complaints", label: "Complaints", icon: Camera, href: "/dashboard/complaints/new" },
+      { id: "events", label: "Trainings", icon: Calendar, href: "/dashboard/trainings" },
+      { id: "facilities", label: "Collection Points", icon: MapPin, href: "/dashboard/facilities" },
+
     ],
   },
   {

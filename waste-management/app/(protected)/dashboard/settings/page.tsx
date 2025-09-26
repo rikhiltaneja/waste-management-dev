@@ -223,7 +223,7 @@ export default function Settings() {
       <div className="mx-auto max-w-2xl space-y-6">
         {/* Header */}
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-foreground">Settings</h1>
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">Settings</h1>
         </div>
 
         {/* Stats Card */}

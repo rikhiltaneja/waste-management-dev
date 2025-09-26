@@ -1,8 +1,8 @@
-
 import express from "express";
 import { spawn } from "child_process";
 import fs from "fs";
 import path from "path";
+import axios from "axios";
 
 /**
  * @swagger
@@ -63,8 +63,9 @@ const baseUrl = process.env.FASTAPI
  *       500:
  *         description: Python script error or invalid output
  */
-workersPredictionRouter.post("/predict", (req, res) => {
+workersPredictionRouter.post("/predict", async (req, res) => {
   const { completion_ratio, citizen_rating, locality_rating, task_difficulty } = req.body;
+  
   if (
     typeof completion_ratio !== 'number' ||
     typeof citizen_rating !== 'number' ||
@@ -73,28 +74,27 @@ workersPredictionRouter.post("/predict", (req, res) => {
   ) {
     return res.status(400).json({ error: "All fields must be numbers." });
   }
-  // Call FastAPI predict-worker endpoint
-  fetch(`${baseUrl}/predict-worker`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ completion_ratio, citizen_rating, locality_rating, task_difficulty })
-  })
-    .then(async (response) => {
-      if (!response.ok) {
-        const error = await response.text();
-        return res.status(500).json({ error: 'FastAPI error', details: error });
-      }
-      return response.json();
-    })
-    .then((data) => {
-      if (typeof data.predicted_score !== 'number') {
-        return res.status(500).json({ error: 'Invalid output from FastAPI', raw: data });
-      }
-      res.json({ predicted_score: data.predicted_score });
-    })
-    .catch((err) => {
-      res.status(500).json({ error: 'FastAPI request failed', details: err.message });
+
+  try {
+    const response = await axios.post(`${baseUrl}/predict-worker`, { completion_ratio, citizen_rating, locality_rating, task_difficulty }, {
+      headers: { 'Content-Type': 'application/json' }
     });
+
+    const data = response.data;
+
+    if (typeof data.predicted_score !== 'number') {
+      return res.status(500).json({ error: 'Invalid output from FastAPI', raw: data });
+    }
+
+    return res.json({ predicted_score: data.predicted_score });
+
+  } catch (err: any) {
+    if (err.response) {
+      const errorText = err.response.data || err.response.statusText;
+      return res.status(500).json({ error: 'FastAPI error', details: errorText });
+    }
+    return res.status(500).json({ error: 'FastAPI request failed', details: err.message });
+  }
 });
 
 
@@ -115,22 +115,17 @@ workersPredictionRouter.post("/predict", (req, res) => {
  *       500:
  *         description: Python script error or failed to read leaderboard CSV
  */
-workersPredictionRouter.get("/leaderboard", (req, res) => {
-  // Call FastAPI leaderboard endpoint
-  fetch(`${baseUrl}/leaderboard`)
-    .then(async (response) => {
-      if (!response.ok) {
-        const error = await response.text();
-        return res.status(500).json({ error: 'FastAPI error', details: error });
-      }
-      return response.json();
-    })
-    .then((data) => {
-      res.json(data);
-    })
-    .catch((err) => {
-      res.status(500).json({ error: 'FastAPI request failed', details: err.message });
-    });
+workersPredictionRouter.get("/leaderboard", async (req, res) => {
+  try {
+    const response = await axios.get(`${baseUrl}/leaderboard`);
+    res.json(response.data);
+  } catch (err: any) {
+    if (err.response) {
+      const errorText = err.response.data || err.response.statusText;
+      return res.status(500).json({ error: 'FastAPI error', details: errorText });
+    }
+    return res.status(500).json({ error: 'FastAPI request failed', details: err.message });
+  }
 });
 
 
@@ -185,7 +180,7 @@ workersPredictionRouter.get("/leaderboard", (req, res) => {
  *       500:
  *         description: Python script error or failed to read recommended CSV
  */
-workersPredictionRouter.get("/recommend", (req, res) => {
+workersPredictionRouter.get("/recommend", async (req, res) => {
   const { locality, workerType, limit, format = "json" } = req.query;
   // Build query params for FastAPI
   const params = new URLSearchParams();
@@ -194,44 +189,41 @@ workersPredictionRouter.get("/recommend", (req, res) => {
   // limit is ignored in FastAPI, but can be used for frontend compatibility
   // format: only json supported from FastAPI, so handle CSV conversion here if needed
 
-  fetch(`${baseUrl}/recommend?${params.toString()}`)
-    .then(async (response) => {
-      if (!response.ok) {
-        const error = await response.text();
-        throw new Error(error);
+  try {
+    const response = await axios.get(`${baseUrl}/recommend?${params.toString()}`);
+    const workers = response.data;
+    const mockLocalities = ['MG Road', 'Brigade Road', 'Koramangala', 'Indiranagar', 'Whitefield'];
+    const mockWorkerTypes = ['SWEEPER', 'WASTE_COLLECTOR'];
+    const mockEmails = ['worker1@email.com', 'worker2@email.com', 'worker3@email.com', 'worker4@email.com', 'worker5@email.com'];
+    const mockPhones = ['+91-9876543210', '+91-9876543211', '+91-9876543212', '+91-9876543213', '+91-9876543214'];
+    const transformedWorkers = workers.map((worker: any, idx: any) => ({
+      id: worker.worker_id || worker.id || idx,
+      name: worker.name || `Worker ${worker.worker_id || idx}`,
+      workerType: worker.worker_type || mockWorkerTypes[idx % mockWorkerTypes.length],
+      assignedTasks: worker.assigned_tasks || 0,
+      completedTasks: worker.completed_tasks || Math.floor(Math.random() * 50) + 10,
+      avgDifficulty: worker.avg_difficulty || 0,
+      localityRating: worker.locality_rating || 0,
+      citizenRating: worker.citizen_rating || 0,
+      locality: worker.locality || mockLocalities[idx % mockLocalities.length],
+      predictedScore: worker.predicted_score || 0,
+      email: worker.email || mockEmails[idx % mockEmails.length],
+      phoneNumber: worker.phone_number || mockPhones[idx % mockPhones.length]
+    }));
+    let finalWorkers = transformedWorkers;
+    if (limit && parseInt(limit.toString()) > 0) {
+      finalWorkers = finalWorkers.slice(0, parseInt(limit.toString()));
+    }
+    res.json(finalWorkers);
+  } catch (err: any) {
+    if (!res.headersSent) {
+      if (err.response) {
+        const errorText = err.response.data || err.response.statusText;
+        return res.status(500).json({ error: 'FastAPI error', details: errorText });
       }
-      return response.json();
-    })
-    .then((workers) => {
-      const mockLocalities = ['MG Road', 'Brigade Road', 'Koramangala', 'Indiranagar', 'Whitefield'];
-      const mockWorkerTypes = ['SWEEPER', 'WASTE_COLLECTOR'];
-      const mockEmails = ['worker1@email.com', 'worker2@email.com', 'worker3@email.com', 'worker4@email.com', 'worker5@email.com'];
-      const mockPhones = ['+91-9876543210', '+91-9876543211', '+91-9876543212', '+91-9876543213', '+91-9876543214'];
-      const transformedWorkers = workers.map((worker: any, idx: any) => ({
-        id: worker.worker_id || worker.id || idx,
-        name: worker.name || `Worker ${worker.worker_id || idx}`,
-        workerType: worker.worker_type || mockWorkerTypes[idx % mockWorkerTypes.length],
-        assignedTasks: worker.assigned_tasks || 0,
-        completedTasks: worker.completed_tasks || Math.floor(Math.random() * 50) + 10,
-        avgDifficulty: worker.avg_difficulty || 0,
-        localityRating: worker.locality_rating || 0,
-        citizenRating: worker.citizen_rating || 0,
-        locality: worker.locality || mockLocalities[idx % mockLocalities.length],
-        predictedScore: worker.predicted_score || 0,
-        email: worker.email || mockEmails[idx % mockEmails.length],
-        phoneNumber: worker.phone_number || mockPhones[idx % mockPhones.length]
-      }));
-      let finalWorkers = transformedWorkers;
-      if (limit && parseInt(limit.toString()) > 0) {
-        finalWorkers = finalWorkers.slice(0, parseInt(limit.toString()));
-      }
-      res.json(finalWorkers);
-    })
-    .catch((err) => {
-      if (!res.headersSent) {
-        res.status(500).json({ error: 'FastAPI request failed', details: err.message });
-      }
-    });
+      res.status(500).json({ error: 'FastAPI request failed', details: err.message });
+    }
+  }
 });
 
 
