@@ -14,6 +14,8 @@ import path from "path";
 export const workersPredictionRouter = express.Router();
 workersPredictionRouter.use(express.json());
 
+const baseUrl = process.env.FASTAPI
+
 /**
  * @swagger
  * /workers-prediction/predict:
@@ -72,7 +74,7 @@ workersPredictionRouter.post("/predict", (req, res) => {
     return res.status(400).json({ error: "All fields must be numbers." });
   }
   // Call FastAPI predict-worker endpoint
-  fetch('http://localhost:8000/predict-worker', {
+  fetch(`${baseUrl}/predict-worker`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ completion_ratio, citizen_rating, locality_rating, task_difficulty })
@@ -115,7 +117,7 @@ workersPredictionRouter.post("/predict", (req, res) => {
  */
 workersPredictionRouter.get("/leaderboard", (req, res) => {
   // Call FastAPI leaderboard endpoint
-  fetch('http://localhost:8000/leaderboard')
+  fetch(`${baseUrl}/leaderboard`)
     .then(async (response) => {
       if (!response.ok) {
         const error = await response.text();
@@ -192,7 +194,7 @@ workersPredictionRouter.get("/recommend", (req, res) => {
   // limit is ignored in FastAPI, but can be used for frontend compatibility
   // format: only json supported from FastAPI, so handle CSV conversion here if needed
 
-  fetch(`http://localhost:8000/recommend?${params.toString()}`)
+  fetch(`${baseUrl}/recommend?${params.toString()}`)
     .then(async (response) => {
       if (!response.ok) {
         const error = await response.text();
