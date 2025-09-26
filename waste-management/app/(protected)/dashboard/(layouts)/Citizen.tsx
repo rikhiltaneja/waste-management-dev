@@ -162,10 +162,10 @@ export function CitizenDashboard() {
   href="/dashboard/trainings"
 />
 <ServiceCard
-  imageSrc="/chat-bubble-dynamic.png"
-  title="Chat"
-  description="Get waste disposal advice."
-  href="/support"
+  imageSrc="/bag-dynamic.png"
+  title="Shop"
+  description="Get waste supplies."
+  href="/dashboard/shop"
 />
 
           </div>

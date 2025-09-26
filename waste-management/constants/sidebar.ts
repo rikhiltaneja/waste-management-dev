@@ -68,15 +68,15 @@ export const WorkerSidebarSection: SidebarSection[] = [
   {
     title: "Misc",
     items: [
-      { id: "shopping", label: "Shop", icon: ShoppingBag, href: "/shop" },
+      { id: "shopping", label: "Shop", icon: ShoppingBag, href: "/dashboard/shop" },
       { id: "facilities", label: "Facilities", icon: BookOpenCheck, href: "/dashboard/facilities" },
     ],
   },
   {
     title: "Support & Settings",
     items: [
-      { id: "support", label: "Support", icon: HelpCircle, href: "/support" },
-      { id: "settings", label: "Settings", icon: Settings, href: "/settings" },
+      { id: "support", label: "Support", icon: HelpCircle, href: "/dashboard/support" },
+      { id: "settings", label: "Settings", icon: Settings, href: "/dashboard/settings" },
     ],
   },
 ];
@@ -95,16 +95,16 @@ export const CitizenSidebarSection: SidebarSection[] = [
       { id: "donate", label: "Donate", icon: HandCoins, href: "/dashboard/donations" },
       // { id: "facilities", label: "Facilities", icon: BookOpenCheck, href: "/dashboard/facilities" },
       // { id: "cleaningdrives", label: "Cleaning Drives", icon: BrushCleaning, href: "/cleaningdrives" },
-      { id: "shop", label: "Shop", icon: ShoppingBasket, href: "/shop" },
+      { id: "shop", label: "Shop", icon: ShoppingBasket, href: "/dashboard/shop" },
     ],
   },
-  // {
-  //   title: "Support & Settings",
-  //   items: [
+  {
+    title: "Support & Settings",
+    items: [
   //     { id: "support", label: "Support", icon: HelpCircle, href: "/support" },
-  //     { id: "settings", label: "Settings", icon: Settings, href: "/settings" },
-  //   ],
-  // },
+      { id: "settings", label: "Settings", icon: Settings, href: "/dashboard/settings" },
+    ],
+  },
 ];
 
 
@@ -136,7 +136,7 @@ export const CitizenItems: NavItem[] = [
     label: "My Donations",
     href: "/dashboard/donations",
   },
-  { id: 4, icon: Settings, label: "Settings", href: "/settings" },
+  { id: 4, icon: Settings, label: "Settings", href: "dashboard/settings" },
 ];
 export const AdminItems: NavItem[] = [
   { id: 0, icon: Home, label: "Home", href: "/dashboard" },
@@ -158,7 +158,7 @@ export const AdminItems: NavItem[] = [
     label: "Leaderboard",
     href: "/dashboard/leaderboard",
   },
-  { id: 4, icon: Settings, label: "Settings", href: "/settings" },
+  { id: 4, icon: Settings, label: "Settings", href: "dashboard/settings" },
 ];
 export const WorkerItems: NavItem[] = [
   { id: 0, icon: Home, label: "Home", href: "/dashboard" },
@@ -180,5 +180,5 @@ export const WorkerItems: NavItem[] = [
     label: "My Complaints",
     href: "/dashboard/complaints",
   },
-  { id: 4, icon: Settings, label: "Settings", href: "/settings" },
+  { id: 4, icon: Settings, label: "Settings", href: "dashboard/settings" },
 ];

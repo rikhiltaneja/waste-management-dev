@@ -5,6 +5,7 @@ import { AdminComplaintPage } from "./(layouts)/Admin";
 import { CitizenComplaint } from "./(layouts)/Citizen";
 import { WorkerComplaint } from "./(layouts)/Worker";
 import Loading from "@/app/loading";
+import { AdminProtection } from "@/components/auth/AdminProtection";
 
 export default function Complaints() {
   const { isSignedIn, user, isLoaded } = useUser();
@@ -28,9 +29,17 @@ export default function Complaints() {
     case "Admin":
       return <AdminComplaintPage />;
     case "Citizen":
-      return <CitizenComplaint />;
+      return <>
+      <AdminProtection>
+      <CitizenComplaint />;
+    </AdminProtection>
+      </>
     case "Worker":
-      return <WorkerComplaint />;
+     return <>
+      <AdminProtection>
+      <WorkerComplaint />;
+    </AdminProtection>
+      </>
     default:
       return <p>Role not recognized</p>;
   }
