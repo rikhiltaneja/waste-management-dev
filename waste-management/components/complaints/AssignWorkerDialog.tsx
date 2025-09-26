@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Complaint, Worker } from "@/types";
-import { RecommendedWorker } from "@/services/workerRecommendation.service";
+import { RecommendedWorker, workerRecommendationService } from "@/services/workerRecommendation.service";
 import { Loader2, RefreshCw } from "lucide-react";
 
 interface AssignWorkerDialogProps {
@@ -35,6 +35,67 @@ export function AssignWorkerDialog({
   const [selectedWorker, setSelectedWorker] = useState<string>("");
   const [showAllWorkers, setShowAllWorkers] = useState(false);
   const [isAssigning, setIsAssigning] = useState(false);
+  const [internalRecommendedWorkers, setInternalRecommendedWorkers] = useState<RecommendedWorker[]>([]);
+  const [internalIsLoading, setInternalIsLoading] = useState(false);
+
+  // Reset state when dialog closes
+  useEffect(() => {
+    if (!isOpen) {
+      setSelectedWorker("");
+      setShowAllWorkers(false);
+      setInternalRecommendedWorkers([]);
+    }
+  }, [isOpen]);
+
+  // Fetch recommendations when dialog opens or complaint changes
+  useEffect(() => {
+    if (isOpen && complaint && (recommendedWorkers.length === 0 || internalRecommendedWorkers.length === 0)) {
+      fetchRecommendations();
+    }
+  }, [isOpen, complaint?.id]); // Use complaint.id to avoid unnecessary re-renders
+
+  const fetchRecommendations = async () => {
+    if (!complaint) return;
+    
+    setInternalIsLoading(true);
+    try {
+      // Extract locality from complaint if available
+      const locality = complaint.citizen?.locality?.name;
+      
+      // Determine worker type based on complaint description (simple heuristic)
+      const description = complaint.description.toLowerCase();
+      let workerType: 'SWEEPER' | 'WASTE_COLLECTOR' | undefined;
+      
+      if (description.includes('sweep') || description.includes('leaves') || description.includes('street')) {
+        workerType = 'SWEEPER';
+      } else if (description.includes('garbage') || description.includes('waste') || description.includes('bin')) {
+        workerType = 'WASTE_COLLECTOR';
+      }
+      
+      const recommendations = await workerRecommendationService.getRecommendedWorkers({
+        locality,
+        workerType,
+        limit: 10,
+        format: 'json'
+      });
+      
+      setInternalRecommendedWorkers(recommendations);
+    } catch (error) {
+      console.error('Failed to fetch recommendations:', error);
+      // Fallback to showing regular workers
+      setInternalRecommendedWorkers([]);
+    } finally {
+      setInternalIsLoading(false);
+    }
+  };
+
+  const handleRefreshRecommendations = () => {
+    if (onRefreshRecommendations) {
+      onRefreshRecommendations();
+    } else {
+      fetchRecommendations();
+    }
+  };
 
   // Helper function to get worker initials
   const getWorkerInitials = (name: string) => {
@@ -57,7 +118,22 @@ export function AssignWorkerDialog({
     
     setIsAssigning(true);
     try {
+      // Calculate task difficulty based on complaint description
+      const taskDifficulty = workerRecommendationService.calculateTaskDifficulty(
+        complaint.description,
+        'general'
+      );
+      
+      // Call the backend to update worker task count
+      await workerRecommendationService.assignTaskToWorker({
+        workerId: selectedWorker,
+        complaintId: complaint.id,
+        taskDifficulty
+      });
+      
+      // Call the parent's onAssign function
       await onAssign(complaint.id, selectedWorker);
+      
       setSelectedWorker("");
       onClose();
     } catch (error) {
@@ -68,15 +144,19 @@ export function AssignWorkerDialog({
     }
   };
 
-  // Get top 5 recommended workers or fallback to first 5 workers
-  const topRecommended = recommendedWorkers.length > 0 
-    ? recommendedWorkers.slice(0, 6)
+  // Use either passed recommendations or internal ones
+  const activeRecommendedWorkers = recommendedWorkers.length > 0 ? recommendedWorkers : internalRecommendedWorkers;
+  const activeIsLoading = isLoadingRecommendations || internalIsLoading;
+
+  // Get top 6 recommended workers or fallback to first 6 workers
+  const topRecommended = activeRecommendedWorkers.length > 0 
+    ? activeRecommendedWorkers.slice(0, 6)
     : workers.slice(0, 6).map(worker => ({ ...worker, predictedScore: 0 }));
 
   // Get remaining workers for dropdown
-  const remainingWorkers = recommendedWorkers.length > 0
-    ? workers.filter(w => !recommendedWorkers.slice(0, 6).some(rw => rw.id === w.id))
-    : workers.slice(5);
+  const remainingWorkers = activeRecommendedWorkers.length > 0
+    ? workers.filter(w => !activeRecommendedWorkers.slice(0, 6).some(rw => rw.id === w.id))
+    : workers.slice(6);
 
   const selectedWorkerData = workers.find(w => w.id === selectedWorker);
 
@@ -88,18 +168,16 @@ export function AssignWorkerDialog({
             <DialogTitle className="text-xl">
               Assign Worker to Complaint #{complaint?.id}
             </DialogTitle>
-            {onRefreshRecommendations && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onRefreshRecommendations}
-                disabled={isLoadingRecommendations}
-                className="flex items-center gap-2"
-              >
-                <RefreshCw className={`h-4 w-4 ${isLoadingRecommendations ? 'animate-spin' : ''}`} />
-                Refresh
-              </Button>
-            )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRefreshRecommendations}
+              disabled={activeIsLoading}
+              className="flex items-center gap-2"
+            >
+              <RefreshCw className={`h-4 w-4 ${activeIsLoading ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
           </div>
         </DialogHeader>
         
@@ -108,12 +186,12 @@ export function AssignWorkerDialog({
           <div>
             <div className="flex items-center gap-2 mb-3">
               <h3 className="font-semibold">Recommended Workers</h3>
-              {isLoadingRecommendations && (
+              {activeIsLoading && (
                 <Loader2 className="h-4 w-4 animate-spin text-gray-500" />
               )}
             </div>
             
-            {isLoadingRecommendations ? (
+            {activeIsLoading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 {[...Array(6)].map((_, index) => (
                   <Card key={index} className="animate-pulse">
@@ -192,7 +270,7 @@ export function AssignWorkerDialog({
                         <div className="flex justify-between">
                           <span>Location:</span>
                           <span className="font-medium truncate ml-1">
-                            {typeof worker.locality === 'string' ? worker.locality : worker.locality.name}
+                            {typeof worker.locality === 'string' ? worker.locality : worker.locality?.name || 'Unknown'}
                           </span>
                         </div>
                       </div>
@@ -290,7 +368,7 @@ export function AssignWorkerDialog({
                   <div className="flex justify-between">
                     <span className="text-gray-600">Location:</span>
                     <span className="font-medium">
-                      {typeof selectedWorkerData.locality === 'string' ? selectedWorkerData.locality : selectedWorkerData.locality.name}
+                      {typeof selectedWorkerData.locality === 'string' ? selectedWorkerData.locality : selectedWorkerData.locality?.name || 'Unknown'}
                     </span>
                   </div>
                 </div>
@@ -302,7 +380,7 @@ export function AssignWorkerDialog({
         <div className="flex gap-3 mt-6">
           <Button 
             onClick={handleAssign}
-            disabled={!selectedWorker || isAssigning || isLoadingRecommendations}
+            disabled={!selectedWorker || isAssigning || activeIsLoading}
             className="flex-1"
           >
             {isAssigning ? (
