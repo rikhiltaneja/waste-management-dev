@@ -161,7 +161,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(({
                       size="sm"
                       className={cn(
                         "w-full justify-start h-12 rounded-3xl transition-all duration-200 cursor-pointer",
-                        isActive ? "text-white hover:text-white bg-primary/80 hover:bg-primary" : "text-sidebar-foreground/80 hover:text-sidebar-foreground hover:shadow-sm hover:scale-[1.01] active:scale-[0.99]",
+                        isActive ? "text-white hover:text-white bg-primary/80 hover:bg-primary" : "bg-[#e2e8f0]/30 text-sidebar-foreground/80 hover:text-sidebar-foreground hover:shadow-sm hover:scale-[1.01] active:scale-[0.99]",
                         collapsed && "justify-center px-2"
                       )}
                       onClick={() => handleItemClick(item)}

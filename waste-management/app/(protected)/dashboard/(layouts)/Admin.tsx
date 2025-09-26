@@ -41,7 +41,7 @@ export function AdminDashboard() {
       {/* Greeting Section */}
       <div>
         <h1 className="text-xl sm:text-2xl font-bold text-foreground">{getGreeting()} {username}</h1>
-        <p className="text-sm sm:text-base text-muted-foreground">Explore what&apos;s today at WASTEX</p>
+        <p className="text-sm sm:text-base text-muted-foreground">Explore what&apos;s today at WasteWise</p>
       </div>
 
       {/* Stats Cards */}

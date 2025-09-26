@@ -18,7 +18,7 @@ const instrumentSerif = Instrument_Serif({
 });
 
 export const metadata: Metadata = {
-  title: "Waste Management System",
+  title: "Waste Wise | Wisely Manage Waste",
   description: "Smart waste management and monitoring system for citizens and administrators",
   manifest: "/manifest.json",
   themeColor: "#22c55e",
