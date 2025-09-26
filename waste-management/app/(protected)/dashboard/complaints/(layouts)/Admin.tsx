@@ -85,7 +85,7 @@ function AdminComplaintCard({
         </div>
 
         {/* Status Update */}
-        <div className="mb-3">
+        {/* <div className="mb-3">
           <label className="text-sm font-medium text-gray-700 mb-2 block">Update Status:</label>
           <Select onValueChange={(value) => onUpdateStatus(complaint.id, value)}>
             <SelectTrigger className="w-full">
@@ -97,7 +97,7 @@ function AdminComplaintCard({
               <SelectItem value="RESOLVED">Resolved</SelectItem>
             </SelectContent>
           </Select>
-        </div>
+        </div> */}
 
         {/* Actions */}
         <div className="flex gap-2">

@@ -6,70 +6,71 @@ import { workerRecommendationService, RecommendedWorker } from "@/services/worke
 
 // This would normally come from an API
 const dummyComplaints: Complaint[] = [
-  {
-    id: 1,
-    description: "Garbage not collected for 3 days in our street. The bins are overflowing and creating a bad smell.",
-    complaintImage: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400",
-    createdAt: "2024-01-15T10:30:00Z",
-    citizenId: "citizen_1",
-    status: "PENDING",
-    rating: 0,
-    citizen: {
-      id: "citizen_1",
-      name: "Rajesh Kumar",
-      phoneNumber: "+91-9876543210",
-      email: "rajesh.kumar@email.com",
-      locality: {
-        id: 1,
-        name: "MG Road",
-        pincode: "560001"
-      }
+ {
+  id: 1,
+  description: "Garbage collection has not occurred for the past 3 days on our street. The overflowing bins are causing an unpleasant odor and attracting pests. Immediate action is needed to maintain hygiene and public health.",
+  complaintImage: "https://images.unsplash.com/photo-1617303331806-3d6b58e03241?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+  createdAt: "2024-01-15T10:30:00Z",
+  citizenId: "citizen_1",
+  status: "PENDING",
+  rating: 0,
+  citizen: {
+    id: "citizen_1",
+    name: "Rajesh Kumar",
+    phoneNumber: "+91-9876543210",
+    email: "rajesh.kumar@email.com",
+    locality: {
+      id: 1,
+      name: "MG Road",
+      pincode: "560001"
     }
-  },
-  {
-    id: 5,
-    description: "Garbage not collected for 3 days in our street. The bins are overflowing and creating a bad smell.",
-    complaintImage: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400",
-    createdAt: "2024-01-15T10:30:00Z",
-    citizenId: "citizen_1",
-    status: "PENDING",
-    rating: 0,
-    citizen: {
-      id: "citizen_1",
-      name: "Rajesh Kumar",
-      phoneNumber: "+91-9876543210",
-      email: "rajesh.kumar@email.com",
-      locality: {
-        id: 1,
-        name: "MG Road",
-        pincode: "560001"
-      }
+  }
+},
+{
+  id: 5,
+  description: "For the last 3 days, garbage has not been collected on our street, resulting in overflowing bins. The foul smell is becoming unbearable and poses a health risk to residents. Requesting urgent cleanup.",
+  complaintImage: "https://images.unsplash.com/photo-1510251197878-a2e6d2cb590c?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+  createdAt: "2024-01-15T10:30:00Z",
+  citizenId: "citizen_1",
+  status: "PENDING",
+  rating: 0,
+  citizen: {
+    id: "citizen_1",
+    name: "Rajesh Kumar",
+    phoneNumber: "+91-9876543210",
+    email: "rajesh.kumar@email.com",
+    locality: {
+      id: 1,
+      name: "MG Road",
+      pincode: "560001"
     }
-  },
-  {
-    id: 6,
-    description: "Garbage not collected for 3 days in our street. The bins are overflowing and creating a bad smell.",
-    complaintImage: "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=400",    
-    createdAt: "2024-01-15T10:30:00Z",
-    citizenId: "citizen_1",
-    status: "PENDING",
-    rating: 0,
-    citizen: {
-      id: "citizen_1",
-      name: "Rajesh Kumar",
-      phoneNumber: "+91-9876543210",
-      email: "rajesh.kumar@email.com",
-      locality: {
-        id: 1,
-        name: "MG Road",
-        pincode: "560001"
-      }
+  }
+},
+{
+  id: 6,
+  description: "Trash has been piling up for 3 days in our area due to missed garbage collection. Overflowing bins are emitting a strong, unpleasant smell and could lead to sanitation issues. Please address this matter promptly.",
+  complaintImage: "https://images.unsplash.com/photo-1606901302392-ca613ab6abb7?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+  createdAt: "2024-01-15T10:30:00Z",
+  citizenId: "citizen_1",
+  status: "PENDING",
+  rating: 0,
+  citizen: {
+    id: "citizen_1",
+    name: "Rajesh Kumar",
+    phoneNumber: "+91-9876543210",
+    email: "rajesh.kumar@email.com",
+    locality: {
+      id: 1,
+      name: "MG Road",
+      pincode: "560001"
     }
-  },
+  }
+}
+,
   {
     id: 2,
     description: "Street sweeping not done properly. Leaves and debris scattered everywhere after yesterday's rain.",
-    complaintImage: "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=400",
+    complaintImage: "https://images.unsplash.com/photo-1710830975524-6abdf177fba0?q=80&w=1674&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     createdAt: "2024-01-14T14:20:00Z",
     citizenId: "citizen_2",
     status: "IN_PROGRESS",
@@ -97,7 +98,7 @@ const dummyComplaints: Complaint[] = [
   {
     id: 3,
     description: "Illegal dumping of construction waste near the park. This needs immediate attention.",
-    complaintImage: "https://images.unsplash.com/photo-1611273426858-450d8e3c9fce?w=400",
+    complaintImage: "https://images.unsplash.com/photo-1689500418089-41c62044abf7?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     createdAt: "2024-01-13T09:15:00Z",
     citizenId: "citizen_3",
     status: "RESOLVED",
