@@ -233,7 +233,7 @@ export function CitizenComplaint() {
     } finally {
       setLoading(false);
     }
-  }, [getToken]);
+  }, []);
 
   useEffect(() => {
     fetchComplaints();
