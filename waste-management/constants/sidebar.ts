@@ -1,9 +1,11 @@
 import { SidebarSection } from "@/components/sidebar/sidebar";
-import { Activity, CalendarClock, Megaphone } from "lucide-react";
+import { Activity, CalendarClock, ChartBar, ChartBarIncreasing, ChartColumn, Megaphone } from "lucide-react";
 import { BookOpenCheck } from "lucide-react";
 import { BrushCleaning } from "lucide-react";
 import { Calendar } from "lucide-react";
+import { CalendarDays } from "lucide-react";
 import { Camera } from "lucide-react";
+import { Clock2 } from "lucide-react";
 import { Coins } from "lucide-react";
 import { CoinsIcon } from "lucide-react";
 import { DollarSign } from "lucide-react";
@@ -23,7 +25,7 @@ export const AdminSidebarSections: SidebarSection[] = [
     items: [
       { id: "dashboard", label: "Dashboard", icon: Home, href: "/dashboard" },
       { id: "leaderboard", label: "Leader Board", icon: Activity, href: "/dashboard/leaderboard" },
-      { id: "complaints", label: "Complaints", icon: Camera, href: "/dashboard/complaints" },
+      { id: "complaints", label: "Complaints", icon: Megaphone, href: "/dashboard/complaints" },
       { id: "trainings", label: "Trainings", icon: CalendarClock, href: "/dashboard/trainings" },
     
     ],
@@ -103,4 +105,80 @@ export const CitizenSidebarSection: SidebarSection[] = [
   //     { id: "settings", label: "Settings", icon: Settings, href: "/settings" },
   //   ],
   // },
+];
+
+
+// ------MOBILE NAVBAR---------
+interface NavItem {
+  id: number;
+  icon: React.ComponentType<{ size?: number }>;
+  label: string;
+  href: string;
+}
+
+export const CitizenItems: NavItem[] = [
+  { id: 0, icon: Home, label: "Home", href: "/dashboard" },
+  {
+    id: 1,
+    icon: CalendarDays,
+    label: "Trainings",
+    href: "/dashboard/trainings",
+  },
+  {
+    id: 2,
+    icon: Camera,
+    label: "New Complaint",
+    href: "/dashboard/complaints/new",
+  },
+  {
+    id: 3,
+    icon: Coins,
+    label: "My Donations",
+    href: "/dashboard/donations",
+  },
+  { id: 4, icon: Settings, label: "Settings", href: "/settings" },
+];
+export const AdminItems: NavItem[] = [
+  { id: 0, icon: Home, label: "Home", href: "/dashboard" },
+  {
+    id: 1,
+    icon: CalendarDays,
+    label: "Trainings",
+    href: "/dashboard/trainings",
+  },
+  {
+    id: 2,
+    icon: Megaphone,
+    label: "Complaints",
+    href: "/dashboard/complaints",
+  },
+  {
+    id: 3,
+    icon: ChartColumn,
+    label: "Leaderboard",
+    href: "/dashboard/leaderboard",
+  },
+  { id: 4, icon: Settings, label: "Settings", href: "/settings" },
+];
+export const WorkerItems: NavItem[] = [
+  { id: 0, icon: Home, label: "Home", href: "/dashboard" },
+  {
+    id: 1,
+    icon: CalendarDays,
+    label: "Trainings",
+    href: "/dashboard/trainings",
+  },
+  {
+    id: 2,
+    icon: Camera,
+    label: "New Complaint",
+    href: "/dashboard/complaints/new",
+  },
+  {
+    id: 3,
+    icon: Clock2,
+    label: "My Complaints",
+    href: "/dashboard/complaints",
+  },
+  { id: 4, icon: Settings, label: "Settings", href: "/settings" },
 ];

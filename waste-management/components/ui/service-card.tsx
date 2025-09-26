@@ -23,7 +23,7 @@ export function ServiceCard({
     <Link href={href} className="group">
       <div
         className={cn(
-          "bg-card border border-border rounded-2xl p-3 sm:p-4 hover:shadow-md transition-all ease-linear duration-200 hover:scale-[1.02] active:scale-[0.98]",
+          "bg-card border border-border rounded-2xl p-3 sm:p-4 hover:shadow-md h-full transition-all ease-linear duration-200 hover:scale-[1.02] active:scale-[0.98]",
           className
         )}
       >
@@ -31,7 +31,7 @@ export function ServiceCard({
           <img
             src={imageSrc}
             alt={title}
-            className="w-full h-full object-contain"
+            className="w-full h-full object-contain transition-transform duration-300 ease-out group-hover:scale-110 group-hover:rotate-3"
           />
         </div>
         <div>

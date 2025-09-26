@@ -10,6 +10,23 @@ import { useUserProfile } from "@/store/profile.store";
 import { useRouter } from "next/navigation";
 import { formatDate } from "@/helpers/date.helper";
 
+interface PhysicalTrainingEvent {
+  id: number;
+  title: string;
+  description: string;
+  startDateTime: string; // ISO datetime string
+  endDateTime: string;   // ISO datetime string
+  location: string;
+  maxCapacity: number;
+  targetAudience: ("CITIZEN" | "WORKER")[]; // restricts to allowed values
+  status: string; // added union for clarity
+  createdAt: string; // ISO datetime string
+  registrations: number;
+  locality: {
+    name: string;
+  };
+}
+
 export function CitizenDashboard() {
   const { isLoaded, isSignedIn, userId, sessionId, getToken } = useAuth();
   const { user } = useUser();
@@ -34,7 +51,7 @@ export function CitizenDashboard() {
       }
     }
     init();
-  }, [isLoaded, isSignedIn, user, getToken, setUserProfile]);
+  }, [isLoaded, isSignedIn]);
 
   const handleViewEvent = (id: number) => {
     router.push(`/dashboard/trainings/${id}`);
@@ -119,7 +136,7 @@ export function CitizenDashboard() {
             </h2>
             <p className="text-sm text-muted-foreground">Explore services</p>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-4">
            <ServiceCard
   imageSrc="/rupee-dynamic.png"
   title="Donate"
