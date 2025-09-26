@@ -1,6 +1,3 @@
-// Removed unnecessary import
-
-
 interface RecommendedWorker {
   id: string;
   name: string;
@@ -10,11 +7,11 @@ interface RecommendedWorker {
   avgDifficulty: number;
   localityRating: number;
   citizenRating: number;
-  locality: {
+  locality: string | {
     id: number;
     name: string;
     pincode: string;
-  }
+  };
   predictedScore: number;
   email?: string;
   phoneNumber?: string;
@@ -106,20 +103,41 @@ class WorkerRecommendationService {
       headers.forEach((header, index) => {
         const value = values[index] || '';
         
+        // Map backend field names to frontend field names
+        const fieldMapping: Record<string, string> = {
+          'worker_id': 'id',
+          'assigned_tasks': 'assignedTasks',
+          'completed_tasks': 'completedTasks',
+          'avg_difficulty': 'avgDifficulty',
+          'locality_rating': 'localityRating',
+          'citizen_rating': 'citizenRating',
+          'predicted_score': 'predictedScore',
+          'worker_type': 'workerType'
+        };
+        
+        const mappedField = fieldMapping[header] || header;
+        
         // Convert numeric fields
-        if (['assignedTasks', 'completedTasks'].includes(header)) {
-          worker[header] = parseInt(value) || 0;
-        } else if (['avgDifficulty', 'localityRating', 'citizenRating', 'predictedScore'].includes(header)) {
-          worker[header] = parseFloat(value) || 0;
+        if (['assignedTasks', 'completedTasks', 'assigned_tasks', 'completed_tasks'].includes(header)) {
+          worker[mappedField] = parseInt(value) || 0;
+        } else if (['avgDifficulty', 'localityRating', 'citizenRating', 'predictedScore', 'avg_difficulty', 'locality_rating', 'citizen_rating', 'predicted_score'].includes(header)) {
+          worker[mappedField] = parseFloat(value) || 0;
         } else {
-          worker[header] = value;
+          worker[mappedField] = value;
         }
       });
       
-      // Ensure predictedScore is always set
-      if (!worker.predictedScore) {
-        worker.predictedScore = 0;
-      }
+      // Ensure required fields are set with defaults
+      worker.id = worker.id || worker.worker_id || '';
+      worker.name = worker.name || `Worker ${worker.id}`;
+      worker.workerType = worker.workerType || worker.worker_type || 'SWEEPER';
+      worker.assignedTasks = worker.assignedTasks || 0;
+      worker.completedTasks = worker.completedTasks || 0;
+      worker.avgDifficulty = worker.avgDifficulty || 0;
+      worker.localityRating = worker.localityRating || 0;
+      worker.citizenRating = worker.citizenRating || 0;
+      worker.predictedScore = worker.predictedScore || 0;
+      worker.locality = worker.locality || 'Unknown';
       
       return worker as RecommendedWorker;
     });

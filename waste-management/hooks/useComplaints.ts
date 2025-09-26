@@ -336,15 +336,35 @@ export function useComplaints() {
   };
 
   // Fetch recommended workers from API
-  const fetchRecommendedWorkers = async (options?: {
+  const fetchRecommendedWorkers = async (complaint?: Complaint | null, options?: {
     locality?: string;
     workerType?: 'SWEEPER' | 'WASTE_COLLECTOR';
     limit?: number;
   }) => {
     setIsLoadingRecommendations(true);
     try {
+      // Extract parameters from complaint if provided
+      let locality = options?.locality;
+      let workerType = options?.workerType;
+      
+      if (complaint && !locality) {
+        locality = complaint.citizen?.locality?.name;
+      }
+      
+      if (complaint && !workerType) {
+        // Simple heuristic to determine worker type from complaint description
+        const description = complaint.description.toLowerCase();
+        if (description.includes('sweep') || description.includes('leaves') || description.includes('street')) {
+          workerType = 'SWEEPER';
+        } else if (description.includes('garbage') || description.includes('waste') || description.includes('bin')) {
+          workerType = 'WASTE_COLLECTOR';
+        }
+      }
+
       const workers = await workerRecommendationService.getRecommendedWorkers({
-        ...options,
+        locality,
+        workerType,
+        limit: options?.limit || 15,
         format: 'json'
       });
       setRecommendedWorkers(workers);
@@ -397,13 +417,21 @@ export function useComplaints() {
 
     // If we have API recommendations, use them
     if (recommendedWorkers.length > 0) {
-      return recommendedWorkers.map(worker => ({
-        ...worker,
-        // Map API worker to local Worker type - keep locality as string for RecommendedWorker interface
-        email: `${worker.name.toLowerCase().replace(' ', '.')}@email.com`,
-        phoneNumber: '+91-9876543210',
-        predictedScore: worker.predictedScore
-      }));
+      return recommendedWorkers.filter(worker => {
+        // Filter by locality if complaint has locality info
+        if (complaint.citizen?.locality?.name) {
+          const complaintLocality = complaint.citizen.locality.name.toLowerCase();
+          const workerLocality = typeof worker.locality === 'string' 
+            ? worker.locality.toLowerCase() 
+            : worker.locality?.name?.toLowerCase() || '';
+          
+          // Prefer workers from same locality, but don't exclude others completely
+          return workerLocality.includes(complaintLocality) || 
+                 complaintLocality.includes(workerLocality) ||
+                 worker.predictedScore > 7; // Include high-scoring workers regardless of locality
+        }
+        return true;
+      }).slice(0, 10); // Limit to top 10
     }
 
     // Fallback to local algorithm

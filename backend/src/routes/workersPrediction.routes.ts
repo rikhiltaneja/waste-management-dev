@@ -281,9 +281,19 @@ workersPredictionRouter.get("/recommend", (req, res) => {
         // In a real app, this would come from a proper database join
         const mockLocalities = ['MG Road', 'Brigade Road', 'Koramangala', 'Indiranagar', 'Whitefield'];
         const mockWorkerTypes = ['SWEEPER', 'WASTE_COLLECTOR'];
+        const mockEmails = ['worker1@email.com', 'worker2@email.com', 'worker3@email.com', 'worker4@email.com', 'worker5@email.com'];
+        const mockPhones = ['+91-9876543210', '+91-9876543211', '+91-9876543212', '+91-9876543213', '+91-9876543214'];
+        
         worker.locality = mockLocalities[parseInt(worker.worker_id) % mockLocalities.length];
         worker.worker_type = mockWorkerTypes[parseInt(worker.worker_id) % mockWorkerTypes.length];
         worker.name = `Worker ${worker.worker_id}`;
+        worker.email = mockEmails[parseInt(worker.worker_id) % mockEmails.length];
+        worker.phone_number = mockPhones[parseInt(worker.worker_id) % mockPhones.length];
+        
+        // Add completed_tasks if not present (for better recommendations)
+        if (!worker.completed_tasks) {
+          worker.completed_tasks = Math.floor(Math.random() * 50) + 10; // Random between 10-60
+        }
         
         return worker;
       });
@@ -303,7 +313,23 @@ workersPredictionRouter.get("/recommend", (req, res) => {
       }
 
       if (format === "json") {
-        res.json(workers);
+        // Transform data to match frontend expectations
+        const transformedWorkers = workers.map(worker => ({
+          id: worker.worker_id || worker.id,
+          name: worker.name || `Worker ${worker.worker_id}`,
+          workerType: worker.worker_type || 'SWEEPER',
+          assignedTasks: worker.assigned_tasks || 0,
+          completedTasks: worker.completed_tasks || 0,
+          avgDifficulty: worker.avg_difficulty || 0,
+          localityRating: worker.locality_rating || 0,
+          citizenRating: worker.citizen_rating || 0,
+          locality: worker.locality || 'Unknown',
+          predictedScore: worker.predicted_score || 0,
+          email: worker.email || '',
+          phoneNumber: worker.phone_number || ''
+        }));
+        
+        res.json(transformedWorkers);
       } else {
         // Convert back to CSV
         const csvHeaders = Object.keys(workers[0] || {}).join(',');
