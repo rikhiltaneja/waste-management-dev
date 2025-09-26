@@ -109,16 +109,19 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(({
       {/* Header with Logo */}
       {showLogo && (
         <div className="flex items-center justify-center p-4 pb-2">
-          {!collapsed ? (
-            <div className="flex items-center justify-center">
+            <div className="flex gap-2 items-center w-full justify-center">
               <Image
                 width={100}
                 height={100}
                 src="/logo_green.png"
                 alt="Logo"
-                className="h-20 w-20 object-contain"
+                className="size-16 object-contain transition-transform duration-300 hover:scale-110 hover:rotate-3"
                 loading="lazy"
               />
+              <div className="flex flex-col">
+              <p className="font-semibold text-xl">WASTEWISE</p>
+              <p className="text-gray-400 text-[10px]">Smart Waste, Smart Future</p>
+                   </div>
               {/* <img
                 src="/wastex-logo.png"
                 alt="WASTEX"
@@ -126,16 +129,6 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(({
                 loading="lazy"
               /> */}
             </div>
-          ) : (
-            <Image
-              width={100}
-              height={100}
-              src="/logo_green.png"
-              alt="Logo"
-              className="h-8 w-8 object-contain mx-auto"
-              loading="lazy"
-            />
-          )}
         </div>
       )}
 

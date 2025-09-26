@@ -27,6 +27,8 @@ import {
 import { EventCard } from "@/components/ui/event-card";
 import { formatDate } from "@/helpers/date.helper";
 import { useTrainingEvents } from "@/hooks/useTrainingEvents";
+import { useUser } from "@clerk/nextjs";
+import { Roles } from "@/types/globals";
 
 type ViewMode = "table" | "grid" | "list" | "cards";
 
@@ -51,6 +53,11 @@ const CampaignPage = () => {
   const handleAddEvent = () => {
     setIsAddModalOpen(true);
   };
+    const { user } = useUser();
+
+  const userRole = user?.publicMetadata?.role as Roles;
+  const isAdmin = userRole === 'Admin'
+
 
   const handleCreateEvent = async (eventData: EventFormData) => {
     try {
@@ -138,15 +145,18 @@ const CampaignPage = () => {
             </p>
           </div>
           <div>
-            <Button onClick={handleAddEvent}>
+            {isAdmin&&(
+              <Button onClick={handleAddEvent}>
               <Plus/>
               Add Event
             </Button>
+            )}
           </div>
         </div>
 
         {/* Stats Cards */}
-        <StatsCardGrid
+        {isAdmin&&(
+          <StatsCardGrid
           stats={[
             {
               title: "Total Events",
@@ -174,6 +184,7 @@ const CampaignPage = () => {
             },
           ]}
         />
+        )}
 
         {/* Filters and View Controls */}
         <div className="flex flex-col sm:flex-row sm:justify-between gap-4">

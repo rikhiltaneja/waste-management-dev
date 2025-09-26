@@ -1,5 +1,5 @@
 import { SidebarSection } from "@/components/sidebar/sidebar";
-import { Activity, CalendarClock } from "lucide-react";
+import { Activity, CalendarClock, Megaphone } from "lucide-react";
 import { BookOpenCheck } from "lucide-react";
 import { BrushCleaning } from "lucide-react";
 import { Calendar } from "lucide-react";
@@ -84,22 +84,23 @@ export const CitizenSidebarSection: SidebarSection[] = [
     items: [
       { id: "dashboard", label: "Dashboard", icon: Home, href: "/dashboard" },
       { id: "events", label: "Trainings", icon: Calendar, href: "/dashboard/trainings" },
+      { id: "complaints", label: "Complaints", icon: Camera, href: "/dashboard/complaints/new" },
     ],
   },
   {
     title: "Community & Compliance",
     items: [
       { id: "donate", label: "Donate", icon: HandCoins, href: "/dashboard/donations" },
-      { id: "facilities", label: "Facilities", icon: BookOpenCheck, href: "/dashboard/facilities" },
-      { id: "cleaningdrives", label: "Cleaning Drives", icon: BrushCleaning, href: "/cleaningdrives" },
+      // { id: "facilities", label: "Facilities", icon: BookOpenCheck, href: "/dashboard/facilities" },
+      // { id: "cleaningdrives", label: "Cleaning Drives", icon: BrushCleaning, href: "/cleaningdrives" },
       { id: "shop", label: "Shop", icon: ShoppingBasket, href: "/shop" },
     ],
   },
-  {
-    title: "Support & Settings",
-    items: [
-      { id: "support", label: "Support", icon: HelpCircle, href: "/support" },
-      { id: "settings", label: "Settings", icon: Settings, href: "/settings" },
-    ],
-  },
+  // {
+  //   title: "Support & Settings",
+  //   items: [
+  //     { id: "support", label: "Support", icon: HelpCircle, href: "/support" },
+  //     { id: "settings", label: "Settings", icon: Settings, href: "/settings" },
+  //   ],
+  // },
 ];

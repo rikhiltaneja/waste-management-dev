@@ -1,4 +1,4 @@
-interface PhysicalTrainingEvent {
+export interface PhysicalTrainingEvent {
   id: number;
   title: string;
   description: string;
