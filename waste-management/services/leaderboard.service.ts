@@ -15,7 +15,7 @@ export class LeaderboardService {
 
   static async fetchLeaderboardData(): Promise<WorkerData[]> {
     try {
-      const response = await fetch(`${this.API_BASE_URL}/workers-prediction/leaderboard`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_FASTAPI}/leaderboard`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
