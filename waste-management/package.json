@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "npm i && npx prisma generate && tsc -b",
+    "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint"
   },
