@@ -93,65 +93,51 @@ const presetAmounts = [50, 100, 200, 500, 1000, 2000];
 
 const recentDonations = [
   {
-    name: "Aayush K.",
+    name: "Aayush A.",
     cause: "Tree Plantation",
-    amount: 100,
+    amount: 1,
     timeAgo: "2 hours ago",
-    avatar: "AK",
+    avatar: "AA",
   },
   {
     name: "Rajab S.",
     cause: "Safety Kits",
-    amount: 200,
+    amount: 2,
     timeAgo: "5 hours ago",
     avatar: "RS",
   },
   {
-    name: "Priya M.",
+    name: "Pranshu",
     cause: "Clean-up Drives",
-    amount: 500,
+    amount: 1,
     timeAgo: "1 day ago",
-    avatar: "PM",
+    avatar: "PP",
   },
   {
-    name: "Dev P.",
+    name: "Sarvesh P.",
     cause: "Recycling Centers",
-    amount: 150,
+    amount: 1,
     timeAgo: "2 days ago",
-    avatar: "DP",
-  },
-  {
-    name: "Sarah L.",
-    cause: "Awareness Programs",
-    amount: 300,
-    timeAgo: "3 days ago",
-    avatar: "SL",
-  },
-  {
-    name: "Mike R.",
-    cause: "Waste-to-Energy",
-    amount: 1000,
-    timeAgo: "1 week ago",
-    avatar: "MR",
+    avatar: "SP",
   },
 ];
 
 const impactStats = [
   {
     label: "Total Raised",
-    value: "₹2,45,000",
+    value: "₹5.00",
     icon: TrendingUp,
     color: "text-green-600",
   },
   {
     label: "Active Donors",
-    value: "1,234",
+    value: "5",
     icon: Users,
     color: "text-blue-600",
   },
   {
     label: "Projects Funded",
-    value: "45",
+    value: "0",
     icon: CheckCircle,
     color: "text-purple-600",
   },
