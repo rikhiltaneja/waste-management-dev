@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { useUser } from "@clerk/nextjs";
+import { Roles } from "@/types/globals";
 
 interface PhysicalTrainingEvent {
   id: number;
@@ -46,6 +48,7 @@ interface Registration {
 const EventDetailPage = () => {
   const params = useParams();
   const router = useRouter();
+  const { user } = useUser();
   const eventId = parseInt(params.id as string);
 
   const [event, setEvent] = useState<PhysicalTrainingEvent | null>(null);
@@ -213,6 +216,10 @@ const EventDetailPage = () => {
         </div>
     );
   }
+  // Check if user is admin
+  const userRole = user?.publicMetadata?.role as Roles;
+  const isAdmin = userRole === 'Admin';
+
 
   return (
     <>
@@ -246,24 +253,27 @@ const EventDetailPage = () => {
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-            <Button
-              variant="outline"
-              onClick={handleEdit}
-              className="flex-1 sm:flex-none"
-            >
-              <Edit className="h-4 w-4 mr-2" />
-              <span className="sm:inline">Edit</span>
-            </Button>
-            <Button
-              variant="outline"
-              onClick={handleDelete}
-              className="text-red-600 hover:text-red-700 flex-1 sm:flex-none"
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              <span className="sm:inline">Delete</span>
-            </Button>
-          </div>
+       {isAdmin && (
+  <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+    <Button
+      variant="outline"
+      onClick={handleEdit}
+      className="flex-1 sm:flex-none"
+    >
+      <Edit className="h-4 w-4 mr-2" />
+      <span className="sm:inline">Edit</span>
+    </Button>
+    <Button
+      variant="outline"
+      onClick={handleDelete}
+      className="text-red-600 hover:text-red-700 flex-1 sm:flex-none"
+    >
+      <Trash2 className="h-4 w-4 mr-2" />
+      <span className="sm:inline">Delete</span>
+    </Button>
+  </div>
+)}
+
         </div>
 
         {/* Event Details Grid */}
@@ -347,7 +357,8 @@ const EventDetailPage = () => {
               </Card>
 
               {/* Registrations */}
-              <Card className="p-4 sm:p-6 col-span-3">
+              {isAdmin&&(
+                <Card className="p-4 sm:p-6 col-span-3">
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
                   <h2 className="text-base sm:text-lg font-semibold text-gray-900">
                     Registrations
@@ -357,7 +368,7 @@ const EventDetailPage = () => {
                     size="sm"
                     onClick={handleExportRegistrations}
                     className="w-fit"
-                  >
+                    >
                     <Download className="h-4 w-4 mr-2" />
                     Export
                   </Button>
@@ -421,6 +432,7 @@ const EventDetailPage = () => {
                   </div>
                 </div>
               </Card>
+                  )}
               {/* Quick Stats */}
               <Card className="p-4 sm:p-6 col-span-2">
                 <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">

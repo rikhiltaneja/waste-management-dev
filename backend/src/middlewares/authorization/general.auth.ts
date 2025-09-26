@@ -13,6 +13,10 @@ export const authenticationCheck = (
   const auth = getAuth(req);
   if (auth.isAuthenticated) {
     req.auth = auth
-    next()
+    next();
+  }else {
+    return res.status(401).json({ 
+      error: "Authentication required. Please provide a valid authorization token." 
+    });
   }
 };

@@ -136,37 +136,38 @@ export function CitizenDashboard() {
             </h2>
             <p className="text-sm text-muted-foreground">Explore services</p>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-            <ServiceCard
-              imageSrc="/rupee-dynamic.png"
-              title="Donate"
-              description="Lorem ipsum dolor"
-              href="/dashboard/donations"
-            />
-            <ServiceCard
-              imageSrc="/camera-dynamic.png"
-              title="Report"
-              description="Lorem ipsum dolor"
-              href="/dashboard/complaints/new"
-            />
-            <ServiceCard
-              imageSrc="/trash-can-dynamic.png"
-              title="Station"
-              description="Lorem ipsum dolor"
-              href="/dashboard/facilities"
-            />
-            <ServiceCard
-              imageSrc="/megaphone-dynamic.png"
-              title="Campaign"
-              description="Lorem ipsum dolor"
-              href="/dashboard/trainings"
-            />
-            <ServiceCard
-              imageSrc="/chat-bubble-dynamic.png"
-              title="Chat"
-              description="Lorem ipsum dolor"
-              href="/support"
-            />
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-4">
+           <ServiceCard
+  imageSrc="/rupee-dynamic.png"
+  title="Donate"
+  description="Fund local clean-up efforts."
+  href="/dashboard/donations"
+/>
+<ServiceCard
+  imageSrc="/camera-dynamic.png"
+  title="Report"
+  description="Report waste issues instantly."
+  href="/dashboard/complaints/new"
+/>
+<ServiceCard
+  imageSrc="/trash-can-dynamic.png"
+  title="Station"
+  description="Locate recycling points nearby."
+  href="/dashboard/stations"
+/>
+<ServiceCard
+  imageSrc="/megaphone-dynamic.png"
+  title="Campaign"
+  description="Join clean-up campaigns."
+  href="/dashboard/trainings"
+/>
+<ServiceCard
+  imageSrc="/chat-bubble-dynamic.png"
+  title="Chat"
+  description="Get waste disposal advice."
+  href="/support"
+/>
+
           </div>
         </section>
 

@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
-import { motion, number } from "framer-motion";
+import React, { useState, useRef } from "react";
+import { motion } from "framer-motion";
 import {
   Heart,
   Users,
@@ -33,8 +33,9 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Confetti, type ConfettiRef } from "@/components/ui/confetti";
 import confetti from "canvas-confetti";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth, useUser } from "@clerk/nextjs";
 import axios from "axios";
+import { Roles } from "@/types/globals";
 
 const donationTypes = [
   {
@@ -157,7 +158,8 @@ const impactStats = [
 ];
 
 export function DonationsPage() {
-  const { isSignedIn, isLoaded, userId, getToken } = useAuth();
+  const { getToken } = useAuth();
+  const { user } = useUser();
 
   const [selectedCause, setSelectedCause] = useState(donationTypes[0]);
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
@@ -302,21 +304,11 @@ export function DonationsPage() {
     donationTypes[0];
   const IconComponent = selectedCauseData.icon;
   const donationAmount = (selectedAmount ?? Number(customAmount)) || 0;
-  const startDonation = async () => {
-    const token = await getToken();
-    axios
-      .post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/donations/new`,
-        { amount: 100 },
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
+  
+  // Check if user is admin
+  const userRole = user?.publicMetadata?.role as Roles;
+  const isAdmin = userRole === 'Admin'
+
 
   return (
     <div className="bg-background min-h-screen relative">
@@ -377,173 +369,179 @@ export function DonationsPage() {
             </div>
           </div>
 
-          {/* Donation Form - Spans 8 columns on large screens */}
-          <div className="col-span-full lg:col-span-2">
-            <Card className="border shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <IconComponent className="h-5 w-5 text-primary" />
-                  Donation Details
-                </CardTitle>
-                <CardDescription>
-                  Choose a cause and amount to make your contribution
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Cause Selection */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-foreground pb-2">
-                    Select Cause
-                  </label>
-                  <Select
-                    value={selectedCause.name}
-                    onValueChange={(value) => {
-                      const cause = donationTypes.find((c) => c.name === value);
-                      if (cause) setSelectedCause(cause);
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {donationTypes.map((cause) => (
-                        <SelectItem key={cause.id} value={cause.name}>
-                          <div className="flex items-center cursor-pointer gap-2">
-                            <cause.icon className="h-4 w-4" />
-                            {cause.name}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-muted-foreground">
-                    {selectedCauseData.description}
-                  </p>
-                </div>
-
-                {/* Amount Selection */}
-                <div className="space-y-3">
-                  <label className="text-sm font-medium text-foreground pb-2">
-                    Select Amount
-                  </label>
-                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-                    {presetAmounts.map((amount) => (
-                      <Button
-                        key={amount}
-                        variant={
-                          selectedAmount === amount ? "default" : "outline"
-                        }
-                        size="sm"
-                        onClick={() => {
-                          setSelectedAmount(amount);
-                          setCustomAmount("");
-                        }}
-                        className="h-12 cursor-pointer"
-                      >
-                        ₹{amount}
-                      </Button>
-                    ))}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">
-                      Custom:
-                    </span>
-                    <Input
-                      type="number"
-                      min={1}
-                      placeholder="Enter amount"
-                      value={customAmount}
-                      onChange={(e) => {
-                        setCustomAmount(e.target.value);
-                        setSelectedAmount(null);
+          {/* Donation Form - Hidden for Admin users */}
+          {!isAdmin && (
+            <div className="col-span-full lg:col-span-2">
+              <Card className="border shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <IconComponent className="h-5 w-5 text-primary" />
+                    Donation Details
+                  </CardTitle>
+                  <CardDescription>
+                    Choose a cause and amount to make your contribution
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* Cause Selection */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-foreground pb-2">
+                      Select Cause
+                    </label>
+                    <Select
+                      value={selectedCause.name}
+                      onValueChange={(value) => {
+                        const cause = donationTypes.find((c) => c.name === value);
+                        if (cause) setSelectedCause(cause);
                       }}
-                      className="flex-1"
-                    />
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {donationTypes.map((cause) => (
+                          <SelectItem key={cause.id} value={cause.name}>
+                            <div className="flex items-center cursor-pointer gap-2">
+                              <cause.icon className="h-4 w-4" />
+                              {cause.name}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground">
+                      {selectedCauseData.description}
+                    </p>
                   </div>
-                </div>
 
-                {/* Impact Preview */}
-                {donationAmount > 0 && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    className="p-4 bg-accent rounded-lg border"
-                  >
-                    <div className="flex items-center gap-2 mb-2">
-                      <CheckCircle className="h-4 w-4 text-primary" />
-                      <span className="text-sm font-medium">Your Impact</span>
+                  {/* Amount Selection */}
+                  <div className="space-y-3">
+                    <label className="text-sm font-medium text-foreground pb-2">
+                      Select Amount
+                    </label>
+                    <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                      {presetAmounts.map((amount) => (
+                        <Button
+                          key={amount}
+                          variant={
+                            selectedAmount === amount ? "default" : "outline"
+                          }
+                          size="sm"
+                          onClick={() => {
+                            setSelectedAmount(amount);
+                            setCustomAmount("");
+                          }}
+                          className="h-12 cursor-pointer"
+                        >
+                          ₹{amount}
+                        </Button>
+                      ))}
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      {selectedCauseData.impact}
-                    </p>
-                    <p className="text-lg font-semibold text-primary mt-1">
-                      ₹{donationAmount.toLocaleString()}
-                    </p>
-                  </motion.div>
-                )}
-
-                {/* Success Message */}
-                {showSuccess && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="p-4 bg-green-50 border border-green-200 rounded-lg text-center"
-                  >
-                    <CheckCircle className="h-8 w-8 text-green-600 mx-auto mb-2" />
-                    <p className="text-green-800 font-medium">
-                      Thank you for your donation!
-                    </p>
-                    <p className="text-green-600 text-sm">
-                      Your contribution will make a real difference.
-                    </p>
-                  </motion.div>
-                )}
-
-                {/* Donate Button */}
-                <Button
-                  onClick={handlePay}
-                  disabled={
-                    isPaying ||
-                    (!selectedAmount && !customAmount) ||
-                    showSuccess
-                  }
-                  className="w-full h-12 text-base font-semibold"
-                  size="lg"
-                >
-                  {isPaying ? (
                     <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      Processing...
+                      <span className="text-sm text-muted-foreground">
+                        Custom:
+                      </span>
+                      <Input
+                        type="number"
+                        min={1}
+                        placeholder="Enter amount"
+                        value={customAmount}
+                        onChange={(e) => {
+                          setCustomAmount(e.target.value);
+                          setSelectedAmount(null);
+                        }}
+                        className="flex-1"
+                      />
                     </div>
-                  ) : showSuccess ? (
-                    "Donation Complete!"
-                  ) : (
-                    `Donate ₹${donationAmount.toLocaleString()}`
-                  )}
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+                  </div>
 
-          {/* Sidebar - Spans 4 columns on large screens */}
-          <div className="col-span-full lg:col-span-1 space-y-6">
-            {/* Illustration */}
-            <Card className="border shadow-sm h-full">
-              <CardContent className="p-6 text-center flex flex-col items-center justify-center h-full">
-                <img
-                  src="/donation-dynamic.svg"
-                  alt="Donations Illustration"
-                  className="w-full max-w-xs mx-auto mb-4"
-                />
-                <h3 className="font-semibold text-foreground mb-2">
-                  Every Contribution Counts
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  Join thousands of others in creating a sustainable future.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+                  {/* Impact Preview */}
+                  {donationAmount > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      className="p-4 bg-accent rounded-lg border"
+                    >
+                      <div className="flex items-center gap-2 mb-2">
+                        <CheckCircle className="h-4 w-4 text-primary" />
+                        <span className="text-sm font-medium">Your Impact</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {selectedCauseData.impact}
+                      </p>
+                      <p className="text-lg font-semibold text-primary mt-1">
+                        ₹{donationAmount.toLocaleString()}
+                      </p>
+                    </motion.div>
+                  )}
+
+                  {/* Success Message */}
+                  {showSuccess && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="p-4 bg-green-50 border border-green-200 rounded-lg text-center"
+                    >
+                      <CheckCircle className="h-8 w-8 text-green-600 mx-auto mb-2" />
+                      <p className="text-green-800 font-medium">
+                        Thank you for your donation!
+                      </p>
+                      <p className="text-green-600 text-sm">
+                        Your contribution will make a real difference.
+                      </p>
+                    </motion.div>
+                  )}
+
+                  {/* Donate Button */}
+                  <Button
+                    onClick={handlePay}
+                    disabled={
+                      isPaying ||
+                      (!selectedAmount && !customAmount) ||
+                      showSuccess
+                    }
+                    className="w-full h-12 text-base font-semibold"
+                    size="lg"
+                  >
+                    {isPaying ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        Processing...
+                      </div>
+                    ) : showSuccess ? (
+                      "Donation Complete!"
+                    ) : (
+                      `Donate ₹${donationAmount.toLocaleString()}`
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Sidebar - Hidden for Admin users */}
+          {!isAdmin && (
+            <div className="col-span-full lg:col-span-1 space-y-6">
+              {/* Illustration */}
+              <Card className="border shadow-sm h-full">
+                <CardContent className="p-6 text-center flex flex-col items-center justify-center h-full">
+                  <img
+                    src="/donation-dynamic.svg"
+                    alt="Donations Illustration"
+                    className="w-full max-w-xs mx-auto mb-4"
+                  />
+                  <h3 className="font-semibold text-foreground mb-2">
+                    Every Contribution Counts
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    Join thousands of others in creating a sustainable future.
+                  </p>
+                </CardContent>
+                </Card>
+            </div>
+          )}
+
+         
           {/* Recent Donations */}
           <Card className="border shadow-sm col-span-3">
             <CardHeader>
