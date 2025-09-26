@@ -40,6 +40,8 @@ export function AdminComplaintPage() {
   const handleAssignWorker = (complaint: Complaint) => {
     setSelectedComplaint(complaint);
     setIsAssignDialogOpen(true);
+    // Fetch recommendations specific to this complaint
+    fetchRecommendedWorkers(complaint);
   };
 
   const handleViewDetails = (complaint: Complaint) => {
@@ -264,7 +266,7 @@ export function AdminComplaintPage() {
         workers={workers}
         recommendedWorkers={getRecommendedWorkers(selectedComplaint)}
         onAssign={handleWorkerAssignment}
-        onRefreshRecommendations={fetchRecommendedWorkers}
+        onRefreshRecommendations={() => fetchRecommendedWorkers(selectedComplaint)}
         isLoadingRecommendations={isLoadingRecommendations}
       />
 
