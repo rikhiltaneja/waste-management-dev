@@ -9,13 +9,14 @@ import { InitialisationService } from "@/services/initialization.service";
 import { useUserProfile } from "@/store/profile.store";
 import { useRouter } from "next/navigation";
 import { formatDate } from "@/helpers/date.helper";
+import Loading from "@/app/loading";
 
 interface PhysicalTrainingEvent {
   id: number;
   title: string;
   description: string;
   startDateTime: string; // ISO datetime string
-  endDateTime: string;   // ISO datetime string
+  endDateTime: string; // ISO datetime string
   location: string;
   maxCapacity: number;
   targetAudience: ("CITIZEN" | "WORKER")[]; // restricts to allowed values
@@ -111,11 +112,7 @@ export function CitizenDashboard() {
     }, 100);
   }, []);
   if (loading || !profile) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <p>Loading profile...</p>
-      </div>
-    );
+    return <Loading />;
   }
   return (
     <div className="bg-background">
@@ -137,37 +134,36 @@ export function CitizenDashboard() {
             <p className="text-sm text-muted-foreground">Explore services</p>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-4">
-           <ServiceCard
-  imageSrc="/rupee-dynamic.png"
-  title="Donate"
-  description="Fund local clean-up efforts."
-  href="/dashboard/donations"
-/>
-<ServiceCard
-  imageSrc="/camera-dynamic.png"
-  title="Report"
-  description="Report waste issues instantly."
-  href="/dashboard/complaints/new"
-/>
-<ServiceCard
-  imageSrc="/trash-can-dynamic.png"
-  title="Station"
-  description="Locate recycling points nearby."
-  href="/dashboard/stations"
-/>
-<ServiceCard
-  imageSrc="/megaphone-dynamic.png"
-  title="Campaign"
-  description="Join clean-up campaigns."
-  href="/dashboard/trainings"
-/>
-<ServiceCard
-  imageSrc="/bag-dynamic.png"
-  title="Shop"
-  description="Get waste supplies."
-  href="/dashboard/shop"
-/>
-
+            <ServiceCard
+              imageSrc="/rupee-dynamic.png"
+              title="Donate"
+              description="Fund local clean-up efforts."
+              href="/dashboard/donations"
+            />
+            <ServiceCard
+              imageSrc="/camera-dynamic.png"
+              title="Report"
+              description="Report waste issues instantly."
+              href="/dashboard/complaints/new"
+            />
+            <ServiceCard
+              imageSrc="/trash-can-dynamic.png"
+              title="Station"
+              description="Locate recycling points nearby."
+              href="/dashboard/stations"
+            />
+            <ServiceCard
+              imageSrc="/megaphone-dynamic.png"
+              title="Campaign"
+              description="Join clean-up campaigns."
+              href="/dashboard/trainings"
+            />
+            <ServiceCard
+              imageSrc="/bag-dynamic.png"
+              title="Shop"
+              description="Get waste supplies."
+              href="/dashboard/shop"
+            />
           </div>
         </section>
 

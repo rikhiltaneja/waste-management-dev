@@ -193,7 +193,7 @@ export function DonationsPage() {
   const handlePaymentFailure = () => {
     setIsPaying(false);
     alert("Payment failed. Please try again.");
-  };  
+  };
 
   function loadScript(src: string) {
     return new Promise((resolve) => {
@@ -249,11 +249,11 @@ export function DonationsPage() {
         handlePaymentSuccess();
       },
       modal: {
-        ondismiss: function() {
+        ondismiss: function () {
           // Payment cancelled or failed
           console.log("Payment cancelled");
           handlePaymentFailure();
-        }
+        },
       },
       theme: {
         color: "#1D923C",
@@ -304,11 +304,10 @@ export function DonationsPage() {
     donationTypes[0];
   const IconComponent = selectedCauseData.icon;
   const donationAmount = (selectedAmount ?? Number(customAmount)) || 0;
-  
+
   // Check if user is admin
   const userRole = user?.publicMetadata?.role as Roles;
-  const isAdmin = userRole === 'Admin'
-
+  const isAdmin = userRole === "Admin";
 
   return (
     <div className="bg-background min-h-screen relative">
@@ -391,7 +390,9 @@ export function DonationsPage() {
                     <Select
                       value={selectedCause.name}
                       onValueChange={(value) => {
-                        const cause = donationTypes.find((c) => c.name === value);
+                        const cause = donationTypes.find(
+                          (c) => c.name === value
+                        );
                         if (cause) setSelectedCause(cause);
                       }}
                     >
@@ -537,11 +538,10 @@ export function DonationsPage() {
                     Join thousands of others in creating a sustainable future.
                   </p>
                 </CardContent>
-                </Card>
+              </Card>
             </div>
           )}
 
-         
           {/* Recent Donations */}
           <Card className="border shadow-sm col-span-3">
             <CardHeader>

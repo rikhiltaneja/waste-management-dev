@@ -48,22 +48,8 @@ export default function WorkerSettings() {
   });
   const [workerType, setWorkerType] = useState<'WASTE_COLLECTOR' | 'SWEEPER'>('WASTE_COLLECTOR');
 
-  // Show loading state while user data is loading
-  if (!isLoaded) {
-    return (
-      <div className="min-h-screen bg-background p-4 md:p-6">
-        <div className="mx-auto max-w-4xl">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-foreground">Worker Settings</h1>
-            <p className="mt-4 text-muted-foreground">Loading...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   useEffect(() => {
-    // Mock worker data - replace with actual API calls
     setWorkerStats({
       completedTasks: 127,
       assignedTasks: 15,
@@ -75,9 +61,21 @@ export default function WorkerSettings() {
       monthlyTarget: 150,
     });
 
-    // Mock worker type - get from user metadata or API
     setWorkerType('WASTE_COLLECTOR');
   }, [user]);
+
+    if (!isLoaded) {
+    return (
+      <div className="min-h-screen bg-background p-4 md:p-6">
+        <div className="mx-auto max-w-4xl">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-foreground">Worker Settings</h1>
+            <p className="mt-4 text-muted-foreground">Loading...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const workerMenuItems = [
     { 
@@ -259,7 +257,7 @@ export default function WorkerSettings() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <CheckCircle className="h-5 w-5" />
-              Today's Tasks
+              Today`&apos`s Tasks
             </CardTitle>
           </CardHeader>
           <CardContent>
