@@ -480,17 +480,6 @@ const CampaignPage = () => {
                 ? "Get started by creating a new event."
                 : `No ${filter.toLowerCase()} events found.`}
             </p>
-            {filter === "ALL" && (
-              <div className="mt-6">
-                <Button
-                  onClick={handleAddEvent}
-                  className="flex items-center gap-2 cursor-pointer"
-                >
-                  <CalendarPlus className="h-4 w-4" />
-                  Create Event
-                </Button>
-              </div>
-            )}
           </div>
         )}
       </div>
