@@ -16,49 +16,20 @@ export class LeaderboardService {
   static async fetchLeaderboardData(): Promise<WorkerData[]> {
     try {
       const response = await fetch(`${this.API_BASE_URL}/workers-prediction/leaderboard`);
-      
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
-      const csvText = await response.text();
-      return this.parseCSVToWorkerData(csvText);
+      const data = await response.json();
+      console.log(data);
+      // Optionally add worker_name if needed
+      return data.map((worker: WorkerData) => ({
+        ...worker,
+        worker_name: this.generateWorkerName(worker.worker_id)
+      }));
     } catch (error) {
       console.error('Failed to fetch leaderboard data:', error);
       throw error;
     }
-  }
-
-  private static parseCSVToWorkerData(csvText: string): WorkerData[] {
-    const lines = csvText.trim().split('\n');
-    
-    if (lines.length < 2) {
-      throw new Error('Invalid CSV format: insufficient data');
-    }
-    
-    const headers = lines[0].split(',');
-    
-    return lines.slice(1).map((line, index) => {
-      const values = line.split(',');
-      
-      if (values.length < 8) {
-        console.warn(`Skipping incomplete row ${index + 1}: ${line}`);
-        return null;
-      }
-      
-      const worker: WorkerData = {
-        worker_id: parseInt(values[0]) || 0,
-        tasks_assigned: parseInt(values[1]) || 0,
-        tasks_completed: parseInt(values[2]) || 0,
-        completion_ratio: parseFloat(values[3]) || 0,
-        avg_difficulty: parseInt(values[4]) || 0,
-        locality_rating: parseInt(values[5]) || 0,
-        citizen_rating: parseInt(values[6]) || 0,
-        predicted_score: parseFloat(values[7]) || 0,
-        worker_name: this.generateWorkerName(parseInt(values[0]) || 0)
-      };
-      return worker;
-    }).filter((worker): worker is WorkerData => worker !== null);
   }
 
   private static generateWorkerName(workerId: number): string {
