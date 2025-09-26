@@ -283,7 +283,7 @@ export function AssignWorkerDialog({
           </div>
 
           {/* Other Workers Dropdown */}
-          {remainingWorkers.length > 0 && (
+          {/* {remainingWorkers.length > 0 && (
             <div>
               <h3 className="text-lg font-semibold mb-3">Other Available Workers</h3>
               <Select 
@@ -321,7 +321,7 @@ export function AssignWorkerDialog({
                 </SelectContent>
               </Select>
             </div>
-          )}
+          )} */}
 
           {/* Selected Worker Details */}
           {selectedWorkerData && (
