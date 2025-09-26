@@ -356,3 +356,9 @@ body {
 .dark .text-toast-text-warning {
   color: #fbbf24 !important; /* Light orange text */
 }
+
+#map{
+    height: 50vh;
+    width: 50vw;
+    margin-top: 40px;
+}

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Inter, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
@@ -19,7 +20,8 @@ const instrumentSerif = Instrument_Serif({
 
 export const metadata: Metadata = {
   title: "Waste Wise | Wisely Manage Waste",
-  description: "Smart waste management and monitoring system for citizens and administrators",
+  description:
+    "Smart waste management and monitoring system for citizens and administrators",
   manifest: "/manifest.json",
   themeColor: "#22c55e",
   viewport: {
@@ -55,12 +57,32 @@ export default function RootLayout({
         <head>
           <meta name="theme-color" content="#22c55e" />
           <meta name="apple-mobile-web-app-capable" content="yes" />
-          <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+          <meta
+            name="apple-mobile-web-app-status-bar-style"
+            content="default"
+          />
           <meta name="apple-mobile-web-app-title" content="WasteManager" />
           <meta name="mobile-web-app-capable" content="yes" />
           <link rel="apple-touch-icon" href="/icons/icon-152x152.png" />
-          <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png" />
+          <link
+            rel="icon"
+            type="image/png"
+            sizes="192x192"
+            href="/icons/icon-192x192.png"
+          />
           <link rel="manifest" href="/manifest.json" />
+          <link
+            rel="stylesheet"
+            href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+            integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+            crossOrigin=""
+          />
+          <Script
+            src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossOrigin=""
+            strategy="afterInteractive"
+          />
         </head>
         <body
           className={`${inter.variable} ${instrumentSerif.variable} font-sans antialiased`}
