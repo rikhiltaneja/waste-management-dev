@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { AdminDashboard } from "./(layouts)/Admin";
@@ -10,7 +10,13 @@ import { WorkerDashboard } from "./(layouts)/Worker";
 export default function DashboardPage() {
   const router = useRouter();
   const { isSignedIn, user, isLoaded } = useUser();
-  const role = (user?.publicMetadata?.role as string) || "";
+  const [role, setRole] = useState<string>("")
+
+  useEffect(()=>{
+    if(isLoaded && isSignedIn && user){
+      setRole(user.publicMetadata.role as string)
+    }
+  }, [isLoaded, isSignedIn])
 
   // Determine dashboard content and sidebar sections dynamically
   const dashboardContent = (() => {

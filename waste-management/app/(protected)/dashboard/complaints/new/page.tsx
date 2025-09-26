@@ -31,7 +31,6 @@ export default function NewGrievances() {
   ];
 
   useEffect(() => {
-    console.log(profile);
     function handleResize() {
       setIsMobile(window.innerWidth < 640);
     }
@@ -103,14 +102,11 @@ export default function NewGrievances() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    profile.id = "user_33CTCm3aABWRvhmkeoQl3h0jCiP";
-    profile.localityId = 1;
 
     if (!imageSrc || !description || !wasteType || !profile?.id) {
       alert("Please fill all fields and upload an image.");
       return;
     }
-    console.log({ imageSrc, description, wasteType, citizenId: profile?.id });
 
     const file = fileInputRef.current?.files?.[0];
     if (!file) {

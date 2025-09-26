@@ -10,6 +10,23 @@ import { useUserProfile } from "@/store/profile.store";
 import { useRouter } from "next/navigation";
 import { formatDate } from "@/helpers/date.helper";
 
+interface PhysicalTrainingEvent {
+  id: number;
+  title: string;
+  description: string;
+  startDateTime: string; // ISO datetime string
+  endDateTime: string;   // ISO datetime string
+  location: string;
+  maxCapacity: number;
+  targetAudience: ("CITIZEN" | "WORKER")[]; // restricts to allowed values
+  status: string; // added union for clarity
+  createdAt: string; // ISO datetime string
+  registrations: number;
+  locality: {
+    name: string;
+  };
+}
+
 export function CitizenDashboard() {
   const { isLoaded, isSignedIn, userId, sessionId, getToken } = useAuth();
   const { user } = useUser();
@@ -34,7 +51,7 @@ export function CitizenDashboard() {
       }
     }
     init();
-  }, [isLoaded, isSignedIn, user, getToken, setUserProfile]);
+  }, [isLoaded, isSignedIn]);
 
   const handleViewEvent = (id: number) => {
     router.push(`/dashboard/trainings/${id}`);
