@@ -1,35 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Complaint, Worker } from "@/types";
 import { workerRecommendationService, RecommendedWorker } from "@/services/workerRecommendation.service";
-import { useAuth } from "@clerk/nextjs";
-
-interface BackendComplaint {
-  id: number;
-  description: string;
-  complaintImage?: string;
-  createdAt: string;
-  citizenId: string;
-  status: string;
-  rating?: number;
-  reviewText?: string;
-  workDoneImage?: string;
-  workerId?: string;
-  localityAdminId?: string;
-  citizen?: {
-    id: string;
-    name: string;
-    phoneNumber: string;
-    email: string;
-  };
-  worker?: {
-    id: string;
-    name: string;
-    phoneNumber: string;
-    workerType: 'SWEEPER' | 'WASTE_COLLECTOR';
-  };
-}
 
 // This would normally come from an API
 const dummyComplaints: Complaint[] = [
@@ -293,146 +266,68 @@ const dummyWorkers: Worker[] = [
 ];
 
 export function useComplaints() {
-  const [complaints, setComplaints] = useState<Complaint[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [complaints, setComplaints] = useState<Complaint[]>(dummyComplaints);
   const [recommendedWorkers, setRecommendedWorkers] = useState<RecommendedWorker[]>([]);
   const [isLoadingRecommendations, setIsLoadingRecommendations] = useState(false);
-  const hasFetchedRef = useRef(false);
-  
-  const { getToken } = useAuth();
-
-  // Fetch complaints from backend
-  const fetchComplaints = useCallback(async () => {
-    if (hasFetchedRef.current) return; // Prevent multiple simultaneous calls
-    
-    try {
-      hasFetchedRef.current = true;
-      setIsLoading(true);
-      setError(null);
-      
-      // Make direct API call to avoid dependency issues
-      const token = await getToken();
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"}/complaints`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token && { 'Authorization': `Bearer ${token}` }),
-        },
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error?.message || errorData.error || `HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      
-      // Transform backend response to match our frontend types
-      const transformedComplaints = data.complaints.map((complaint: BackendComplaint) => ({
-        id: complaint.id,
-        description: complaint.description,
-        complaintImage: complaint.complaintImage,
-        createdAt: complaint.createdAt,
-        citizenId: complaint.citizenId,
-        status: complaint.status,
-        rating: complaint.rating || 0,
-        reviewText: complaint.reviewText,
-        workDoneImage: complaint.workDoneImage,
-        workerId: complaint.workerId,
-        localityAdminId: complaint.localityAdminId,
-        citizen: complaint.citizen ? {
-          id: complaint.citizen.id,
-          name: complaint.citizen.name,
-          phoneNumber: complaint.citizen.phoneNumber,
-          email: complaint.citizen.email,
-          locality: {
-            id: 1, // We'll need to get this from backend
-            name: "Unknown", // We'll need to get this from backend
-            pincode: "000000" // We'll need to get this from backend
-          }
-        } : undefined,
-        worker: complaint.worker ? {
-          id: complaint.worker.id,
-          name: complaint.worker.name,
-          phoneNumber: complaint.worker.phoneNumber,
-          workerType: complaint.worker.workerType || "SWEEPER"
-        } : undefined
-      }));
-      
-      setComplaints(transformedComplaints);
-    } catch (err) {
-      console.error('Failed to fetch complaints:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch complaints');
-      // Fallback to dummy data for now
-      setComplaints(dummyComplaints);
-    } finally {
-      setIsLoading(false);
-      hasFetchedRef.current = false; // Reset for future calls
-    }
-  }, [getToken]);
 
   const assignWorker = async (complaintId: number, workerId: string) => {
+    const worker = dummyWorkers.find(w => w.id === workerId);
+    if (!worker) return;
+
     try {
-      // Update complaint status via backend API  
-      const token = await getToken();
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"}/complaints/${complaintId}/status`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token && { 'Authorization': `Bearer ${token}` }),
-        },
-        body: JSON.stringify({
-          status: "IN_PROGRESS",
-          assignedWorkerId: workerId,
-        }),
-      });
-      
-      // Refresh complaints from backend
-      await fetchComplaints();
-      
-      // Update worker recommendation system
+      // Find the complaint to calculate task difficulty
       const complaint = complaints.find(c => c.id === complaintId);
-      if (complaint) {
-        const taskDifficulty = workerRecommendationService.calculateTaskDifficulty(complaint.description);
-        await workerRecommendationService.assignTaskToWorker({
-          workerId,
-          complaintId,
-          taskDifficulty
-        });
-      }
-      
+      const taskDifficulty = complaint 
+        ? workerRecommendationService.calculateTaskDifficulty(complaint.description)
+        : 5;
+
+      // Update backend with task assignment
+      await workerRecommendationService.assignTaskToWorker({
+        workerId,
+        complaintId,
+        taskDifficulty
+      });
+
+      // Update local state
+      setComplaints(prev => prev.map(complaint => 
+        complaint.id === complaintId 
+          ? {
+              ...complaint,
+              workerId,
+              worker: {
+                id: worker.id,
+                name: worker.name,
+                phoneNumber: worker.phoneNumber,
+                workerType: worker.workerType
+              },
+              status: "IN_PROGRESS" as const,
+              localityAdminId: "admin_1"
+            }
+          : complaint
+      ));
+
       // Refresh recommendations after assignment
       await fetchRecommendedWorkers();
       
     } catch (error) {
       console.error('Failed to assign worker:', error);
-      // Show error to user
-      setError(error instanceof Error ? error.message : 'Failed to assign worker');
-    }
-  };
-
-  const updateComplaintStatus = async (complaintId: number, status: string) => {
-    try {
-      const token = await getToken();
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"}/complaints/${complaintId}/status`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token && { 'Authorization': `Bearer ${token}` }),
-        },
-        body: JSON.stringify({ status }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      // Refresh complaints from backend
-      await fetchComplaints();
-    } catch (error) {
-      console.error('Failed to update complaint status:', error);
-      setError(error instanceof Error ? error.message : 'Failed to update complaint status');
+      // Still update local state for demo purposes
+      setComplaints(prev => prev.map(complaint => 
+        complaint.id === complaintId 
+          ? {
+              ...complaint,
+              workerId,
+              worker: {
+                id: worker.id,
+                name: worker.name,
+                phoneNumber: worker.phoneNumber,
+                workerType: worker.workerType
+              },
+              status: "IN_PROGRESS" as const,
+              localityAdminId: "admin_1"
+            }
+          : complaint
+      ));
     }
   };
 
@@ -441,7 +336,7 @@ export function useComplaints() {
   };
 
   // Fetch recommended workers from API
-  const fetchRecommendedWorkers = useCallback(async (complaint?: Complaint | null, options?: {
+  const fetchRecommendedWorkers = async (complaint?: Complaint | null, options?: {
     locality?: string;
     workerType?: 'SWEEPER' | 'WASTE_COLLECTOR';
     limit?: number;
@@ -480,7 +375,7 @@ export function useComplaints() {
     } finally {
       setIsLoadingRecommendations(false);
     }
-  }, []);
+  };
 
   // Fallback local scoring algorithm
   const getLocalRecommendedWorkers = () => {
@@ -543,23 +438,18 @@ export function useComplaints() {
     return getLocalRecommendedWorkers();
   };
 
-  // Load data on component mount
+  // Load recommendations on component mount
   useEffect(() => {
-    fetchComplaints();
     fetchRecommendedWorkers();
-  }, [fetchComplaints, fetchRecommendedWorkers]);
+  }, []);
 
   return {
     allComplaints: complaints,
     workers: dummyWorkers,
     assignWorker,
-    updateComplaintStatus,
     deleteComplaint,
     getRecommendedWorkers,
     fetchRecommendedWorkers,
-    isLoadingRecommendations,
-    isLoading,
-    error,
-    fetchComplaints
+    isLoadingRecommendations
   };
 }
