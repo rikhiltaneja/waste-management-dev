@@ -8,10 +8,24 @@ import {
   updateComplaintStatus
 } from "../controllers/complaint.controller";
 import { authenticationCheck } from '../middlewares/authorization/general.auth';
-import { allAdmins, adminsAndCitizens, allUserTypes } from '../middlewares/authorization/role-based.auth';
+import { allAdmins, allUserTypes, onlyCitizens } from '../middlewares/authorization/role-based.auth';
 
 const complaintRouter = Router();
-const upload = multer({ dest: "uploads/" });
+
+const upload = multer({ 
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    // Accept only image files
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed!'));
+    }
+  }
+});
 
 /**
  * @swagger
@@ -98,7 +112,6 @@ complaintRouter.get("/", authenticationCheck, allUserTypes, getComplaints);
  *             type: object
  *             required:
  *               - description
- *               - citizenId
  *               - complaintImage
  *             properties:
  *               description:
@@ -108,9 +121,7 @@ complaintRouter.get("/", authenticationCheck, allUserTypes, getComplaints);
  *                 type: string
  *                 format: binary
  *                 description: "Image depicting the complaint"
- *               citizenId:
- *                 type: string
- *                 description: "Clerk user ID of the citizen creating the complaint"
+
  *     responses:
  *       201: 
  *         description: Complaint created and automatically assigned to locality admin
@@ -121,7 +132,7 @@ complaintRouter.get("/", authenticationCheck, allUserTypes, getComplaints);
  *       500:
  *         description: Internal server error
  */
-complaintRouter.post("/create", upload.single("complaintImage"), createComplaint);
+complaintRouter.post("/create", authenticationCheck, onlyCitizens, upload.single("complaintImage"), createComplaint);
 
 /**
  * @swagger

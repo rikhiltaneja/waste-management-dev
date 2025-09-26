@@ -6,10 +6,17 @@ const nextConfig: NextConfig = {
   },
   eslint: {
     ignoreDuringBuilds: true
-  }
+  },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        port: '',
+        pathname: '/**',
+      },
+    ],
+  },
 };
-
-// Simple approach: Disable PWA when using Turbopack to avoid webpack conflicts
-// The warning occurs because Turbopack and webpack-based plugins don't mix well
 
 export default nextConfig;

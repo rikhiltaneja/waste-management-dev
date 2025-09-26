@@ -79,7 +79,6 @@ export default function SignUp() {
     }
   }, [isLoaded, isSignedIn, router]);
   
-  console.log(process.env.NEXT_PUBLIC_API_URL)
 
   useEffect(() => {
     if (isSignedIn && userId) {

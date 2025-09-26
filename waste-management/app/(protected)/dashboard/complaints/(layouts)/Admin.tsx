@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { ComplaintCard } from "@/components/complaints/ComplaintCard";
+
 import { ComplaintListItem } from "@/components/complaints/ComplaintListItem";
-import { ComplaintStats } from "@/components/complaints/ComplaintStats";
+
 import { AssignWorkerDialog } from "@/components/complaints/AssignWorkerDialog";
 import { ComplaintDetailsModal } from "@/components/complaints/ComplaintDetailsModal";
 import { DeleteComplaintDialog } from "@/components/complaints/DeleteComplaintDialog";
@@ -13,16 +13,136 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Grid3X3, List } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import Image from "next/image";
+
+// Enhanced ComplaintCard with admin functionality
+function AdminComplaintCard({ 
+  complaint, 
+  onAssignWorker, 
+  onViewDetails, 
+  onDelete, 
+  onUpdateStatus 
+}: {
+  complaint: Complaint;
+  onAssignWorker: (complaint: Complaint) => void;
+  onViewDetails: (complaint: Complaint) => void;
+  onDelete?: (complaint: Complaint) => void;
+  onUpdateStatus: (complaintId: number, status: string) => void;
+}) {
+  const getStatusColor = (status: string) => {
+    const colors = {
+      PENDING: "bg-yellow-100 text-yellow-800 border-yellow-200",
+      IN_PROGRESS: "bg-blue-100 text-blue-800 border-blue-200",
+      RESOLVED: "bg-green-100 text-green-800 border-green-200",
+    };
+    return colors[status as keyof typeof colors] || "bg-gray-100 text-gray-800 border-gray-200";
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  return (
+    <div className="bg-white rounded-lg border shadow-sm hover:shadow-md transition-shadow">
+      <div className="p-4">
+        {/* Header */}
+        <div className="flex justify-between items-start mb-3">
+          <Badge className={getStatusColor(complaint.status)}>
+            {complaint.status.replace('_', ' ')}
+          </Badge>
+          <span className="text-sm text-gray-500">#{complaint.id}</span>
+        </div>
+
+        {/* Image */}
+        {complaint.complaintImage && (
+          <div className="relative h-40 w-full rounded-lg overflow-hidden mb-3">
+            <Image
+              src={complaint.complaintImage}
+              alt="Complaint"
+              fill
+              className="object-cover"
+            />
+          </div>
+        )}
+
+        {/* Description */}
+        <p className="text-gray-800 mb-3 line-clamp-3">{complaint.description}</p>
+
+        {/* Citizen Info */}
+        <div className="text-sm text-gray-600 mb-3">
+          <p><strong>Citizen:</strong> {complaint.citizen?.name}</p>
+          <p><strong>Date:</strong> {formatDate(complaint.createdAt)}</p>
+          {complaint.worker && (
+            <p><strong>Worker:</strong> {complaint.worker.name}</p>
+          )}
+        </div>
+
+        {/* Status Update */}
+        <div className="mb-3">
+          <label className="text-sm font-medium text-gray-700 mb-2 block">Update Status:</label>
+          <Select onValueChange={(value) => onUpdateStatus(complaint.id, value)}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder={complaint.status.replace('_', ' ')} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="PENDING">Pending</SelectItem>
+              <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+              <SelectItem value="RESOLVED">Resolved</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Actions */}
+        <div className="flex gap-2">
+          <Button 
+            onClick={() => onAssignWorker(complaint)}
+            size="sm"
+            className="flex-1"
+            disabled={complaint.status === 'RESOLVED'}
+          >
+            {complaint.worker ? 'Reassign' : 'Assign'} Worker
+          </Button>
+          <Button 
+            onClick={() => onViewDetails(complaint)}
+            variant="outline"
+            size="sm"
+          >
+            Details
+          </Button>
+          {onDelete && (
+            <Button 
+              onClick={() => onDelete(complaint)}
+              variant="destructive"
+              size="sm"
+            >
+              Delete
+            </Button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function AdminComplaintPage() {
   const { 
     allComplaints, 
     workers, 
     assignWorker,
+    updateComplaintStatus,
     deleteComplaint,
     getRecommendedWorkers,
     fetchRecommendedWorkers,
-    isLoadingRecommendations
+    isLoadingRecommendations,
+    isLoading,
+    error
   } = useComplaints();
   
   const [selectedComplaint, setSelectedComplaint] = useState<Complaint | null>(null);
@@ -69,6 +189,30 @@ export function AdminComplaintPage() {
       <p className="text-sm mt-1">{description}</p>
     </div>
   );
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading complaints...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">Error: {error}</p>
+          <Button onClick={() => window.location.reload()} variant="outline">
+            Refresh Page
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -165,12 +309,13 @@ export function AdminComplaintPage() {
           ) : viewMode === "grid" ? (
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
               {pendingComplaints.map((complaint) => (
-                <ComplaintCard
+                <AdminComplaintCard
                   key={complaint.id}
                   complaint={complaint}
                   onAssignWorker={handleAssignWorker}
                   onViewDetails={handleViewDetails}
                   onDelete={handleDelete}
+                  onUpdateStatus={updateComplaintStatus}
                 />
               ))}
             </div>
@@ -199,12 +344,13 @@ export function AdminComplaintPage() {
           ) : viewMode === "grid" ? (
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
               {inProgressComplaints.map((complaint) => (
-                <ComplaintCard
+                <AdminComplaintCard
                   key={complaint.id}
                   complaint={complaint}
                   onAssignWorker={handleAssignWorker}
                   onViewDetails={handleViewDetails}
                   onDelete={handleDelete}
+                  onUpdateStatus={updateComplaintStatus}
                 />
               ))}
             </div>
@@ -233,12 +379,13 @@ export function AdminComplaintPage() {
           ) : viewMode === "grid" ? (
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
               {resolvedComplaints.map((complaint) => (
-                <ComplaintCard
+                <AdminComplaintCard
                   key={complaint.id}
                   complaint={complaint}
                   onAssignWorker={handleAssignWorker}
                   onViewDetails={handleViewDetails}
                   onDelete={handleDelete}
+                  onUpdateStatus={updateComplaintStatus}
                 />
               ))}
             </div>

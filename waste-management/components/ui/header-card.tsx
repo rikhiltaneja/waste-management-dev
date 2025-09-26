@@ -2,6 +2,7 @@
 
 import React from "react";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 interface HeaderCardProps {
   title: string;
@@ -59,7 +60,9 @@ export function HeaderCard({
       )}
 
       {backgroundImage && (
-        <img
+        <Image
+          height={100}
+          width={100}
           src={backgroundImage}
           alt="background decoration"
           className="absolute bottom-0 left-0 w-full h-auto"
