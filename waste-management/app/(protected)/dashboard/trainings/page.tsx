@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import Loading from "@/app/loading";
+import { setToast } from "@/components/ui/toast";
 
 import {
   Eye,
@@ -15,6 +15,7 @@ import {
   List,
   LayoutGrid,
   Plus,
+  Loader2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -33,9 +34,27 @@ import { PhysicalTrainingEvent } from "@/types";
 
 type ViewMode = "table" | "grid" | "list" | "cards";
 
+// Dynamic images for training events to make the display more visually appealing
+const trainingImages = [
+  "/events.png",
+  "/cleaning.png",
+  "/gardening.png",
+  "/road-cleaning.png",
+  "/donation-dynamic.svg",
+  "/megaphone-dynamic.png",
+  "/rupee-dynamic.png",
+  "/trash-can-dynamic.png",
+  "/garbage-bag.png",
+];
+
+// Function to get a consistent image for each event based on its ID
+const getEventImage = (eventId: number) => {
+  return trainingImages[eventId % trainingImages.length];
+};
+
 const CampaignPage = () => {
   const router = useRouter();
-  const { events, isOperating, createEvent, updateEvent, deleteEvent } =
+  const { events, loading, isOperating, createEvent, updateEvent, deleteEvent } =
     useTrainingEvents();
 
   const [filter, setFilter] = useState<
@@ -58,12 +77,12 @@ const CampaignPage = () => {
     try {
       await createEvent(eventData);
       setIsAddModalOpen(false);
-    } catch (error) {
-      alert(
-        `Failed to create event: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`
-      );
+    } catch {
+      setToast({ 
+        title: "Loading Error", 
+        message: "Authentication system is still loading. Please try again.", 
+        type: "error" 
+      });
     }
   };
 
@@ -84,12 +103,12 @@ const CampaignPage = () => {
     try {
       await updateEvent(viewingEvent.id, eventData);
       setViewingEvent(null);
-    } catch (error) {
-      alert(
-        `Failed to update event: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`
-      );
+    } catch {
+      setToast({ 
+        title: "Loading Error", 
+        message: "Authentication system is still loading. Please try again.", 
+        type: "error" 
+      });
     }
   };
 
@@ -97,12 +116,12 @@ const CampaignPage = () => {
     if (confirm("Are you sure you want to delete this event?")) {
       try {
         await deleteEvent(id);
-      } catch (error) {
-        alert(
-          `Failed to delete event: ${
-            error instanceof Error ? error.message : "Unknown error"
-          }`
-        );
+      } catch {
+        setToast({ 
+          title: "Loading Error", 
+          message: "Authentication system is still loading. Please try again.", 
+          type: "error" 
+        });
       }
     }
   };
@@ -257,9 +276,24 @@ const CampaignPage = () => {
           </div>
         </div>
 
-        {/* Events Display */}
-        {/* Table View */}
-        {viewMode === "table" && (
+        {/* Loading State */}
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-16 space-y-4">
+            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            <div className="text-center">
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                Loading Training Events...
+              </h3>
+              <p className="text-sm text-gray-500">
+                Please wait while we fetch the latest events for you
+              </p>
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Events Display */}
+            {/* Table View */}
+            {viewMode === "table" && (
           <div className="hidden lg:block">
             <Card className="overflow-hidden">
               <div className="overflow-x-auto">
@@ -406,6 +440,7 @@ const CampaignPage = () => {
                   status={event.status}
                   targetAudience={event.targetAudience}
                   variant="compact"
+                  imageSrc={getEventImage(event.id)}
                   onEdit={isAdmin ? (e) => {
                     e.stopPropagation(); // prevents bubbling to parent div
                     handleEditEvent(event.id);
@@ -441,6 +476,7 @@ const CampaignPage = () => {
                     status={event.status}
                     targetAudience={event.targetAudience}
                     variant="list"
+                    imageSrc={getEventImage(event.id)}
                     onEdit={isAdmin ? (e) => {
                       e.stopPropagation(); // prevents bubbling to parent div
                       handleEditEvent(event.id);
@@ -476,6 +512,7 @@ const CampaignPage = () => {
                   status={event.status}
                   targetAudience={event.targetAudience}
                   variant="default"
+                  imageSrc={getEventImage(event.id)}
                   onEdit={isAdmin ? (e) => {
                     e.stopPropagation(); // prevents bubbling to parent div
                     handleEditEvent(event.id);
@@ -490,19 +527,21 @@ const CampaignPage = () => {
           </div>
         )}
 
-        {/* Empty State */}
-        {filteredEvents.length === 0 && (
-          <div className="text-center py-12">
-            <Calendar className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">
-              No events found
-            </h3>
-            <p className="mt-1 text-sm text-gray-500">
-              {filter === "ALL"
-                ? "Get started by creating a new event."
-                : `No ${filter.toLowerCase()} events found.`}
-            </p>
-          </div>
+            {/* Empty State */}
+            {filteredEvents.length === 0 && (
+              <div className="text-center py-12">
+                <Calendar className="mx-auto h-12 w-12 text-gray-400" />
+                <h3 className="mt-2 text-sm font-medium text-gray-900">
+                  No events found
+                </h3>
+                <p className="mt-1 text-sm text-gray-500">
+                  {filter === "ALL"
+                    ? "Get started by creating a new event."
+                    : `No ${filter.toLowerCase()} events found.`}
+                </p>
+              </div>
+            )}
+          </>
         )}
       </div>
 
