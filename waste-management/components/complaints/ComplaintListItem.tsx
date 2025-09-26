@@ -24,7 +24,7 @@ const statusConfig = {
   IN_PROGRESS: { color: "bg-blue-100 text-blue-800", icon: "⚡" },
   RESOLVED: { color: "bg-green-100 text-green-800", icon: "✅" },
 };
-
+  
 export function ComplaintListItem({ 
   complaint, 
   onAssignWorker, 
@@ -34,19 +34,18 @@ export function ComplaintListItem({
   const statusInfo = statusConfig[complaint.status as keyof typeof statusConfig];
 
   return (
-    <Card className="p-4 hover:shadow-md transition-shadow">
-      <div className="flex items-center justify-between">
-        {/* Left Section - Main Info */}
+    <Card className="p-3 sm:p-4 hover:shadow-md transition-shadow">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+        {/* Main Content */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-start gap-4">
-            
-            {/* Content */}
+          <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-4">
+            {/* Header with title and status */}
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-3 mb-2">
-                <h3 className="font-semibold text-gray-900 truncate">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+                <h3 className="font-semibold text-gray-900 truncate text-sm sm:text-base">
                   Complaint #{complaint.id}
                 </h3>
-                <Badge className={`${statusInfo.color} text-xs`}>
+                <Badge className={`${statusInfo.color} text-xs w-fit`}>
                   {complaint.status.replace('_', ' ')}
                 </Badge>
               </div>
@@ -55,23 +54,24 @@ export function ComplaintListItem({
                 {complaint.description}
               </p>
               
-              <div className="flex items-center gap-4 text-xs text-gray-500">
+              {/* Meta information - responsive grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:items-center gap-2 lg:gap-4 text-xs text-gray-500">
                 <div className="flex items-center gap-1">
-                  <MapPin className="h-3 w-3" />
-                  <span className="truncate max-w-32">{complaint.citizen.locality.name}</span>
+                  <MapPin className="h-3 w-3 flex-shrink-0" />
+                  <span className="truncate">{complaint.citizen.locality.name}</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Calendar className="h-3 w-3" />
-                  <span>{new Date(complaint.createdAt).toLocaleDateString()}</span>
+                  <Calendar className="h-3 w-3 flex-shrink-0" />
+                  <span className="truncate">{new Date(complaint.createdAt).toLocaleDateString()}</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <User className="h-3 w-3" />
-                  <span>{complaint.citizen.name}</span>
+                  <User className="h-3 w-3 flex-shrink-0" />
+                  <span className="truncate">{complaint.citizen.name}</span>
                 </div>
                 {complaint.worker && (
                   <div className="flex items-center gap-1">
-                    <UserPlus className="h-3 w-3" />
-                    <span className="text-blue-600">{complaint.worker.name}</span>
+                    <UserPlus className="h-3 w-3 flex-shrink-0" />
+                    <span className="text-blue-600 truncate">{complaint.worker.name}</span>
                   </div>
                 )}
               </div>
@@ -79,21 +79,34 @@ export function ComplaintListItem({
           </div>
         </div>
 
-        {/* Right Section - Actions */}
-        <div className="flex items-center gap-2 ml-4">
+        {/* Actions - responsive layout */}
+        <div className="flex items-center justify-end sm:justify-start gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 sm:ml-4">
           {complaint.status === 'PENDING' && (
             <Button
               size="sm"
               onClick={() => onAssignWorker(complaint)}
+              className="hidden sm:flex"
             >
               <UserPlus className="h-4 w-4 mr-1" />
               Assign
             </Button>
           )}
           
+          {/* Mobile assign button */}
+          {complaint.status === 'PENDING' && (
+            <Button
+              size="sm"
+              onClick={() => onAssignWorker(complaint)}
+              className="sm:hidden flex-1"
+            >
+              <UserPlus className="h-4 w-4 mr-1" />
+              Assign Worker
+            </Button>
+          )}
+          
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" className="flex-shrink-0">
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
