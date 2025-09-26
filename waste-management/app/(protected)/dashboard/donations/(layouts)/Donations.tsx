@@ -173,22 +173,9 @@ export function DonationsPage() {
     const amount = selectedAmount ?? Number(customAmount);
     const token = await getToken();
     displayRazorpay(amount, token);
-    axios
-      .post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/donations/new`,
-        { amount },
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+  };
 
-    // Simulate payment processing
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
+  const handlePaymentSuccess = () => {
     setIsPaying(false);
     setShowSuccess(true);
 
@@ -202,6 +189,11 @@ export function DonationsPage() {
       setCustomAmount("");
     }, 3000);
   };
+
+  const handlePaymentFailure = () => {
+    setIsPaying(false);
+    alert("Payment failed. Please try again.");
+  };  
 
   function loadScript(src: string) {
     return new Promise((resolve) => {
@@ -251,10 +243,18 @@ export function DonationsPage() {
       description: "Donation",
       image: "../../../../public/logo_green.png",
       order_id: data.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
-      callback_url: "http://localhost:3000/dashboard/donations",
-      // notes: {
-      //   address: "Razorpay Corporate Office",
-      // },
+      handler: function (response: any) {
+        // Payment successful
+        console.log("Payment successful:", response);
+        handlePaymentSuccess();
+      },
+      modal: {
+        ondismiss: function() {
+          // Payment cancelled or failed
+          console.log("Payment cancelled");
+          handlePaymentFailure();
+        }
+      },
       theme: {
         color: "#1D923C",
       },

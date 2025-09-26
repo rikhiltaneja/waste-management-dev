@@ -38,6 +38,13 @@ export const AdminSidebarSections: SidebarSection[] = [
       { id: "donations", label: "Donations", icon: HandCoins, href: "/dashboard/donations" },
     ],
   },
+    {
+    title: "Support & Settings",
+    items: [
+  //     { id: "support", label: "Support", icon: HelpCircle, href: "/support" },
+      { id: "settings", label: "Settings", icon: Settings, href: "/dashboard/settings" },
+    ],
+  }
   // {
   //   title: "Community and Compliance",
   //   items: [
