@@ -3,8 +3,11 @@
 import { useUserProfile } from "@/store/profile.store";
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@clerk/nextjs";
+import { localityService } from "@/services/locality.service";
 import Loading from "@/app/loading";
 import axios from "axios";
+import Image from "next/image";
 
 export default function NewGrievances() {
   const [isMobile, setIsMobile] = useState(true);
@@ -13,12 +16,12 @@ export default function NewGrievances() {
   const [geolocationObject, setGeoLocationObject] =
     useState<Geolocation | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const [location, setLocation] = useState("");
   const [wasteType, setWasteType] = useState("");
   const [description, setDescription] = useState("");
   const [successId, setSuccessId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const profile = useUserProfile((state) => state.profile);
+  const { getToken } = useAuth();
   const router = useRouter();
 
   const wasteTypeOptions = [
@@ -31,7 +34,6 @@ export default function NewGrievances() {
   ];
 
   useEffect(() => {
-    console.log(profile);
     function handleResize() {
       setIsMobile(window.innerWidth < 640);
     }
@@ -44,8 +46,6 @@ export default function NewGrievances() {
     const geolocation = navigator.geolocation;
     setGeoLocationObject(geolocation);
     geolocation.getCurrentPosition((loc) => {
-      // You can auto-fill location here if desired
-      // setLocation(`${loc.coords.latitude}, ${loc.coords.longitude}`);
       console.log(loc);
     });
 
@@ -59,7 +59,7 @@ export default function NewGrievances() {
   if (!isMobile) {
     return (
       <div className="flex flex-col items-center justify-center h-full">
-        <img
+        <Image
           src="/complaints_photo.svg"
           alt="Complaints Illustration"
           className="w-48 h-48 mb-4"
@@ -100,34 +100,38 @@ export default function NewGrievances() {
     setShowForm(false);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    profile.id = "user_33CTCm3aABWRvhmkeoQl3h0jCiP";
-    profile.localityId = 1;
 
-    if (!imageSrc || !description || !wasteType || !profile?.id) {
+    if (!imageSrc || !description || !wasteType) {
       alert("Please fill all fields and upload an image.");
+      setIsLoading(false);
       return;
     }
-    console.log({ imageSrc, description, wasteType, citizenId: profile?.id });
 
     const file = fileInputRef.current?.files?.[0];
     if (!file) {
       alert("Image file missing.");
+      setIsLoading(false);
       return;
     }
 
+    // Get auth token for API call
+    const token = await getToken();
+
     const formData = new FormData();
     formData.append("description", description);
-    formData.append("citizenId", profile.id);
     formData.append("complaintImage", file);
-    formData.append("wasteType", wasteType);
-    formData.append("location", location);
+    // Remove citizenId - backend will get it from auth token
+    // Remove wasteType and location for now since backend doesn't expect them
 
     axios
-      .post(`${process.env.NEXT_PUBLIC_API_URL}/complaints/create`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+      .post(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"}/complaints/create`, formData, {
+        headers: { 
+          ...(token && { 'Authorization': `Bearer ${token}` }),
+          // Don't set Content-Type for FormData - let axios handle it
+        },
       })
       .then((response) => {
         setSuccessId(response.data.id);
@@ -190,7 +194,7 @@ export default function NewGrievances() {
         onClick={!imageSrc ? handleTemplateClick : undefined}
       >
         {imageSrc ? (
-          <img
+          <Image
             src={imageSrc}
             alt="Captured"
             className="w-full h-full object-cover rounded-xl"
@@ -237,8 +241,8 @@ export default function NewGrievances() {
           <input
             type="text"
             placeholder="Location"
-            value={profile.localityId}
-            className="w-full px-4 py-2 rounded border border-gray-300"
+            value={profile.localityId ? localityService.getLocalityName(profile.localityId) : "Unknown Location"}
+            className="w-full px-4 py-2 rounded border border-gray-300 bg-gray-100"
             required
             disabled
           />

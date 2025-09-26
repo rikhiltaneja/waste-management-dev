@@ -72,7 +72,7 @@ workersPredictionRouter.post("/predict", (req, res) => {
     return res.status(400).json({ error: "All fields must be numbers." });
   }
   // Spawn Python process
-  const py = spawn("python3", [
+  const py = spawn("C:\\Users\\kingj\\AppData\\Local\\Programs\\Python\\Python313\\python.exe", [
     "src/python/predict_worker.py",
     completion_ratio.toString(),
     citizen_rating.toString(),
@@ -137,7 +137,7 @@ workersPredictionRouter.get("/leaderboard", (req, res) => {
   const pythonScriptPath = path.join(__dirname, "../python/leaderboard.py");
   const leaderboardCsvPath = path.join(__dirname, "../../datasets/leaderboard.csv");
 
-  const py = spawn("python3", [pythonScriptPath]);
+  const py = spawn("C:\\Users\\kingj\\AppData\\Local\\Programs\\Python\\Python313\\python.exe", [pythonScriptPath]);
 
   let output = "";
   let errorOutput = "";
@@ -231,7 +231,7 @@ workersPredictionRouter.get("/recommend", (req, res) => {
   const recommendedCsvPath = path.join(__dirname, "../../datasets/recommended.csv");
 
   // Run the Python script (without parameters since we're not changing it)
-  const py = spawn("python3", [pythonScriptPath]);
+  const py = spawn("C:\\Users\\kingj\\AppData\\Local\\Programs\\Python\\Python313\\python.exe", [pythonScriptPath]);
 
   let output = "";
   let errorOutput = "";
