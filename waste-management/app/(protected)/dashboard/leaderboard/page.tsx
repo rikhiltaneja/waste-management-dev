@@ -42,6 +42,7 @@ import {
   RefreshCw
 } from "lucide-react";
 import { LeaderboardService, WorkerData } from "@/services/leaderboard.service";
+import { AdminOnlyProtection } from "@/components/auth/AdminOnlyProtection";
 
 type SortField = 'predicted_score' | 'completion_ratio' | 'tasks_completed' | 'citizen_rating' | 'locality_rating' | 'avg_difficulty';
 type SortOrder = 'asc' | 'desc';
@@ -133,6 +134,7 @@ export default function LeaderBoard() {
   const totalActiveTasks = sortedAndFilteredData.reduce((sum, worker) => sum + (worker.tasks_assigned - worker.tasks_completed), 0);
 
   return (
+       <AdminOnlyProtection>
     <div className="space-y-6 p-6">
       {/* Header Section */}
       <div className="bg-[#1B1B25] rounded-3xl p-6 text-white">
@@ -556,5 +558,7 @@ export default function LeaderBoard() {
       </Card>
       )}
     </div>
+       </AdminOnlyProtection>
+
   );
 }
