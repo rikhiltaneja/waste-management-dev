@@ -199,28 +199,27 @@ const EventDetailPage = () => {
 
   if (!event) {
     return (
-        <div className="flex flex-col items-center justify-center h-64 px-4">
-          <div className="text-lg font-medium text-gray-900 text-center">
-            Event not found
-          </div>
-          <p className="text-gray-500 mt-2 text-center">
-            The event you&apos;re looking for doesn&apos;t exist.
-          </p>{" "}
-          <Button
-            onClick={() => router.back()}
-            className="mt-4"
-            variant="outline"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
+      <div className="flex flex-col items-center justify-center h-64 px-4">
+        <div className="text-lg font-medium text-gray-900 text-center">
+          Event not found
         </div>
+        <p className="text-gray-500 mt-2 text-center">
+          The event you&apos;re looking for doesn&apos;t exist.
+        </p>{" "}
+        <Button
+          onClick={() => router.back()}
+          className="mt-4"
+          variant="outline"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back
+        </Button>
+      </div>
     );
   }
   // Check if user is admin
   const userRole = user?.publicMetadata?.role as Roles;
-  const isAdmin = userRole === 'Admin';
-
+  const isAdmin = userRole === "Admin";
 
   return (
     <>
@@ -254,27 +253,26 @@ const EventDetailPage = () => {
             </div>
           </div>
 
-       {isAdmin && (
-  <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-    <Button
-      variant="outline"
-      onClick={handleEdit}
-      className="flex-1 sm:flex-none"
-    >
-      <Edit className="h-4 w-4 mr-2" />
-      <span className="sm:inline">Edit</span>
-    </Button>
-    <Button
-      variant="outline"
-      onClick={handleDelete}
-      className="text-red-600 hover:text-red-700 flex-1 sm:flex-none"
-    >
-      <Trash2 className="h-4 w-4 mr-2" />
-      <span className="sm:inline">Delete</span>
-    </Button>
-  </div>
-)}
-
+          {isAdmin && (
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+              <Button
+                variant="outline"
+                onClick={handleEdit}
+                className="flex-1 sm:flex-none"
+              >
+                <Edit className="h-4 w-4 mr-2" />
+                <span className="sm:inline">Edit</span>
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleDelete}
+                className="text-red-600 hover:text-red-700 flex-1 sm:flex-none"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                <span className="sm:inline">Delete</span>
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Event Details Grid */}
@@ -360,82 +358,82 @@ const EventDetailPage = () => {
               </Card>
 
               {/* Registrations */}
-              {isAdmin&&(
+              {isAdmin && (
                 <Card className="p-4 sm:p-6 col-span-3">
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
-                  <h2 className="text-base sm:text-lg font-semibold text-gray-900">
-                    Registrations
-                  </h2>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleExportRegistrations}
-                    className="w-fit"
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
+                    <h2 className="text-base sm:text-lg font-semibold text-gray-900">
+                      Registrations
+                    </h2>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleExportRegistrations}
+                      className="w-fit"
                     >
-                    <Download className="h-4 w-4 mr-2" />
-                    Export
-                  </Button>
-                </div>
-
-                <div className="overflow-x-auto -mx-4 sm:mx-0">
-                  <div className="inline-block min-w-full align-middle">
-                    <table className="min-w-full">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th className="px-3 sm:px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                            Name
-                          </th>
-                          <th className="px-3 sm:px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase hidden sm:table-cell">
-                            Email
-                          </th>
-                          <th className="px-3 sm:px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase hidden md:table-cell">
-                            Registered
-                          </th>
-                          <th className="px-3 sm:px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                            Status
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-200">
-                        {registrations.map((registration) => (
-                          <tr key={registration.id}>
-                            <td className="px-3 sm:px-4 py-3">
-                              <div className="text-sm font-medium text-gray-900 truncate max-w-[120px] sm:max-w-none">
-                                {registration.userName}
-                              </div>
-                              <div className="text-xs text-gray-600 sm:hidden truncate max-w-[120px]">
-                                {registration.userEmail}
-                              </div>
-                            </td>
-                            <td className="px-3 sm:px-4 py-3 text-sm text-gray-600 hidden sm:table-cell">
-                              <div className="truncate max-w-[200px]">
-                                {registration.userEmail}
-                              </div>
-                            </td>
-                            <td className="px-3 sm:px-4 py-3 text-sm text-gray-600 hidden md:table-cell">
-                              {formatDate(registration.registeredAt)}
-                            </td>
-                            <td className="px-3 sm:px-4 py-3">
-                              <span
-                                className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                  registration.status === "CONFIRMED"
-                                    ? "bg-green-100 text-green-800"
-                                    : registration.status === "PENDING"
-                                    ? "bg-yellow-100 text-yellow-800"
-                                    : "bg-red-100 text-red-800"
-                                }`}
-                              >
-                                {registration.status}
-                              </span>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                      <Download className="h-4 w-4 mr-2" />
+                      Export
+                    </Button>
                   </div>
-                </div>
-              </Card>
-                  )}
+
+                  <div className="overflow-x-auto -mx-4 sm:mx-0">
+                    <div className="inline-block min-w-full align-middle">
+                      <table className="min-w-full">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th className="px-3 sm:px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                              Name
+                            </th>
+                            <th className="px-3 sm:px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase hidden sm:table-cell">
+                              Email
+                            </th>
+                            <th className="px-3 sm:px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase hidden md:table-cell">
+                              Registered
+                            </th>
+                            <th className="px-3 sm:px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                              Status
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                          {registrations.map((registration) => (
+                            <tr key={registration.id}>
+                              <td className="px-3 sm:px-4 py-3">
+                                <div className="text-sm font-medium text-gray-900 truncate max-w-[120px] sm:max-w-none">
+                                  {registration.userName}
+                                </div>
+                                <div className="text-xs text-gray-600 sm:hidden truncate max-w-[120px]">
+                                  {registration.userEmail}
+                                </div>
+                              </td>
+                              <td className="px-3 sm:px-4 py-3 text-sm text-gray-600 hidden sm:table-cell">
+                                <div className="truncate max-w-[200px]">
+                                  {registration.userEmail}
+                                </div>
+                              </td>
+                              <td className="px-3 sm:px-4 py-3 text-sm text-gray-600 hidden md:table-cell">
+                                {formatDate(registration.registeredAt)}
+                              </td>
+                              <td className="px-3 sm:px-4 py-3">
+                                <span
+                                  className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                    registration.status === "CONFIRMED"
+                                      ? "bg-green-100 text-green-800"
+                                      : registration.status === "PENDING"
+                                      ? "bg-yellow-100 text-yellow-800"
+                                      : "bg-red-100 text-red-800"
+                                  }`}
+                                >
+                                  {registration.status}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </Card>
+              )}
               {/* Quick Stats */}
               <Card className="p-4 sm:p-6 col-span-2">
                 <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">

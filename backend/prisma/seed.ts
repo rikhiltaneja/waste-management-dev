@@ -1,214 +1,287 @@
-import { PrismaClient } from "@prisma/client";
+/// <reference types="node" />
+import { PrismaClient, ComplaintStatus, EventStatus, UserRole, RegistrationStatus, AttendanceStatus, CompletionStatus, WorkerType, DonationType } from './generated/prisma';
 
 const prisma = new PrismaClient();
-const { WorkerType, ComplaintStatus, UserRole, EventStatus, DonationType } = require("@prisma/client");
-
 
 async function main() {
-  // ------------------------------
-  // Admins
-  // ------------------------------
-  const admin = await prisma.admin.create({
+  // Clear existing data (order matters due to relations)
+  await prisma.donations.deleteMany();
+  await prisma.learningProgress.deleteMany();
+  await prisma.learningMaterial.deleteMany();
+  await prisma.physicalTrainingAttendance.deleteMany();
+  await prisma.physicalTrainingRegistration.deleteMany();
+  await prisma.physicalTrainingEvent.deleteMany();
+  await prisma.complaint.deleteMany();
+  await prisma.worker.deleteMany();
+  await prisma.citizen.deleteMany();
+  await prisma.locality.deleteMany();
+  await prisma.district.deleteMany();
+  await prisma.admin.deleteMany();
+  await prisma.districtAdmin.deleteMany();
+  await prisma.localityAdmin.deleteMany();
+
+  // --------- ADMINS ---------
+  const superAdmin = await prisma.admin.create({
     data: {
-      id: "admin1",
+      id: "admin-1",
       name: "Super Admin",
       email: "admin@wastemgmt.org",
       verified: true,
     },
   });
 
-  // ------------------------------
-  // District Admin
-  // ------------------------------
   const districtAdmin = await prisma.districtAdmin.create({
     data: {
-      id: "distAdmin1",
-      govtId: "GOVT12345",
-      name: "Ramesh Kumar",
-      phoneNumber: "9998887771",
-      email: "ramesh@district.org",
+      id: "distadmin-1",
+      govtId: "GOVT123",
+      name: "Ravi Kumar",
+      phoneNumber: "9876543210",
+      email: "ravi.kumar@wastemgmt.org",
       verified: true,
     },
   });
 
-  // ------------------------------
-  // District
-  // ------------------------------
-  const district = await prisma.district.create({
+  const localityAdmin = await prisma.localityAdmin.create({
     data: {
-      name: "South City",
-      state: "Delhi",
+      id: "locadmin-1",
+      govtId: "LOC456",
+      name: "Priya Sharma",
+      phoneNumber: "8765432109",
+      email: "priya.sharma@wastemgmt.org",
+      verified: true,
+    },
+  });
+
+  // --------- DISTRICTS & LOCALITIES ---------
+  const bangalore = await prisma.district.create({
+    data: {
+      name: "Bangalore Urban",
+      state: "Karnataka",
       admin: { connect: { id: districtAdmin.id } },
     },
   });
 
-  // ------------------------------
-  // Locality + Locality Admin
-  // ------------------------------
-  const localityAdmin = await prisma.localityAdmin.create({
+  const koramangala = await prisma.locality.create({
     data: {
-      id: "locAdmin1",
-      govtId: "LOC123",
-      name: "Sunita Sharma",
-      phoneNumber: "8887776661",
-      email: "sunita@locality.org",
-      verified: true,
+      name: "Koramangala",
+      pincode: "560034",
+      districtId: bangalore.id,
+      localityAdminId: "locadmin-1",
+    },
+    include:{
+      admin:true
+    }
+  });
+
+  const indiranagar = await prisma.locality.create({
+    data: {
+      name: "Indiranagar",
+      pincode: "560038",
+      districtId: bangalore.id,
     },
   });
 
-  const locality = await prisma.locality.create({
-    data: {
-      name: "Green Park",
-      pincode: "110016",
-      district: { connect: { id: district.id } },
-      admin: { connect: { id: localityAdmin.id } },
-    },
-  });
-
-  // ------------------------------
-  // Citizens
-  // ------------------------------
+  // --------- CITIZENS ---------
   const citizen1 = await prisma.citizen.create({
     data: {
-      id: "citizen1",
-      name: "Anita Verma",
-      phoneNumber: "9001112233",
-      email: "anita@example.com",
-      locality: { connect: { id: locality.id } },
-      points: 50,
+      id: "citizen-1",
+      name: "Arjun Mehta",
+      phoneNumber: "9123456789",
+      email: "arjun.mehta@example.com",
+      localityId: koramangala.id,
+      points: 20,
     },
   });
 
   const citizen2 = await prisma.citizen.create({
     data: {
-      id: "citizen2",
-      name: "Mohit Gupta",
-      phoneNumber: "9004445566",
-      email: "mohit@example.com",
-      locality: { connect: { id: locality.id } },
-      points: 20,
+      id: "citizen-2",
+      name: "Sneha Iyer",
+      phoneNumber: "9988776655",
+      email: "sneha.iyer@example.com",
+      localityId: koramangala.id,
+      points: 35,
     },
   });
 
-  // ------------------------------
-  // Workers
-  // ------------------------------
+  const citizen3 = await prisma.citizen.create({
+    data: {
+      id: "citizen-3",
+      name: "Rahul Verma",
+      phoneNumber: "8899776655",
+      email: "rahul.verma@example.com",
+      localityId: indiranagar.id,
+      points: 10,
+    },
+  });
+
+  // --------- WORKERS ---------
   const worker1 = await prisma.worker.create({
     data: {
-      id: "worker1",
-      name: "Rajesh Singh",
-      phoneNumber: "9898989898",
-      email: "rajesh@workers.org",
-      locality: { connect: { id: locality.id } },
+      id: "worker-1",
+      name: "Suresh",
+      phoneNumber: "9000011111",
+      email: "suresh@wastemgmt.org",
+      localityId: koramangala.id,
       workerType: WorkerType.WASTE_COLLECTOR,
-      assignedTasks: 10,
-      completedTasks: 8,
-      avgDifficulty: 3,
-      localityRating: 4,
-      citizenRating: 5,
+      assignedTasks: 5,
+      completedTasks: 4,
     },
   });
 
   const worker2 = await prisma.worker.create({
     data: {
-      id: "worker2",
-      name: "Asha Devi",
-      phoneNumber: "9797979797",
-      email: "asha@workers.org",
-      locality: { connect: { id: locality.id } },
+      id: "worker-2",
+      name: "Lakshmi",
+      phoneNumber: "9000022222",
+      email: "lakshmi@wastemgmt.org",
+      localityId: koramangala.id,
       workerType: WorkerType.SWEEPER,
-      assignedTasks: 7,
+      assignedTasks: 8,
       completedTasks: 7,
-      avgDifficulty: 2,
-      localityRating: 5,
-      citizenRating: 4,
     },
   });
 
-  // ------------------------------
-  // Complaints
-  // ------------------------------
-  await prisma.complaint.create({
+  const worker3 = await prisma.worker.create({
     data: {
-      description: "Garbage pile-up near park entrance",
-      complaintImage: "park_garbage.jpg",
-      citizen: { connect: { id: citizen1.id } },
-      status: ComplaintStatus.IN_PROGRESS,
-      worker: { connect: { id: worker1.id } },
-      localityAdmin: { connect: { id: localityAdmin.id } },
+      id: "worker-3",
+      name: "Manoj",
+      phoneNumber: "9000033333",
+      email: "manoj@wastemgmt.org",
+      localityId: indiranagar.id,
+      workerType: WorkerType.WASTE_COLLECTOR,
+      assignedTasks: 3,
+      completedTasks: 2,
     },
   });
 
-  await prisma.complaint.create({
-    data: {
-      description: "Overflowing dustbin near bus stand",
-      citizen: { connect: { id: citizen2.id } },
-      status: ComplaintStatus.PENDING,
-    },
+  // --------- COMPLAINTS ---------
+  await prisma.complaint.createMany({
+    data: [
+      {
+        description: "Garbage not collected for 3 days",
+        citizenId: citizen1.id,
+        workerId: worker1.id,
+        status: ComplaintStatus.IN_PROGRESS,
+        localityAdminId: localityAdmin.id,
+      },
+      {
+        description: "Overflowing dustbin in street corner",
+        citizenId: citizen2.id,
+        workerId: worker2.id,
+        status: ComplaintStatus.PENDING,
+      },
+      {
+        description: "Improper waste segregation in apartment",
+        citizenId: citizen3.id,
+        workerId: worker3.id,
+        status: ComplaintStatus.RESOLVED,
+        rating: 4.5,
+        reviewText: "Good job by the worker",
+      },
+    ],
   });
 
-  // ------------------------------
-  // Training Events
-  // ------------------------------
-  const event = await prisma.physicalTrainingEvent.create({
+  // --------- PHYSICAL TRAINING EVENTS ---------
+  const event1 = await prisma.physicalTrainingEvent.create({
     data: {
-      title: "Waste Segregation Awareness",
-      description: "Workshop on segregating dry and wet waste",
-      startDateTime: new Date("2025-10-01T10:00:00Z"),
-      endDateTime: new Date("2025-10-01T12:00:00Z"),
-      location: "Community Hall, Green Park",
+      title: "Waste Segregation Workshop",
+      description: "Learn about dry and wet waste segregation.",
+      startDateTime: new Date(),
+      endDateTime: new Date(Date.now() + 2 * 60 * 60 * 1000),
+      location: "Community Hall, Koramangala",
       maxCapacity: 50,
-      targetAudience: [UserRole.CITIZEN, UserRole.WORKER],
-      status: EventStatus.ACTIVE,
-      createdByLocalityAdmin: { connect: { id: localityAdmin.id } },
-      locality: { connect: { id: locality.id } },
+      targetAudience: ["CITIZEN", "WORKER"],
+      createdByDistrictAdminId: districtAdmin.id,
+      localityId: koramangala.id,
     },
   });
 
-  // ------------------------------
-  // Learning Materials
-  // ------------------------------
-  await prisma.learningMaterial.create({
+  const event2 = await prisma.physicalTrainingEvent.create({
     data: {
-      title: "Segregation Basics",
-      description: "Short course on household waste segregation",
-      content: "Video + PDF content",
-      videoUrl: "https://youtube.com/example",
-      documentUrls: ["segregation-guide.pdf"],
-      category: "Waste Management",
+      title: "Street Sweeping Training",
+      description: "Best practices for safe and efficient sweeping.",
+      startDateTime: new Date(),
+      location: "Indiranagar Park",
+      targetAudience: [UserRole.WORKER],
+      createdByLocalityAdminId: localityAdmin.id,
+      localityId: indiranagar.id,
+    },
+  });
+
+  // --------- REGISTRATIONS & ATTENDANCE ---------
+  await prisma.physicalTrainingRegistration.createMany({
+    data: [
+      { citizenId: citizen1.id, physicalTrainingEventId: event1.id },
+      { workerId: worker1.id, physicalTrainingEventId: event1.id },
+      { workerId: worker2.id, physicalTrainingEventId: event2.id },
+    ],
+  });
+
+  await prisma.physicalTrainingAttendance.createMany({
+    data: [
+      {
+        citizenId: citizen1.id,
+        physicalTrainingEventId: event1.id,
+        status: AttendanceStatus.PRESENT,
+        completionStatus: CompletionStatus.COMPLETED,
+      },
+      {
+        workerId: worker1.id,
+        physicalTrainingEventId: event1.id,
+        status: AttendanceStatus.LATE,
+        completionStatus: CompletionStatus.IN_PROGRESS,
+      },
+    ],
+  });
+
+  // --------- LEARNING MATERIALS & PROGRESS ---------
+  const material1 = await prisma.learningMaterial.create({
+    data: {
+      title: "Basics of Recycling",
+      description: "Introduction to recycling household waste",
+      content: "Video and PDF materials included",
+      videoUrl: "https://example.com/recycling-basics",
+      documentUrls: ["https://example.com/guide.pdf"],
       targetAudience: [UserRole.CITIZEN, UserRole.WORKER],
-      isPublished: true,
       estimatedDuration: 30,
-      createdByAdmin: { connect: { id: admin.id } },
+      createdByAdminId: superAdmin.id,
+      isPublished: true,
     },
   });
 
-  // ------------------------------
-  // Donations
-  // ------------------------------
-  await prisma.donations.create({
-    data: {
-      citizen: { connect: { id: citizen1.id } },
-      amount: 500,
-      type: DonationType.CLEANUP,
-    },
+  await prisma.learningProgress.createMany({
+    data: [
+      { citizenId: citizen2.id, learningMaterialId: material1.id, progressPercent: 50 },
+      { workerId: worker2.id, learningMaterialId: material1.id, progressPercent: 100, completedAt: new Date() },
+    ],
   });
 
-  await prisma.donations.create({
-    data: {
-      citizen: { connect: { id: citizen2.id } },
-      amount: 300,
-      type: DonationType.RECYCLING,
-    },
+  // --------- DONATIONS ---------
+  await prisma.donations.createMany({
+    data: [
+      {
+        citizenId: citizen1.id,
+        amount: 500,
+        type: DonationType.RECYCLING,
+      },
+      {
+        citizenId: citizen2.id,
+        amount: 1000,
+        type: DonationType.PLANTATION,
+      },
+    ],
   });
 
-  console.log("✅ Seed data created successfully!");
+  console.log("✅ Seed data inserted successfully!");
 }
 
 main()
-  .then(() => prisma.$disconnect())
+  .then(async () => {
+    await prisma.$disconnect();
+  })
   .catch(async (e) => {
-    console.error(e);
+    console.error("❌ Error seeding data:", e);
     await prisma.$disconnect();
     process.exit(1);
   });

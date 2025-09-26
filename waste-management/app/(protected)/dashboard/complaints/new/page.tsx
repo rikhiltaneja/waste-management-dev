@@ -119,14 +119,11 @@ export default function NewGrievances() {
       return;
     }
 
-    // Get auth token for API call
     const token = await getToken();
 
     const formData = new FormData();
     formData.append("description", description);
     formData.append("complaintImage", file);
-    // Remove citizenId - backend will get it from auth token
-    // Remove wasteType and location for now since backend doesn't expect them
 
     axios
       .post(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"}/complaints/create`, formData, {

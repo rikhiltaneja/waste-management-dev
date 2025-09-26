@@ -1,8 +1,8 @@
 "use client";
 import React, { useState } from "react";
 import Loading from "@/app/loading";
+
 import {
-  CalendarPlus,
   Eye,
   Edit,
   Trash2,
@@ -37,14 +37,9 @@ type ViewMode = "table" | "grid" | "list" | "cards";
 
 const CampaignPage = () => {
   const router = useRouter();
-  const { 
-    events, 
-    isOperating, 
-    createEvent, 
-    updateEvent, 
-    deleteEvent 
-  } = useTrainingEvents();
-  
+  const { events, isOperating, createEvent, updateEvent, deleteEvent } =
+    useTrainingEvents();
+
   const [filter, setFilter] = useState<
     "ALL" | "ACTIVE" | "COMPLETED" | "CANCELLED" | "DRAFT"
   >("ALL");
@@ -56,18 +51,21 @@ const CampaignPage = () => {
   const handleAddEvent = () => {
     setIsAddModalOpen(true);
   };
-    const { user } = useUser();
+  const { user } = useUser();
 
   const userRole = user?.publicMetadata?.role as Roles;
-  const isAdmin = userRole === 'Admin'
-
+  const isAdmin = userRole === "Admin";
 
   const handleCreateEvent = async (eventData: EventFormData) => {
     try {
       await createEvent(eventData);
       setIsAddModalOpen(false);
     } catch (error) {
-      alert(`Failed to create event: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      alert(
+        `Failed to create event: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
     }
   };
 
@@ -84,12 +82,16 @@ const CampaignPage = () => {
 
   const handleUpdateEvent = async (eventData: EventFormData) => {
     if (!viewingEvent) return;
-    
+
     try {
       await updateEvent(viewingEvent.id, eventData);
       setViewingEvent(null);
     } catch (error) {
-      alert(`Failed to update event: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      alert(
+        `Failed to update event: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
     }
   };
 
@@ -98,7 +100,11 @@ const CampaignPage = () => {
       try {
         await deleteEvent(id);
       } catch (error) {
-        alert(`Failed to delete event: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        alert(
+          `Failed to delete event: ${
+            error instanceof Error ? error.message : "Unknown error"
+          }`
+        );
       }
     }
   };
@@ -135,7 +141,7 @@ const CampaignPage = () => {
   > = ["ALL", "ACTIVE", "DRAFT", "COMPLETED", "CANCELLED"];
 
   return (
-  <>
+    <>
       <div className="p-4 md:p-6 space-y-4 md:space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
@@ -148,45 +154,45 @@ const CampaignPage = () => {
             </p>
           </div>
           <div>
-            {isAdmin&&(
+            {isAdmin && (
               <Button onClick={handleAddEvent}>
-              <Plus/>
-              Add Event
-            </Button>
+                <Plus />
+                Add Event
+              </Button>
             )}
           </div>
         </div>
 
         {/* Stats Cards */}
-        {isAdmin&&(
+        {isAdmin && (
           <StatsCardGrid
-          stats={[
-            {
-              title: "Total Events",
-              value: stats.totalEvents,
-              icon: Calendar,
-              iconColor: "text-amber-500",
-            },
-            {
-              title: "Active Events",
-              value: stats.activeEvents,
-              icon: Clock,
-              iconColor: "text-blue-500",
-            },
-            {
-              title: "Total Registrations",
-              value: stats.totalRegistrations,
-              icon: Users2Icon,
-              iconColor: "text-green-500",
-            },
-            {
-              title: "Completed Events",
-              value: stats.completedEvents,
-              icon: TicketIcon,
-              iconColor: "text-red-500",
-            },
-          ]}
-        />
+            stats={[
+              {
+                title: "Total Events",
+                value: stats.totalEvents,
+                icon: Calendar,
+                iconColor: "text-amber-500",
+              },
+              {
+                title: "Active Events",
+                value: stats.activeEvents,
+                icon: Clock,
+                iconColor: "text-blue-500",
+              },
+              {
+                title: "Total Registrations",
+                value: stats.totalRegistrations,
+                icon: Users2Icon,
+                iconColor: "text-green-500",
+              },
+              {
+                title: "Completed Events",
+                value: stats.completedEvents,
+                icon: TicketIcon,
+                iconColor: "text-red-500",
+              },
+            ]}
+          />
         )}
 
         {/* Filters and View Controls */}
@@ -531,7 +537,7 @@ const CampaignPage = () => {
             : undefined
         }
       />
-  </>
+    </>
   );
 };
 

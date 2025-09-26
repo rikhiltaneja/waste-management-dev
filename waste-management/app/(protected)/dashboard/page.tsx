@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { AdminDashboard } from "./(layouts)/Admin";
 import { CitizenDashboard } from "./(layouts)/Citizen";
@@ -9,7 +8,6 @@ import { WorkerDashboard } from "./(layouts)/Worker";
 import Loading from "@/app/loading";
 
 export default function DashboardPage() {
-  const router = useRouter();
   const { isSignedIn, user, isLoaded } = useUser();
   const [role, setRole] = useState<string>("")
 
@@ -17,7 +15,7 @@ export default function DashboardPage() {
     if(isLoaded && isSignedIn && user){
       setRole(user.publicMetadata.role as string)
     }
-  }, [isLoaded, isSignedIn])
+  }, [isLoaded, isSignedIn, user])
 
   // Show loading screen that breaks out of sidebar layout
   if (!isLoaded) {
@@ -32,7 +30,6 @@ export default function DashboardPage() {
     return <p>User not logged in</p>;
   }
 
-  // Determine dashboard content based on role
   switch (role) {
     case "Admin":
       return <AdminDashboard/>;

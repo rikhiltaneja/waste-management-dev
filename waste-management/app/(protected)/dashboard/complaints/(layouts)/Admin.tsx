@@ -194,7 +194,6 @@ export function AdminComplaintPage() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <Loader2 size={"md"} className="animate-spin"/>
           <p className="mt-4 text-gray-600">Loading complaints...</p>
         </div>
       </div>
