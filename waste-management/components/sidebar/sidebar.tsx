@@ -65,8 +65,21 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(({
     if (activeItem) {
       return activeItem === item.id;
     }
-    // Fallback to pathname matching if no activeItem is provided
-    return item.href && pathname === item.href;
+    
+    // Enhanced pathname matching for nested routes
+    if (item.href) {
+      // Exact match for root paths
+      if (item.href === '/' || item.href === '/dashboard') {
+        return pathname === item.href;
+      }
+      
+      // For other paths, check if current pathname starts with the item href
+      // This handles nested routes like /users/123 matching /users
+      return pathname.startsWith(item.href) && 
+             (pathname === item.href || pathname.charAt(item.href.length) === '/');
+    }
+    
+    return false;
   };
 
   return (
@@ -148,15 +161,10 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(({
                       size="sm"
                       className={cn(
                         "w-full justify-start h-12 rounded-3xl transition-all duration-200 cursor-pointer",
-                        isActive ? "text-white hover:text-white" : "text-sidebar-foreground/80 hover:text-sidebar-foreground hover:shadow-sm hover:scale-[1.01] active:scale-[0.99]",
+                        isActive ? "text-white hover:text-white bg-primary/80 hover:bg-primary" : "text-sidebar-foreground/80 hover:text-sidebar-foreground hover:shadow-sm hover:scale-[1.01] active:scale-[0.99]",
                         collapsed && "justify-center px-2"
                       )}
                       onClick={() => handleItemClick(item)}
-                      style={{
-                        backgroundColor: isActive 
-                          ? '#1D923C'
-                          : (isHovered ? 'rgba(34, 197, 94, 0.1)' : '#f1f5f9'),
-                      }}
                       onMouseEnter={() => setHoveredItems(prev => ({ ...prev, [item.id]: true }))}
                       onMouseLeave={() => setHoveredItems(prev => ({ ...prev, [item.id]: false }))}
                     >
