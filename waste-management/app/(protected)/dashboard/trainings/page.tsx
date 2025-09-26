@@ -40,9 +40,6 @@ const trainingImages = [
   "/cleaning.png",
   "/gardening.png",
   "/road-cleaning.png",
-  "/donation-dynamic.svg",
-  "/megaphone-dynamic.png",
-  "/rupee-dynamic.png",
   "/trash-can-dynamic.png",
   "/garbage-bag.png",
 ];
