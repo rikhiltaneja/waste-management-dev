@@ -29,8 +29,11 @@ import { formatDate } from "@/helpers/date.helper";
 import { useTrainingEvents } from "@/hooks/useTrainingEvents";
 import { useUser } from "@clerk/nextjs";
 import { Roles } from "@/types/globals";
+import { PhysicalTrainingEvent } from "@/types";
 
 type ViewMode = "table" | "grid" | "list" | "cards";
+
+
 
 const CampaignPage = () => {
   const router = useRouter();

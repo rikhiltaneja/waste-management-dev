@@ -52,7 +52,6 @@ export function WorkerComplaint() {
       const token = await getToken();
       
       const response = await fetch(`${API_BASE_URL}/complaints?status=IN_PROGRESS`, {
-        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           ...(token && { 'Authorization': `Bearer ${token}` }),
@@ -102,7 +101,6 @@ export function WorkerComplaint() {
 
       const response = await fetch(`${API_BASE_URL}/complaints/${selectedComplaint.id}/status`, {
         method: 'PUT',
-        credentials: 'include',
         headers: {
           ...(token && { 'Authorization': `Bearer ${token}` }),
         },

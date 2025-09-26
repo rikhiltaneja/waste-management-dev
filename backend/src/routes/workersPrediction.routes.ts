@@ -72,7 +72,7 @@ workersPredictionRouter.post("/predict", (req, res) => {
     return res.status(400).json({ error: "All fields must be numbers." });
   }
   // Spawn Python process
-  const py = spawn("python3", [
+  const py = spawn("C:\\Users\\kingj\\AppData\\Local\\Programs\\Python\\Python313\\python.exe", [
     "src/python/predict_worker.py",
     completion_ratio.toString(),
     citizen_rating.toString(),

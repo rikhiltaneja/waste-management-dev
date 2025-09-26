@@ -12,6 +12,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus, Clock, CheckCircle, AlertCircle, Calendar, Star } from "lucide-react";
 import Image from "next/image";
+import Loading from "@/app/loading";
+import { CitizenComplaintCard } from "@/components/complaints/CitizenComplaintCard";
 
 interface CitizenComplaint {
   id: number;
@@ -19,14 +21,22 @@ interface CitizenComplaint {
   complaintImage?: string;
   status: 'PENDING' | 'IN_PROGRESS' | 'RESOLVED';
   createdAt: string;
-  rating?: number;
-  reviewText?: string;
-  workDoneImage?: string;
-  worker?: {
+  citizenId: string;
+  workerId: string | null;
+  localityAdminId: string;
+  rating: number;
+  reviewText: string | null;
+  workDoneImage: string | null;
+  citizen: {
     id: string;
     name: string;
     email: string;
   };
+  worker: {
+    id: string;
+    name: string;
+    email: string;
+  } | null;
   localityAdmin: {
     id: string;
     name: string;
@@ -53,7 +63,6 @@ export function CitizenComplaint() {
       const token = await getToken();
       
       const response = await fetch(`${API_BASE_URL}/complaints`, {
-        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           ...(token && { 'Authorization': `Bearer ${token}` }),
@@ -94,7 +103,6 @@ export function CitizenComplaint() {
 
       const response = await fetch(`${API_BASE_URL}/complaints/create`, {
         method: 'POST',
-        credentials: 'include',
         headers: {
           ...(token && { 'Authorization': `Bearer ${token}` }),
         },
@@ -167,12 +175,7 @@ export function CitizenComplaint() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading your complaints...</p>
-        </div>
-      </div>
+      <Loading/>
     );
   }
 
@@ -273,7 +276,7 @@ export function CitizenComplaint() {
           <TabsContent value="all" className="mt-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {complaints.map((complaint) => (
-                <ComplaintCard key={complaint.id} complaint={complaint} />
+                <CitizenComplaintCard key={complaint.id} complaint={complaint} />
               ))}
             </div>
           </TabsContent>
@@ -281,7 +284,7 @@ export function CitizenComplaint() {
           <TabsContent value="pending" className="mt-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {pendingComplaints.map((complaint) => (
-                <ComplaintCard key={complaint.id} complaint={complaint} />
+                <CitizenComplaintCard key={complaint.id} complaint={complaint} />
               ))}
             </div>
           </TabsContent>
@@ -289,7 +292,7 @@ export function CitizenComplaint() {
           <TabsContent value="progress" className="mt-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {inProgressComplaints.map((complaint) => (
-                <ComplaintCard key={complaint.id} complaint={complaint} />
+                <CitizenComplaintCard key={complaint.id} complaint={complaint} />
               ))}
             </div>
           </TabsContent>
@@ -297,7 +300,7 @@ export function CitizenComplaint() {
           <TabsContent value="resolved" className="mt-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {resolvedComplaints.map((complaint) => (
-                <ComplaintCard key={complaint.id} complaint={complaint} />
+                <CitizenComplaintCard key={complaint.id} complaint={complaint} />
               ))}
             </div>
           </TabsContent>
@@ -361,78 +364,5 @@ export function CitizenComplaint() {
     </div>
   );
 
-  function ComplaintCard({ complaint }: { complaint: CitizenComplaint }) {
-    return (
-      <Card className="hover:shadow-md transition-shadow">
-        <CardHeader>
-          <div className="flex justify-between items-start">
-            <div className="flex items-center gap-2">
-              {getStatusIcon(complaint.status)}
-              <Badge className={getStatusColor(complaint.status)}>
-                {complaint.status.replace('_', ' ')}
-              </Badge>
-            </div>
-            <span className="text-sm text-gray-500">#{complaint.id}</span>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {complaint.complaintImage && (
-            <div className="relative h-40 w-full rounded-lg overflow-hidden">
-              <Image
-                src={complaint.complaintImage}
-                alt="Complaint"
-                fill
-                className="object-cover"
-              />
-            </div>
-          )}
-          
-          <p className="text-gray-800">{complaint.description}</p>
-          
-          <div className="space-y-2 text-sm text-gray-600">
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
-              <span>Submitted: {formatDate(complaint.createdAt)}</span>
-            </div>
-            
-            {complaint.worker && (
-              <div className="text-sm">
-                <strong>Assigned Worker:</strong> {complaint.worker.name}
-              </div>
-            )}
-          </div>
-
-          {/* Work Done Image */}
-          {complaint.workDoneImage && (
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-2">Work Completed:</p>
-              <div className="relative h-32 w-full rounded-lg overflow-hidden">
-                <Image
-                  src={complaint.workDoneImage}
-                  alt="Work Done"
-                  fill
-                  className="object-cover"
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Rating */}
-          {complaint.status === 'RESOLVED' && complaint.rating && (
-            <div className="border-t pt-3">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-sm font-medium">Your Rating:</span>
-                <div className="flex gap-1">
-                  {renderStars(complaint.rating)}
-                </div>
-              </div>
-              {complaint.reviewText && (
-                <p className="text-sm text-gray-600 italic">&ldquo;{complaint.reviewText}&rdquo;</p>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    );
-  }
+ 
 }

@@ -40,6 +40,12 @@ export default function Complaints() {
       <WorkerComplaint />;
     </AdminProtection>
       </>
+    case "Citizen":
+     return <>
+      <AdminProtection>
+      <CitizenComplaint />;
+    </AdminProtection>
+      </>
     default:
       return <p>Role not recognized</p>;
   }

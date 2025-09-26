@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Checkbox } from '@/components/ui/checkbox'
+import { useUser } from '@clerk/nextjs'
 
 
 interface AddEventModalProps {
@@ -45,6 +46,17 @@ export const AddEventModal: React.FC<AddEventModalProps> = ({
   mode = 'create',
   isLoading = false
 }) => {
+  const { user } = useUser();
+  const userRole = user?.publicMetadata?.role as string;
+  
+  // Set default locality ID based on user role
+  const getDefaultLocalityId = () => {
+    if (userRole === 'Citizen' || userRole === 'Worker') {
+      return 1; // Default to locality ID 1 for Citizens and Workers
+    }
+    return null; // Admins can choose any locality
+  };
+
   const [formData, setFormData] = useState<EventFormData>({
     title: '',
     description: '',
@@ -54,11 +66,13 @@ export const AddEventModal: React.FC<AddEventModalProps> = ({
     maxCapacity: null,
     targetAudience: [],
     status: 'DRAFT',
-    localityId: null
+    localityId: getDefaultLocalityId()
   })
 
   // Update form data when initialData changes
   React.useEffect(() => {
+    const defaultLocalityId = (userRole === 'Citizen' || userRole === 'Worker') ? 1 : null;
+    
     if (initialData && isOpen) {
       setFormData(prev => ({
         ...prev,
@@ -75,10 +89,10 @@ export const AddEventModal: React.FC<AddEventModalProps> = ({
         maxCapacity: null,
         targetAudience: [],
         status: 'DRAFT',
-        localityId: null
+        localityId: defaultLocalityId
       })
     }
-  }, [initialData, isOpen])
+  }, [initialData, isOpen, userRole])
 
   const [errors, setErrors] = useState<Partial<EventFormData>>({})
 
@@ -139,7 +153,7 @@ export const AddEventModal: React.FC<AddEventModalProps> = ({
       maxCapacity: null,
       targetAudience: [],
       status: 'DRAFT',
-      localityId: null
+      localityId: getDefaultLocalityId()
     })
     setErrors({})
     onClose()
@@ -276,11 +290,16 @@ export const AddEventModal: React.FC<AddEventModalProps> = ({
 
           {/* Locality Selection */}
           <div className="space-y-2">
-            <Label htmlFor="locality">Locality</Label>
+            <Label htmlFor="locality">
+              Locality
+              {(userRole === 'Citizen' || userRole === 'Worker') && (
+                <span className="text-sm text-gray-500 ml-2">(Auto-assigned to your locality)</span>
+              )}
+            </Label>
             <Select 
               value={formData.localityId?.toString() || ''} 
               onValueChange={(value) => handleInputChange('localityId', value ? parseInt(value) : null)}
-              disabled={mode === 'view'}
+              disabled={mode === 'view' || userRole === 'Citizen' || userRole === 'Worker'}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select locality (optional)" />
@@ -291,6 +310,11 @@ export const AddEventModal: React.FC<AddEventModalProps> = ({
                 <SelectItem value="3">VV Mohalla</SelectItem>
               </SelectContent>
             </Select>
+            {(userRole === 'Citizen' || userRole === 'Worker') && (
+              <p className="text-xs text-gray-500">
+                Events will be created for your assigned locality (Koramangala)
+              </p>
+            )}
           </div>
 
           {/* Status */}

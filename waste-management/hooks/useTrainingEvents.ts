@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import { EventFormData } from '@/components/modals/add-event-modal';
+import { PhysicalTrainingEvent } from '@/types';
 
 // Backend API response interface
 interface BackendTrainingEvent {
@@ -24,6 +25,7 @@ interface BackendTrainingEvent {
     registrations: number;
   };
 }
+
 
 export const useTrainingEvents = () => {
   const { getToken } = useAuth();
