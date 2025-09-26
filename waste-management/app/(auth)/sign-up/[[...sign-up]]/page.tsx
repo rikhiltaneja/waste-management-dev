@@ -132,7 +132,7 @@ export default function SignUp() {
       name: details.firstName + " " + details.lastName,
       email: details.email,
       phoneNumber: details.phoneNumber,
-      localityId: 1,
+      localityId: 5,
     };
     
     axios
