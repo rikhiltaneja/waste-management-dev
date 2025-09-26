@@ -30,20 +30,12 @@ export default function Complaints() {
       return <AdminComplaintPage />;
     case "Citizen":
       return <>
-      <AdminProtection>
       <CitizenComplaint />;
-    </AdminProtection>
       </>
     case "Worker":
      return <>
       <AdminProtection>
       <WorkerComplaint />;
-    </AdminProtection>
-      </>
-    case "Citizen":
-     return <>
-      <AdminProtection>
-      <CitizenComplaint />;
     </AdminProtection>
       </>
     default:
