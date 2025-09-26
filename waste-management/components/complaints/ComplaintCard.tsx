@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Complaint } from "@/types";
 import { formatDate } from "@/lib/utils";
 import { Trash } from "lucide-react";
+import Image from "next/image";
 
 interface ComplaintCardProps {
   complaint: Complaint;
@@ -35,7 +36,9 @@ export function ComplaintCard({ complaint, onAssignWorker, onViewDetails, onDele
     <Card className="overflow-hidden hover:shadow-md transition-all duration-200 bg-white border-0 shadow-sm">
       {complaint.complaintImage && (
         <div className="h-56 p-2 bg-white">
-          <img 
+          <Image
+          height={100}
+          width={100} 
             src={complaint.complaintImage} 
             alt="Complaint" 
             className="w-full h-full object-cover rounded-sm "

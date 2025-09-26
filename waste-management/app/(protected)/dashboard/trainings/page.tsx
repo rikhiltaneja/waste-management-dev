@@ -33,6 +33,8 @@ import { PhysicalTrainingEvent } from "@/types";
 
 type ViewMode = "table" | "grid" | "list" | "cards";
 
+
+
 const CampaignPage = () => {
   const router = useRouter();
   const { events, isOperating, createEvent, updateEvent, deleteEvent } =

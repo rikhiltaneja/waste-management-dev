@@ -11,7 +11,6 @@ export class ComplaintService {
   private static async makeRequest(endpoint: string, options: RequestInit = {}) {
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        credentials: 'include', // This ensures cookies are sent with requests
         headers: {
           'Content-Type': 'application/json',
           ...options.headers,
@@ -88,7 +87,6 @@ export function useComplaintService() {
       const token = await getToken();
       
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           ...(token && { 'Authorization': `Bearer ${token}` }),
@@ -134,7 +132,6 @@ export function useComplaintService() {
     createComplaint: async (data: FormData) => {
       const token = await getToken();
       return await fetch(`${API_BASE_URL}/complaints/create`, {
-        credentials: 'include',
         headers: {
           ...(token && { 'Authorization': `Bearer ${token}` }),
           // Don't set Content-Type for FormData

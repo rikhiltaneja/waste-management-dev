@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import Loading from "@/app/loading";
+import {Loader2} from "lucide-react";
 import {
   ArrowLeft,
   MapPin,
@@ -16,8 +16,9 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { useUser } from "@clerk/nextjs";
+import { useUser, useAuth } from "@clerk/nextjs";
 import { Roles } from "@/types/globals";
+import Image from "next/image";
 
 interface PhysicalTrainingEvent {
   id: number;
@@ -49,6 +50,7 @@ const EventDetailPage = () => {
   const params = useParams();
   const router = useRouter();
   const { user } = useUser();
+  const { getToken } = useAuth();
   const eventId = parseInt(params.id as string);
 
   const [event, setEvent] = useState<PhysicalTrainingEvent | null>(null);
@@ -102,96 +104,97 @@ const EventDetailPage = () => {
     console.log("Export registrations for event:", eventId);
   };
 
-  // Mock data - replace with actual API call
+  // Fetch actual event data from API
   useEffect(() => {
-    const mockEvents: PhysicalTrainingEvent[] = [
-      {
-        id: 1,
-        title: "Recycling Workshop",
-        description:
-          "Lorem ipsum dolor sit amet consectetur. In ridiculus nec Lorem ipsum dolor sit amet consectetur. In ridiculus nec. This comprehensive workshop will cover various aspects of recycling including proper sorting techniques, understanding recycling symbols, and the environmental impact of recycling. Participants will learn hands-on methods for setting up recycling systems in their homes and communities.",
-        startDateTime: "2025-11-28T10:00:00Z",
-        endDateTime: "2025-11-28T12:00:00Z",
-        location: "Delhi, India",
-        maxCapacity: 50,
-        targetAudience: ["CITIZEN", "WORKER"],
-        status: "ACTIVE",
-        createdAt: "2024-01-01T00:00:00Z",
-        registrations: 35,
-        imageUrl:
-          "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=800&h=400&fit=crop",
-        locality: { name: "Central Delhi" },
-      },
-      {
-        id: 2,
-        title: "Waste Segregation Training",
-        description:
-          "Learn proper waste segregation techniques for better waste management",
-        startDateTime: "2024-01-15T10:00:00Z",
-        endDateTime: "2024-01-15T12:00:00Z",
-        location: "Jalandhar",
-        maxCapacity: 50,
-        targetAudience: ["CITIZEN", "WORKER"],
-        status: "COMPLETED",
-        createdAt: "2024-01-01T00:00:00Z",
-        registrations: 45,
-        imageUrl:
-          "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=400&fit=crop",
-        locality: { name: "Downtown" },
-      },
-      {
-        id: 3,
-        title: "Composting Workshop",
-        description:
-          "Hands-on composting techniques for households and community gardens",
-        startDateTime: "2024-01-20T14:00:00Z",
-        endDateTime: "2024-01-20T16:00:00Z",
-        location: "Green Park",
-        maxCapacity: 30,
-        targetAudience: ["CITIZEN"],
-        status: "DRAFT",
-        createdAt: "2024-01-02T00:00:00Z",
-        registrations: 0,
-        imageUrl:
-          "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=800&h=400&fit=crop",
-        locality: { name: "Uptown" },
-      },
-    ];
+    const fetchEventData = async () => {
+      try {
+        setLoading(true);
+        
+        const token = await getToken();
 
-    const mockRegistrations: Registration[] = [
-      {
-        id: 1,
-        userName: "John Doe",
-        userEmail: "john.doe@example.com",
-        registeredAt: "2024-01-10T09:00:00Z",
-        status: "CONFIRMED",
-      },
-      {
-        id: 2,
-        userName: "Jane Smith",
-        userEmail: "jane.smith@example.com",
-        registeredAt: "2024-01-11T14:30:00Z",
-        status: "CONFIRMED",
-      },
-      {
-        id: 3,
-        userName: "Mike Johnson",
-        userEmail: "mike.johnson@example.com",
-        registeredAt: "2024-01-12T11:15:00Z",
-        status: "PENDING",
-      },
-    ];
+        if (!token) {
+          console.error('No authentication token available');
+          setLoading(false);
+          return;
+        }
 
-    setTimeout(() => {
-      const foundEvent = mockEvents.find((e) => e.id === eventId);
-      setEvent(foundEvent || null);
-      setRegistrations(mockRegistrations);
-      setLoading(false);
-    }, 100);
-  }, [eventId]);
+        // Fetch event details
+        const eventResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/physical-training/${eventId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!eventResponse.ok) {
+          if (eventResponse.status === 404) {
+            setEvent(null);
+          } else {
+            throw new Error(`Failed to fetch event: ${eventResponse.status}`);
+          }
+        } else {
+          const eventData = await eventResponse.json();
+          
+          // Transform backend data to match frontend interface
+          const transformedEvent: PhysicalTrainingEvent = {
+            id: eventData.id,
+            title: eventData.title,
+            description: eventData.description,
+            startDateTime: eventData.startDateTime,
+            endDateTime: eventData.endDateTime,
+            location: eventData.location,
+            maxCapacity: eventData.maxCapacity,
+            targetAudience: eventData.targetAudience,
+            status: eventData.status,
+            createdAt: eventData.createdAt,
+            registrations: eventData._count?.registrations || 0,
+            imageUrl: eventData.imageUrl,
+            locality: eventData.locality ? { name: eventData.locality.name } : undefined,
+          };
+          
+          setEvent(transformedEvent);
+        }
+
+        // Fetch registrations (only for admins)
+        if (user?.publicMetadata?.role === 'Admin') {
+          try {
+            const registrationsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/physical-training/${eventId}/registrations`, {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+            });
+
+            if (registrationsResponse.ok) {
+              const registrationsData = await registrationsResponse.json();
+              setRegistrations(registrationsData || []);
+            }
+          } catch (regError) {
+            console.error('Error fetching registrations:', regError);
+            // Don't fail the whole page if registrations fail
+            setRegistrations([]);
+          }
+        }
+
+      } catch (error) {
+        console.error('Error fetching event data:', error);
+        setEvent(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (eventId) {
+      fetchEventData();
+    }
+  }, [eventId, user, getToken]);
 
   if (loading) {
-    return <Loading />;
+    return (
+      <div className="flex justify-center items-center w-full h-full">
+        <Loader2 className="animate-spin text-primary" />
+      </div>
+    );
   }
 
   if (!event) {
@@ -277,18 +280,20 @@ const EventDetailPage = () => {
           {/* Main Event Information */}
           <div className="lg:col-span-3 space-y-4 sm:space-y-6">
             {/* Event Image */}
-            {event.imageUrl && (
+            {/* {event.imageUrl && ( */}
               <Card className="overflow-hidden lg:col-span-3">
                 <div className="relative h-48 sm:h-64 md:h-80">
-                  <img
-                    src={event.imageUrl}
+                  <Image
+                    src={"/events.png"}
                     alt={event.title}
+                    width={100}
+                    height={100}
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                 </div>
               </Card>
-            )}
+            {/* )} */}
 
             {/* Description */}
             <div className="grid grid-cols-3 gap-6">
@@ -487,7 +492,7 @@ const EventDetailPage = () => {
           {/* Sidebar */}
           <div className="space-y-4 sm:space-y-6">
             {/* Event Image Thumbnail (for events without main image) */}
-            {!event.imageUrl && (
+            {/* {!event.imageUrl && (
               <Card className="p-4 sm:p-6">
                 <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
                   Event Image
@@ -501,7 +506,7 @@ const EventDetailPage = () => {
                   </div>
                 </div>
               </Card>
-            )}
+            )} */}
           </div>
         </div>
       </div>

@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import { DashboardHeroSection } from "@/components/ui/dashboardherosection";
-import { ComplaintCard } from "@/components/complaints/ComplaintCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -13,6 +12,7 @@ import { useUserProfile } from "@/store/profile.store";
 import { Complaint } from "@/types";
 import { formatDate } from "@/helpers/date.helper";
 import { CheckCircle, Clock, AlertCircle, Camera, Upload } from "lucide-react";
+import Image from "next/image";
 
 // Mock data for worker-assigned complaints
 const mockWorkerComplaints: Complaint[] = [
@@ -406,9 +406,11 @@ function WorkerComplaintCard({
     <Card className="overflow-hidden hover:shadow-md transition-all duration-200 bg-white border-0 shadow-sm">
       {complaint.complaintImage && (
         <div className="h-48 p-2 bg-white">
-          <img
-            src={complaint.complaintImage}
-            alt="Complaint"
+          <Image
+            height={100}
+            width={100} 
+            src={complaint.complaintImage} 
+            alt="Complaint" 
             className="w-full h-full object-cover rounded-sm"
           />
         </div>
