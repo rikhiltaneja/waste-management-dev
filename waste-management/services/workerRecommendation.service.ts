@@ -44,30 +44,18 @@ class WorkerRecommendationService {
   }): Promise<RecommendedWorker[]> {
     try {
       const params = new URLSearchParams();
-
       if (options?.locality) params.append("locality", options.locality);
       if (options?.workerType) params.append("workerType", options.workerType);
       if (options?.limit) params.append("limit", options.limit.toString());
-      params.append("format", options?.format || "json");
-
-      const url = `${this.baseUrl}/workers-prediction/recommend${
-        params.toString() ? "?" + params.toString() : ""
-      }`;
-
+      // Always request JSON from API
+      const url = `${this.baseUrl}/workers-prediction/recommend`;
       const response = await fetch(url);
-
       if (!response.ok) {
         throw new Error(
           `Failed to fetch recommended workers: ${response.statusText}`
         );
       }
-
-      if (options?.format === "csv") {
-        const csvData = await response.text();
-        return this.parseCsvToWorkers(csvData);
-      } else {
-        return await response.json();
-      }
+      return await response.json();
     } catch (error) {
       console.error("Error fetching recommended workers:", error);
       throw error;
@@ -103,67 +91,68 @@ class WorkerRecommendationService {
     }
   }
 
-  private parseCsvToWorkers(csvData: string): RecommendedWorker[] {
-    const lines = csvData.trim().split("\n");
-    if (lines.length < 2) return [];
+  // private parseCsvToWorkers(csvData: string): RecommendedWorker[] {
+  //   const lines = csvData.trim().split("\n");
+  //   if (lines.length < 2) return [];
 
-    const headers = lines[0].split(",").map((h) => h.trim());
+  //   const headers = lines[0].split(",").map((h) => h.trim());
 
-    return lines.slice(1).map((line) => {
-      const values = line.split(",").map((v) => v.trim());
-      const worker: any = {};
+  //   return lines.slice(1).map((line) => {
+  //     const values = line.split(",").map((v) => v.trim());
+  //     const worker: any = {};
 
-      headers.forEach((header, index) => {
-        const value = values[index] || "";
+  //     headers.forEach((header, index) => {
+  //       const value = values[index] || "";
 
-        // Map backend field names to frontend field names
-        const fieldMapping: Record<string, string> = {
-          worker_id: "id",
-          assigned_tasks: "assignedTasks",
-          completed_tasks: "completedTasks",
-          avg_difficulty: "avgDifficulty",
-          locality_rating: "localityRating",
-          citizen_rating: "citizenRating",
-          predicted_score: "predictedScore",
-          worker_type: "workerType",
-        };
+  //       // Map backend field names to frontend field names
+  //       const fieldMapping: Record<string, string> = {
+  //         worker_id: "id",
+  //         assigned_tasks: "assignedTasks",
+  //         completed_tasks: "completedTasks",
+  //         avg_difficulty: "avgDifficulty",
+  //         locality_rating: "localityRating",
+  //         citizen_rating: "citizenRating",
+  //         predicted_score: "predictedScore",
+  //         worker_type: "workerType",
+  //       };
 
-        const mappedField = fieldMapping[header] || header;
+  //       const mappedField = fieldMapping[header] || header;
 
-        // Convert numeric fields
-        if (["assignedTasks", "completedTasks"].includes(mappedField)) {
-          worker[mappedField] = parseInt(value) || 0;
-        } else if (
-          [
-            "avgDifficulty",
-            "localityRating",
-            "citizenRating",
-            "predictedScore",
-          ].includes(mappedField)
-        ) {
-          worker[mappedField] = parseFloat(value) || 0;
-        } else {
-          worker[mappedField] = value;
-        }
-      });
+  //       // Convert numeric fields
+  //       if (["assignedTasks", "completedTasks"].includes(mappedField)) {
+  //         worker[mappedField] = parseInt(value) || 0;
+  //       } else if (
+  //         [
+  //           "avgDifficulty",
+  //           "localityRating",
+  //           "citizenRating",
+  //           "predictedScore",
+  //         ].includes(mappedField)
+  //       ) {
+  //         worker[mappedField] = parseFloat(value) || 0;
+  //       } else {
+  //         worker[mappedField] = value;
+  //       }
+  //     });
 
-      // Ensure required fields are set with defaults
-      worker.id = worker.id || '';
-      worker.name = worker.name || `Worker ${worker.id}`;
-      worker.workerType = worker.workerType || worker.worker_type || "SWEEPER";
-      worker.assignedTasks = worker.assignedTasks || 0;
-      worker.completedTasks = worker.completedTasks || 0;
-      worker.avgDifficulty = worker.avgDifficulty || 0;
-      worker.localityRating = worker.localityRating || 0;
-      worker.citizenRating = worker.citizenRating || 0;
-      worker.predictedScore = worker.predictedScore || 0;
-      worker.locality = worker.locality || "Unknown";
+  //     // Ensure required fields are set with defaults
+  //     worker.id = worker.id || '';
+  //     worker.name = worker.name || `Worker ${worker.id}`;
+  //     worker.workerType = worker.workerType || worker.worker_type || "SWEEPER";
+  //     worker.assignedTasks = worker.assignedTasks || 0;
+  //     worker.completedTasks = worker.completedTasks || 0;
+  //     worker.avgDifficulty = worker.avgDifficulty || 0;
+  //     worker.localityRating = worker.localityRating || 0;
+  //     worker.citizenRating = worker.citizenRating || 0;
+  //     worker.predictedScore = worker.predictedScore || 0;
+  //     worker.locality = worker.locality || "Unknown";
 
-      return worker as RecommendedWorker;
-    });
-  }
+  //     return worker as RecommendedWorker;
+  //   });
+  // }
 
   // Helper method to calculate task difficulty based on complaint type/description
+  
   calculateTaskDifficulty(
     complaintDescription: string,
     complaintType?: string

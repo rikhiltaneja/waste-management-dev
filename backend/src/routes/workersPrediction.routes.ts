@@ -14,6 +14,8 @@ import path from "path";
 export const workersPredictionRouter = express.Router();
 workersPredictionRouter.use(express.json());
 
+const baseUrl = process.env.FASTAPI
+
 /**
  * @swagger
  * /workers-prediction/predict:
@@ -71,48 +73,28 @@ workersPredictionRouter.post("/predict", (req, res) => {
   ) {
     return res.status(400).json({ error: "All fields must be numbers." });
   }
-  // Spawn Python process
-  const py = spawn("python3", [
-    "src/python/predict_worker.py",
-    completion_ratio.toString(),
-    citizen_rating.toString(),
-    locality_rating.toString(),
-    task_difficulty.toString(),
-  ]);
-
-  let output = "";
-  let errorOutput = "";
-
-  // Capture standard output
-  py.stdout.on("data", (data) => {
-    output += data.toString();
-  });
-
-  // Capture standard error
-  py.stderr.on("data", (data) => {
-    errorOutput += data.toString();
-  });
-
-  // Handle process close
-  py.on("close", (code) => {
-    if (code !== 0) {
-      console.error("Python script error:", errorOutput);
-      return res
-        .status(500)
-        .json({ error: "Python script failed", details: errorOutput });
-    }
-
-    // Remove any extra whitespace or newlines from Python output
-    const predicted_score = parseFloat(output.trim());
-
-    if (isNaN(predicted_score)) {
-      return res
-        .status(500)
-        .json({ error: "Invalid output from Python script", raw: output });
-    }
-
-    res.json({ predicted_score });
-  });
+  // Call FastAPI predict-worker endpoint
+  fetch(`${baseUrl}/predict-worker`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ completion_ratio, citizen_rating, locality_rating, task_difficulty })
+  })
+    .then(async (response) => {
+      if (!response.ok) {
+        const error = await response.text();
+        return res.status(500).json({ error: 'FastAPI error', details: error });
+      }
+      return response.json();
+    })
+    .then((data) => {
+      if (typeof data.predicted_score !== 'number') {
+        return res.status(500).json({ error: 'Invalid output from FastAPI', raw: data });
+      }
+      res.json({ predicted_score: data.predicted_score });
+    })
+    .catch((err) => {
+      res.status(500).json({ error: 'FastAPI request failed', details: err.message });
+    });
 });
 
 
@@ -134,42 +116,21 @@ workersPredictionRouter.post("/predict", (req, res) => {
  *         description: Python script error or failed to read leaderboard CSV
  */
 workersPredictionRouter.get("/leaderboard", (req, res) => {
-  const pythonScriptPath = path.join(__dirname, "../python/leaderboard.py");
-  const leaderboardCsvPath = path.join(__dirname, "../../datasets/leaderboard.csv");
-
-  const py = spawn("python3", [pythonScriptPath]);
-
-  let output = "";
-  let errorOutput = "";
-
-  py.stdout.on("data", (data) => {
-    output += data.toString();
-  });
-
-  py.stderr.on("data", (data) => {
-    errorOutput += data.toString();
-  });
-
-  py.on("close", (code) => {
-    if (code !== 0) {
-      console.error("Python script error:", errorOutput);
-      return res
-        .status(500)
-        .json({ error: "Python script failed", details: errorOutput });
-    }
-
-    // Read leaderboard CSV
-    fs.readFile(leaderboardCsvPath, "utf-8", (err, data) => {
-      if (err) {
-        console.error("Failed to read leaderboard CSV:", err);
-        return res
-          .status(500)
-          .json({ error: "Failed to read leaderboard CSV", details: err.message });
+  // Call FastAPI leaderboard endpoint
+  fetch(`${baseUrl}/leaderboard`)
+    .then(async (response) => {
+      if (!response.ok) {
+        const error = await response.text();
+        return res.status(500).json({ error: 'FastAPI error', details: error });
       }
-      res.setHeader('Content-Type', 'text/csv');
-      res.send(data);
+      return response.json();
+    })
+    .then((data) => {
+      res.json(data);
+    })
+    .catch((err) => {
+      res.status(500).json({ error: 'FastAPI request failed', details: err.message });
     });
-  });
 });
 
 
@@ -225,126 +186,52 @@ workersPredictionRouter.get("/leaderboard", (req, res) => {
  *         description: Python script error or failed to read recommended CSV
  */
 workersPredictionRouter.get("/recommend", (req, res) => {
-  const { locality, workerType, limit, format = "csv" } = req.query;
-  
-  const pythonScriptPath = path.join(__dirname, "../python/recommendation.py");
-  const recommendedCsvPath = path.join(__dirname, "../../datasets/recommended.csv");
+  const { locality, workerType, limit, format = "json" } = req.query;
+  // Build query params for FastAPI
+  const params = new URLSearchParams();
+  if (locality) params.append('locality', locality as string);
+  if (workerType) params.append('worker_type', workerType as string);
+  // limit is ignored in FastAPI, but can be used for frontend compatibility
+  // format: only json supported from FastAPI, so handle CSV conversion here if needed
 
-  // Run the Python script (without parameters since we're not changing it)
-  const py = spawn("python3", [pythonScriptPath]);
-
-  let output = "";
-  let errorOutput = "";
-
-  py.stdout.on("data", (data) => {
-    output += data.toString();
-  });
-
-  py.stderr.on("data", (data) => {
-    errorOutput += data.toString();
-  });
-
-  py.on("close", (code) => {
-    if (code !== 0) {
-      console.error("Python script error:", errorOutput);
-      return res
-        .status(500)
-        .json({ error: "Python script failed", details: errorOutput });
-    }
-
-    // Read recommended CSV and apply filtering in Node.js
-    fs.readFile(recommendedCsvPath, "utf-8", (err, data) => {
-      if (err) {
-        console.error("Failed to read recommended CSV:", err);
-        return res
-          .status(500)
-          .json({ error: "Failed to read recommended CSV", details: err.message });
+  fetch(`${baseUrl}/recommend?${params.toString()}`)
+    .then(async (response) => {
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(error);
       }
-
-      // Parse CSV data
-      const lines = data.trim().split('\n');
-      const headers = lines[0].split(',').map(h => h.trim());
-      let workers = lines.slice(1).map(line => {
-        const values = line.split(',');
-        const worker: any = {};
-        headers.forEach((header, index) => {
-          const value = values[index]?.trim() || '';
-          // Convert numeric fields
-          if (['assigned_tasks', 'avg_difficulty', 'locality_rating', 'citizen_rating', 'predicted_score'].includes(header)) {
-            worker[header] = parseFloat(value) || 0;
-          } else {
-            worker[header] = value;
-          }
-        });
-        
-        // Add mock data for filtering (since original dataset doesn't have these)
-        // In a real app, this would come from a proper database join
-        const mockLocalities = ['MG Road', 'Brigade Road', 'Koramangala', 'Indiranagar', 'Whitefield'];
-        const mockWorkerTypes = ['SWEEPER', 'WASTE_COLLECTOR'];
-        const mockEmails = ['worker1@email.com', 'worker2@email.com', 'worker3@email.com', 'worker4@email.com', 'worker5@email.com'];
-        const mockPhones = ['+91-9876543210', '+91-9876543211', '+91-9876543212', '+91-9876543213', '+91-9876543214'];
-        
-        worker.locality = mockLocalities[parseInt(worker.worker_id) % mockLocalities.length];
-        worker.worker_type = mockWorkerTypes[parseInt(worker.worker_id) % mockWorkerTypes.length];
-        worker.name = `Worker ${worker.worker_id}`;
-        worker.email = mockEmails[parseInt(worker.worker_id) % mockEmails.length];
-        worker.phone_number = mockPhones[parseInt(worker.worker_id) % mockPhones.length];
-        
-        // Add completed_tasks if not present (for better recommendations)
-        if (!worker.completed_tasks) {
-          worker.completed_tasks = Math.floor(Math.random() * 50) + 10; // Random between 10-60
-        }
-        
-        return worker;
-      });
-
-      // Apply filters
-      if (locality) {
-        workers = workers.filter(w => w.locality && w.locality.toLowerCase().includes(locality.toString().toLowerCase()));
-      }
-      
-      if (workerType) {
-        workers = workers.filter(w => w.worker_type === workerType);
-      }
-      
-      // Apply limit
+      return response.json();
+    })
+    .then((workers) => {
+      const mockLocalities = ['MG Road', 'Brigade Road', 'Koramangala', 'Indiranagar', 'Whitefield'];
+      const mockWorkerTypes = ['SWEEPER', 'WASTE_COLLECTOR'];
+      const mockEmails = ['worker1@email.com', 'worker2@email.com', 'worker3@email.com', 'worker4@email.com', 'worker5@email.com'];
+      const mockPhones = ['+91-9876543210', '+91-9876543211', '+91-9876543212', '+91-9876543213', '+91-9876543214'];
+      const transformedWorkers = workers.map((worker: any, idx: any) => ({
+        id: worker.worker_id || worker.id || idx,
+        name: worker.name || `Worker ${worker.worker_id || idx}`,
+        workerType: worker.worker_type || mockWorkerTypes[idx % mockWorkerTypes.length],
+        assignedTasks: worker.assigned_tasks || 0,
+        completedTasks: worker.completed_tasks || Math.floor(Math.random() * 50) + 10,
+        avgDifficulty: worker.avg_difficulty || 0,
+        localityRating: worker.locality_rating || 0,
+        citizenRating: worker.citizen_rating || 0,
+        locality: worker.locality || mockLocalities[idx % mockLocalities.length],
+        predictedScore: worker.predicted_score || 0,
+        email: worker.email || mockEmails[idx % mockEmails.length],
+        phoneNumber: worker.phone_number || mockPhones[idx % mockPhones.length]
+      }));
+      let finalWorkers = transformedWorkers;
       if (limit && parseInt(limit.toString()) > 0) {
-        workers = workers.slice(0, parseInt(limit.toString()));
+        finalWorkers = finalWorkers.slice(0, parseInt(limit.toString()));
       }
-
-      if (format === "json") {
-        // Transform data to match frontend expectations
-        const transformedWorkers = workers.map(worker => ({
-          id: worker.worker_id || worker.id,
-          name: worker.name || `Worker ${worker.worker_id}`,
-          workerType: worker.worker_type || 'SWEEPER',
-          assignedTasks: worker.assigned_tasks || 0,
-          completedTasks: worker.completed_tasks || 0,
-          avgDifficulty: worker.avg_difficulty || 0,
-          localityRating: worker.locality_rating || 0,
-          citizenRating: worker.citizen_rating || 0,
-          locality: worker.locality || 'Unknown',
-          predictedScore: worker.predicted_score || 0,
-          email: worker.email || '',
-          phoneNumber: worker.phone_number || ''
-        }));
-        
-        res.json(transformedWorkers);
-      } else {
-        // Convert back to CSV
-        const csvHeaders = Object.keys(workers[0] || {}).join(',');
-const csvRows = workers.map(worker => 
-  Object.values(worker as Record<string, any>)
-    .map(val => val.toString())
-    .join(',')
-);
-        const csvData = [csvHeaders, ...csvRows].join('\n');
-        
-        res.setHeader("Content-Type", "text/csv");
-        res.send(csvData);
+      res.json(finalWorkers);
+    })
+    .catch((err) => {
+      if (!res.headersSent) {
+        res.status(500).json({ error: 'FastAPI request failed', details: err.message });
       }
     });
-  });
 });
 
 
