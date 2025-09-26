@@ -63,8 +63,9 @@ const baseUrl = process.env.FASTAPI
  *       500:
  *         description: Python script error or invalid output
  */
-workersPredictionRouter.post("/predict", (req, res) => {
+workersPredictionRouter.post("/predict", async (req, res) => {
   const { completion_ratio, citizen_rating, locality_rating, task_difficulty } = req.body;
+  
   if (
     typeof completion_ratio !== 'number' ||
     typeof citizen_rating !== 'number' ||
@@ -73,28 +74,30 @@ workersPredictionRouter.post("/predict", (req, res) => {
   ) {
     return res.status(400).json({ error: "All fields must be numbers." });
   }
-  // Call FastAPI predict-worker endpoint
-  fetch(`${baseUrl}/predict-worker`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ completion_ratio, citizen_rating, locality_rating, task_difficulty })
-  })
-    .then(async (response) => {
-      if (!response.ok) {
-        const error = await response.text();
-        return res.status(500).json({ error: 'FastAPI error', details: error });
-      }
-      return response.json();
-    })
-    .then((data) => {
-      if (typeof data.predicted_score !== 'number') {
-        return res.status(500).json({ error: 'Invalid output from FastAPI', raw: data });
-      }
-      res.json({ predicted_score: data.predicted_score });
-    })
-    .catch((err) => {
-      res.status(500).json({ error: 'FastAPI request failed', details: err.message });
+
+  try {
+    const response = await fetch(`${baseUrl}/predict-worker`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ completion_ratio, citizen_rating, locality_rating, task_difficulty })
     });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      return res.status(500).json({ error: 'FastAPI error', details: errorText });
+    }
+
+    const data = await response.json();
+
+    if (typeof data.predicted_score !== 'number') {
+      return res.status(500).json({ error: 'Invalid output from FastAPI', raw: data });
+    }
+
+    return res.json({ predicted_score: data.predicted_score });
+
+  } catch (err: any) {
+    return res.status(500).json({ error: 'FastAPI request failed', details: err.message });
+  }
 });
 
 
