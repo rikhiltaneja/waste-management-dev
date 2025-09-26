@@ -1,5 +1,4 @@
 import dotenv from "dotenv";
-dotenv.config();
 import express from 'express';
 import cors from 'cors'
 import { citizenRouter } from './routes/citizen.routes';
@@ -22,6 +21,8 @@ import { workersPredictionRouter } from "./routes/workersPrediction.routes";
 import Razorpay from "razorpay";
 import { donationRouter } from "./routes/donations.routes";
 
+
+dotenv.config();
 const app = express();
 const PORT = 8080;
 
